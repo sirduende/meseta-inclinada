@@ -1,5 +1,18 @@
 [
 {
+	"id": "hondera",
+    "nombre": "Laguna Hondera, Mulhacen I y II desde Trevelez",
+    "archivo": "laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez",
+    "participantes": [
+      "Asun",
+	  "Lolo",
+      "Fran"
+    ],
+    "fecha": "2025-06-14",
+    "descripcion": "",
+    "relive": ""
+  },
+{
 	"id": "prieta",
     "nombre": "Peña Prieta, Pico Infierno, Tres Provincias",
     "archivo": "pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx",
@@ -49,6 +62,7 @@
     "descripcion": "",
     "relive": ""
   },
+  {
     "id": "espiguete",
     "nombre": "Espiguete",
     "archivo": "espiguete-6-7-25.gpx",
