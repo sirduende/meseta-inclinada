@@ -1,5 +1,41 @@
 [
 {
+	"id": "valdecebollas",
+    "nombre": "Collado Sestil, Sestil Alto y Valdecebollas desde Brañosera",
+    "archivo": "collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx",
+    "participantes": [
+      "Asun",
+	  "Lolo",
+      "JuanMa",
+	  "Fran",
+	  "Ana", 
+	  "Dani",
+	  "Javier"
+	],
+    "fecha": "2025-05-03",
+    "descripcion": "Primera ruta oficial como Meseta Inclinada",
+    "relive": ""
+  },
+  {
+	"id": "piedrasluengas",
+    "nombre": "Mirador de Piedrasluengas, Peña Labra y Pico Tres Mares desde Piedrasluengas",
+    "archivo": "mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx",
+    "participantes": [
+      "Asun",
+	  "Lolo",
+      "JuanMa",
+	  "Pedro",
+	  "Ana", 
+	  "Dani",
+	  "Carina",
+	  "Alberto",
+	  "Javier"
+	],
+    "fecha": "2025-05-03",
+    "descripcion": "Meseta Inclinada sale al completo dentro de otro grupo de montaña",
+    "relive": ""
+  },
+{
 	"id": "millan",
     "nombre": "San Millán, Collado Flecho y Trigaza Sur desde Pineda de la Sierra",
     "archivo": "san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx",
