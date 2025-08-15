@@ -1,4 +1,31 @@
 [
+	{
+    "id": "cruz",
+    "nombre": "Peña de la Cruz, Pico de recabiello y pico mediodía desde Liegos",
+    "archivo": "pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "JuanMa"
+    ],
+    "fecha": "2025-07-19",
+    "descripcion": "",
+    "relive": ""
+  },
+	{
+    "id": "bermeja",
+    "nombre": "Torre Bermeja",
+    "archivo": "torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "JuanMa",
+      "Pedro"
+    ],
+    "fecha": "2025-07-26",
+    "descripcion": "",
+    "relive": "https://www.relive.com/view/vMq5w9JyL8O"
+  },
   {
     "id": "sabero",
     "nombre": "Ferrata de Sabero",
@@ -11,8 +38,6 @@
     ],
     "fecha": "2025-07-31",
     "descripcion": "Primera Ferrata del Grupo",
-    "longitud": "4.66",
-    "desnivel": "456",
     "relive": ""
   },
   {
@@ -26,13 +51,11 @@
     ],
     "fecha": "2025-08-02",
     "descripcion": "Para los más valientes",
-    "longitud": "10.01",
-    "desnivel": "1109",
     "relive": ""
   },
   {
-    "id": "pirulera",
-    "nombre": "Alto de la Pirulera y Castro Valnera",
+    "id": "valnera",
+    "nombre": "Castro Valnera",
     "archivo": "Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx",
     "participantes": [
       "Asun",
@@ -43,8 +66,6 @@
     ],
     "fecha": "2025-08-08",
     "descripcion": "Ruta extendida y comida posterior",
-    "longitud": "8.8",
-    "desnivel": "830",
     "relive": "https://www.relive.com/es/view/vXOdm7rxw46"
   }
 ]

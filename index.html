@@ -192,31 +192,40 @@
           });
 
           gpx.on('loaded', function(e) {
-            const b = e.target.getBounds();
-            layersById.get(id).bounds = b;
-            boundsAccumulator.push(b);
-            // Update global bounds
-            let union = boundsAccumulator[0];
-            for (let i = 1; i < boundsAccumulator.length; i++) {
-              union = union.extend(boundsAccumulator[i]);
-            }
-            allBounds = union;
-            if (idx === 0) {
-              map.fitBounds(b.pad(0.1));
-            }
-            const popupHtml = `
-			  <div>
-				<div style="font-weight:600;margin-bottom:4px;">${meta.nombre}</div>
-				<div style="font-size:12px;color:#6b7280;">${meta.fecha || ''}</div>
-				<div style="margin:6px 0;">${meta.descripcion || ''}</div>
-				<div style="font-size:12px;"><b>Participantes:</b> ${meta.participantes.join(', ')}</div>
-				${meta.longitud !== undefined ? `<div style="font-size:12px;"><b>Longitud:</b> ${meta.longitud} km</div>` : ''}
-				${meta.desnivel !== undefined ? `<div style="font-size:12px;"><b>Desnivel:</b> ${meta.desnivel} m</div>` : ''}
-				${meta.relive ? `<div style="margin-top:4px;"><a href="${meta.relive}" target="_blank">Ver en Relive</a></div>` : ''}
-			  </div>
-			`;
-			e.target.bindPopup(popupHtml);
-          });
+			  const b = e.target.getBounds();
+			  layersById.get(id).bounds = b;
+			  boundsAccumulator.push(b);
+			  // Update global bounds
+			  let union = boundsAccumulator[0];
+			  for (let i = 1; i < boundsAccumulator.length; i++) {
+				union = union.extend(boundsAccumulator[i]);
+			  }
+			  allBounds = union;
+			  if (idx === 0) {
+				map.fitBounds(b.pad(0.1));
+			  }
+
+			  // Obtener datos directamente del GPX
+			  const distanciaKm = (e.target.get_distance() / 1000).toFixed(2); // metros -> km
+			  const desnivelM = e.target.get_elevation_gain().toFixed(0); // metros
+			  const duracionH = e.target.get_total_time() / 3600; // segundos -> horas
+			  const duracionStr = duracionH >= 1 ? duracionH.toFixed(2) + ' h' : (duracionH*60).toFixed(0) + ' min';
+
+			  const popupHtml = `
+				<div>
+				  <div style="font-weight:600;margin-bottom:4px;">${meta.nombre}</div>
+				  <div style="font-size:12px;color:#6b7280;">${meta.fecha || ''}</div>
+				  <div style="margin:6px 0;">${meta.descripcion || ''}</div>
+				  <div style="font-size:12px;"><b>Participantes:</b> ${meta.participantes.join(', ')}</div>
+				  <div style="font-size:12px;"><b>Longitud:</b> ${distanciaKm} km</div>
+				  <div style="font-size:12px;"><b>Desnivel:</b> ${desnivelM} m</div>
+				  <div style="font-size:12px;"><b>Duración:</b> ${duracionStr}</div>
+				  ${meta.relive ? `<div style="margin-top:4px;"><a href="${meta.relive}" target="_blank">Ver en Relive</a></div>` : ''}
+				</div>
+			  `;
+			  e.target.bindPopup(popupHtml);
+			});
+
 
           gpx.on('error', function() {
             console.error('Error cargando GPX', meta.archivo);
