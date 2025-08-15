@@ -12,9 +12,9 @@
     ],
     "fecha": "2025-09-08",
     "descripcion": "Ruta extendida",
-	"longitud": 8.8
-	"duracion": 205
-	"desnivel": 830
+	"longitud": 8.8,
+	"duracion": 205,
+	"desnivel": 830,
 	"relive": "https://www.relive.com/es/view/vXOdm7rxw46"
   }  
 ]
