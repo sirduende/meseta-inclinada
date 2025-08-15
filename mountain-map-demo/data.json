@@ -1,0 +1,25 @@
+[
+  {
+    "id": "coriscao",
+    "nombre": "Pico Coriscao (demo)",
+    "archivo": "coriscao.gpx",
+    "participantes": [
+      "Daniel",
+      "Pedro",
+      "Laura"
+    ],
+    "fecha": "2025-06-15",
+    "descripcion": "Ascenso de demostración por la vertiente norte. (Track simplificado)."
+  },
+  {
+    "id": "canon_rio_lobos",
+    "nombre": "Cañón del Río Lobos (demo)",
+    "archivo": "canon_rio_lobos.gpx",
+    "participantes": [
+      "Daniel",
+      "Marta"
+    ],
+    "fecha": "2025-04-10",
+    "descripcion": "Paseo de demostración por el cañón. (Track simplificado)."
+  }
+]
