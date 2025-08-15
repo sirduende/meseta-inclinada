@@ -1,4 +1,45 @@
 [
+{
+	"id": "curavacas",
+    "nombre": "Curavacas, Pico Hospital y Huelgas",
+    "archivo": "curavacas-pico-hospital-y-huelgas-28-6-25.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "Fran", 
+	  "Pedro"
+    ],
+    "fecha": "2025-06-28",
+    "descripcion": "",
+    "relive": ""
+  },
+    "id": "espiguete",
+    "nombre": "Espiguete",
+    "archivo": "espiguete-6-7-25.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "JuanMa", 
+	  "Pedro"
+    ],
+    "fecha": "2025-07-06",
+    "descripcion": "",
+    "relive": ""
+  },
+	{
+    "id": "ubina",
+    "nombre": "Peña Ubiña",
+    "archivo": "pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "JuanMa", 
+	  "Pedro"
+    ],
+    "fecha": "2025-07-13",
+    "descripcion": "",
+    "relive": ""
+  },
 	{
     "id": "cruz",
     "nombre": "Peña de la Cruz, Pico de recabiello y pico mediodía desde Liegos",
