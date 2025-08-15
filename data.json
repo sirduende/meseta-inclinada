@@ -1,5 +1,22 @@
 [
 {
+	"id": "teleno",
+    "nombre": "Teleno desde Filiel",
+    "archivo": "teleno-desde-filiel.gpx",
+    "participantes": [
+      "Asun",
+      "JuanMa",
+      "Ana", 
+	  "Dani",
+	  "Fran",
+	  "Carina",
+	  "Julia",
+	  "JaviRocco"
+    ],
+    "fecha": "2025-06-21",
+    "descripcion": "",
+    "relive": ""
+  },
 	"id": "curavacas",
     "nombre": "Curavacas, Pico Hospital y Huelgas",
     "archivo": "curavacas-pico-hospital-y-huelgas-28-6-25.gpx",
