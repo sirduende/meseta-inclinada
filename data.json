@@ -1,5 +1,23 @@
 [
 {
+	"id": "prieta",
+    "nombre": "Peña Prieta, Pico Infierno, Tres Provincias",
+    "archivo": "pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx",
+    "participantes": [
+      "Asun",
+	  "Lolo",
+      "JuanMa",
+	  "Pedro",
+      "Ana", 
+	  "Dani",
+	  "Carina",
+	  "Alberto"
+    ],
+    "fecha": "2025-06-14",
+    "descripcion": "Pico-Pasta, el tema del verano",
+    "relive": ""
+  },
+{
 	"id": "teleno",
     "nombre": "Teleno desde Filiel",
     "archivo": "teleno-desde-filiel.gpx",
