@@ -1,8 +1,24 @@
 [
 {
+	"id": "millan",
+    "nombre": "San Millán, Collado Flecho y Trigaza Sur desde Pineda de la Sierra",
+    "archivo": "san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx",
+    "participantes": [
+      "Asun",
+	  "Lolo",
+      "Pedro",
+	  "JuanMa",
+	  "Ana", 
+	  "Dani",
+    ],
+    "fecha": "2025-06-14",
+    "descripcion": "",
+    "relive": ""
+  },
+{
 	"id": "hondera",
     "nombre": "Laguna Hondera, Mulhacen I y II desde Trevelez",
-    "archivo": "laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez",
+    "archivo": "laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx",
     "participantes": [
       "Asun",
 	  "Lolo",
