@@ -1,5 +1,21 @@
 [
   {
+    "id": "friero",
+    "nombre": "Torre del Friero",
+    "archivo": "Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "JuanMa"
+    ],
+    "fecha": "2025-08-02",
+    "descripcion": "Para los más valientes",
+    "longitud": "10.01",
+    "duracion": "186",
+    "desnivel": "1109",
+    "relive": ""
+  },
+  {
     "id": "pirulera",
     "nombre": "Alto de la Pirulera y Castro Valnera",
     "archivo": "Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx",
@@ -7,14 +23,14 @@
       "Asun",
       "Pedro",
       "Lolo",
-	  "JuanMa",
-	  "Dani"
+      "JuanMa",
+      "Dani"
     ],
-    "fecha": "2025-09-08",
-    "descripcion": "Ruta extendida",
-	"longitud": 8.8,
-	"duracion": 205,
-	"desnivel": 830,
-	"relive": "https://www.relive.com/es/view/vXOdm7rxw46"
-  }  
+    "fecha": "2025-08-08",
+    "descripcion": "Ruta extendida y comida posterior",
+    "longitud": "8.8",
+    "duracion": "205",
+    "desnivel": "830",
+    "relive": "https://www.relive.com/es/view/vXOdm7rxw46"
+  }
 ]
