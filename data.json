@@ -1,25 +1,20 @@
 [
   {
-    "id": "coriscao",
-    "nombre": "Pico Coriscao (demo)",
-    "archivo": "coriscao.gpx",
+    "id": "pirulera",
+    "nombre": "Alto de la Pirulera y Castro Valnera",
+    "archivo": "Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx",
     "participantes": [
-      "Daniel",
+      "Asun",
       "Pedro",
-      "Laura"
+      "Lolo",
+	  "JuanMa",
+	  "Dani"
     ],
-    "fecha": "2025-06-15",
-    "descripcion": "Ascenso de demostración por la vertiente norte. (Track simplificado)."
-  },
-  {
-    "id": "canon_rio_lobos",
-    "nombre": "Cañón del Río Lobos (demo)",
-    "archivo": "canon_rio_lobos.gpx",
-    "participantes": [
-      "Daniel",
-      "Marta"
-    ],
-    "fecha": "2025-04-10",
-    "descripcion": "Paseo de demostración por el cañón. (Track simplificado)."
-  }
+    "fecha": "2025-09-08",
+    "descripcion": "Ruta extendida",
+	"longitud": 8.8
+	"duracion": 205
+	"desnivel": 830
+	"relive": "https://www.relive.com/es/view/vXOdm7rxw46"
+  }  
 ]
