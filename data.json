@@ -1,114 +1,114 @@
 [
-{
-	"id": "valdecebollas",
+  {
+    "id": "valdecebollas",
     "nombre": "Collado Sestil, Sestil Alto y Valdecebollas desde Brañosera",
     "archivo": "collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx",
     "participantes": [
       "Asun",
-	  "Lolo",
+      "Lolo",
       "JuanMa",
-	  "Fran",
-	  "Ana", 
-	  "Dani",
-	  "Javier"
-	],
+      "Fran",
+      "Ana",
+      "Dani",
+      "Javier"
+    ],
     "fecha": "2025-05-03",
     "descripcion": "Sin nombre oficial, primera ruta del grupo",
     "relive": ""
   },
   {
-	"id": "piedrasluengas",
+    "id": "piedrasluengas",
     "nombre": "Mirador de Piedrasluengas, Peña Labra y Pico Tres Mares desde Piedrasluengas",
     "archivo": "mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx",
     "participantes": [
       "Asun",
-	  "Lolo",
+      "Lolo",
       "JuanMa",
-	  "Pedro",
-	  "Ana", 
-	  "Dani",
-	  "Carina",
-	  "Alberto",
-	  "Javier"
-	],
+      "Pedro",
+      "Ana",
+      "Dani",
+      "Carina",
+      "Alberto",
+      "Javier"
+    ],
     "fecha": "2025-05-18",
     "descripcion": "Todavía sin nombre oficial y dentro de otro grupo",
     "relive": ""
   },
-{
-	"id": "millan",
+  {
+    "id": "millan",
     "nombre": "San Millán, Collado Flecho y Trigaza Sur desde Pineda de la Sierra",
     "archivo": "san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx",
     "participantes": [
       "Asun",
-	  "Lolo",
+      "Lolo",
       "Pedro",
-	  "JuanMa",
-	  "Ana", 
-	  "Dani"
-	],
+      "JuanMa",
+      "Ana",
+      "Dani"
+    ],
     "fecha": "2025-06-08",
     "descripcion": "Primera ruta con el nombre del grupo oficial",
     "relive": "https://www.relive.com/es/view/vmqXJmdp8oO"
   },
-{
-	"id": "hondera",
+  {
+    "id": "hondera",
     "nombre": "Laguna Hondera, Mulhacen I y II desde Trevelez",
     "archivo": "laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx",
     "participantes": [
       "Asun",
-	  "Lolo",
+      "Lolo",
       "Fran"
     ],
     "fecha": "2025-06-12",
     "descripcion": "",
     "relive": ""
   },
-{
-	"id": "prieta",
+  {
+    "id": "prieta",
     "nombre": "Peña Prieta, Pico Infierno, Tres Provincias",
     "archivo": "pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx",
     "participantes": [
       "Asun",
-	  "Lolo",
+      "Lolo",
       "JuanMa",
-	  "Pedro",
-      "Ana", 
-	  "Dani",
-	  "Carina",
-	  "Alberto"
+      "Pedro",
+      "Ana",
+      "Dani",
+      "Carina",
+      "Alberto"
     ],
     "fecha": "2025-06-14",
     "descripcion": "Pico-Pasta, el tema del verano",
     "relive": "https://www.relive.com/es/view/vYvEG1ppwG6"
   },
-{
-	"id": "teleno",
+  {
+    "id": "teleno",
     "nombre": "Teleno desde Filiel",
     "archivo": "teleno-desde-filiel.gpx",
     "participantes": [
       "Asun",
       "JuanMa",
-      "Ana", 
-	  "Dani",
-	  "Fran",
-	  "Carina",
-	  "Julia",
-	  "JaviRocco"
+      "Ana",
+      "Dani",
+      "Fran",
+      "Carina",
+      "Julia",
+      "JaviRocco"
     ],
     "fecha": "2025-06-21",
     "descripcion": "",
     "relive": ""
   },
-{
-	"id": "curavacas",
+  {
+    "id": "curavacas",
     "nombre": "Curavacas, Pico Hospital y Huelgas",
     "archivo": "curavacas-pico-hospital-y-huelgas-28-6-25.gpx",
     "participantes": [
       "Asun",
       "Lolo",
-      "Fran", 
-	  "Pedro"
+      "Fran",
+      "Pedro"
     ],
     "fecha": "2025-06-28",
     "descripcion": "",
@@ -121,28 +121,28 @@
     "participantes": [
       "Asun",
       "Lolo",
-      "JuanMa", 
-	  "Pedro"
+      "JuanMa",
+      "Pedro"
     ],
     "fecha": "2025-07-06",
     "descripcion": "",
     "relive": "https://www.relive.com/es/view/vmqXJLn9joO"
   },
-	{
+  {
     "id": "ubina",
     "nombre": "Peña Ubiña",
-    "archivo": "pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx",
+    "archivo": "iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx",
     "participantes": [
       "Asun",
       "Lolo",
-      "JuanMa", 
-	  "Pedro"
+      "JuanMa",
+      "Pedro"
     ],
     "fecha": "2025-07-13",
     "descripcion": "",
     "relive": "https://www.relive.com/es/view/vXOdmGe2Bk6"
   },
-	{
+  {
     "id": "cruz",
     "nombre": "Peña de la Cruz, Pico de recabiello y pico mediodía desde Liegos",
     "archivo": "pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx",
@@ -155,7 +155,7 @@
     "descripcion": "",
     "relive": ""
   },
-	{
+  {
     "id": "bermeja",
     "nombre": "Torre Bermeja",
     "archivo": "torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx",
@@ -211,11 +211,11 @@
     "descripcion": "Ruta extendida y comida posterior",
     "relive": "https://www.relive.com/es/view/vXOdm7rxw46"
   },
-	{
+  {
     "id": "cuchillon",
     "nombre": "Cuchillón, Cotomañinos y Cueto Mañin desde Brañavieja",
     "archivo": "cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx",
-    "participantes":[
+    "participantes": [
       "Asun",
       "Lolo",
       "Ana",
@@ -224,5 +224,5 @@
     "fecha": "2025-08-16",
     "descripcion": "Día huyendo de los incendios",
     "relive": ""
-	}
+  }
 ]
