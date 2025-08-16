@@ -210,5 +210,19 @@
     "fecha": "2025-08-08",
     "descripcion": "Ruta extendida y comida posterior",
     "relive": "https://www.relive.com/es/view/vXOdm7rxw46"
-  }
+  },
+	{
+    "id": "cuchillon",
+    "nombre": "Cuchillón, Cotomañinos y Cueto Mañin desde Brañavieja",
+    "archivo": "cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx",
+    "participantes":[
+      "Asun"
+      "Lolo",
+      "Ana",
+      "Dani"
+    ],
+    "fecha": "2025-08-16",
+    "descripcion": "Día huyendo de los incendios",
+    "relive": ""
+	}
 ]
