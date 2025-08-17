@@ -16,6 +16,7 @@ loadRoutes()
     .then(people => {
         buildParticipantsFilter(people);
         updateVisibility();
+        fitAllBounds();
     })
     .catch(err => {
         console.error('No se pudo cargar data.json', err);

@@ -41,7 +41,6 @@ export async function loadRoutes() {
                 union = union.extend(boundsAccumulator[i]);
             }
             setAllBounds(union);
-            if (idx === 0) map.fitBounds(b.pad(0.1));
 
             const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
             const desnivelM = e.target.get_elevation_gain().toFixed(0);
