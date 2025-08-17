@@ -58,14 +58,29 @@ function addRouteToList(id, meta) {
     // Click sobre el botón → centrar en la ruta
     btn.addEventListener('click', () => {
         const entry = layersById.get(id);
-        if (entry && entry.bounds) {
-            map.fitBounds(entry.bounds.pad(0.1));
-        } else if (entry) {
-            entry.gpxLayer.once('loaded', () => {
-                if (entry.bounds) map.fitBounds(entry.bounds.pad(0.1));
-            });
+        if (!entry) return;
+
+        function showBounds() {
+            const b = entry.bounds;
+            if (b && b.isValid() && b.getNorthEast().distanceTo(b.getSouthWest()) > 0) {
+                map.fitBounds(b.pad(0.1));
+            } else {
+                // fallback: primer punto de la ruta
+                const line = entry.gpxLayer.getLayers().find(l => l instanceof L.Polyline);
+                if (line) {
+                    const first = line.getLatLngs()[0];
+                    map.setView(first, 14); // zoom cercano
+                }
+            }
+        }
+
+        if (entry.bounds) {
+            showBounds();
+        } else {
+            entry.gpxLayer.once('loaded', showBounds);
         }
     });
+
 
     routesEl.appendChild(btn);
 }
