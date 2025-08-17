@@ -1,181 +1,55 @@
-﻿const map = L.map('map', { zoomControl: true }).setView([40.4168, -3.7038], 6);
+// script.js
+const map = L.map('map').setView([42.9, -4.3], 12);
 
-const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contrib.'
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '© OpenStreetMap'
 }).addTo(map);
 
-const layersById = new Map(); // id -> { gpxLayer, meta, bounds }
-let allBounds = null;
+const layersById = new Map();
+const peaksLayer = L.layerGroup().addTo(map);
 
-function colorForIndex(i) {
-    const palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
-    return palette[i % palette.length];
-}
+// Distancia máxima de un pico a la ruta (en metros)
+const MAX_PEAK_DISTANCE = 200;
 
-function intersects(a, b) {
-    return a.some(x => b.includes(x));
-}
-
-function updateVisibility() {
-    const checked = [...document.querySelectorAll('input[name="person"]:checked')].map(i => i.value);
-    layersById.forEach(({ gpxLayer, meta }) => {
-        const show = checked.length === 0 ? true : intersects(meta.participantes, checked);
-        if (show) {
-            if (!map.hasLayer(gpxLayer)) gpxLayer.addTo(map);
-        } else {
-            if (map.hasLayer(gpxLayer)) map.removeLayer(gpxLayer);
-        }
-    });
-}
-
-function fitAllBounds() {
-    if (allBounds) {
-        map.fitBounds(allBounds.pad(0.1));
-    } else {
-        map.setView([40.4168, -3.7038], 6);
-    }
-}
-
-function addRouteToList(id, meta) {
-    const routesEl = document.getElementById('routes');
-    const item = document.createElement('div');
-    item.className = 'route-item';
-
-    const title = document.createElement('div');
-    title.className = 'route-item-title';
-    title.textContent = meta.nombre;
-    item.appendChild(title);
-
-    const metaEl = document.createElement('div');
-    metaEl.className = 'route-item-meta';
-    const participantes = meta.participantes.join(', ');
-    metaEl.textContent = `${meta.fecha || ''} — ${participantes}`.trim();
-    item.appendChild(metaEl);
-
-    const actions = document.createElement('div');
-    actions.className = 'actions';
-    const viewBtn = document.createElement('button');
-    viewBtn.textContent = 'Ver ruta';
-    viewBtn.addEventListener('click', () => {
-        const entry = layersById.get(id);
-        if (entry && entry.bounds) {
-            map.fitBounds(entry.bounds.pad(0.1));
-        } else {
-            const e2 = layersById.get(id);
-            if (e2) {
-                e2.gpxLayer.once('loaded', () => {
-                    if (e2.bounds) map.fitBounds(e2.bounds.pad(0.1));
-                });
-            }
-        }
-    });
-    actions.appendChild(viewBtn);
-    item.appendChild(actions);
-
-    routesEl.appendChild(item);
-}
-
-function buildParticipantsFilter(people) {
-    const container = document.getElementById('participants');
-    container.innerHTML = '';
-    const sorted = Array.from(people).sort((a, b) => a.localeCompare(b));
-    sorted.forEach(name => {
-        const label = document.createElement('label');
-        label.style.display = 'flex';
-        label.style.alignItems = 'center';
-        label.style.gap = '8px';
-        label.style.margin = '4px 0';
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.name = 'person';
-        input.value = name;
-        input.addEventListener('change', updateVisibility);
-        label.appendChild(input);
-        const span = document.createElement('span');
-        span.textContent = name;
-        label.appendChild(span);
-        container.appendChild(label);
-    });
-}
-
-document.getElementById('clearFilters').addEventListener('click', () => {
-    document.querySelectorAll('input[name="person"]').forEach(i => i.checked = false);
-    updateVisibility();
-});
-
-document.getElementById('fitAll').addEventListener('click', (e) => {
-    e.preventDefault();
-    fitAllBounds();
-});
-
-// Load metadata and GPX layers
 fetch('data.json')
-    .then(r => r.json())
-    .then(data => {
-        const people = new Set();
-        const boundsAccumulator = [];
+  .then(res => res.json())
+  .then(data => {
+    const people = new Set();
 
-        data.forEach((meta, idx) => {
-            const id = meta.id || meta.archivo;
-            meta.participantes.forEach(p => people.add(p));
-            addRouteToList(id, meta);
+    data.forEach(meta => {
+      const id = meta.id;
+      const gpx = new L.GPX(`gpx/${meta.archivo}`, {
+        async: true,
+        marker_options: { startIcon: null, endIcon: null }
+      });
 
-            const gpx = new L.GPX('gpx/' + meta.archivo, {
-                async: true,
-                polyline_options: {
-                    color: colorForIndex(idx),
-                    weight: 4,
-                    opacity: 0.9
-                },
-                marker_options: {
-                    startIconUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-icon-start.png',
-                    endIconUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-icon-end.png',
-                    shadowUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-shadow.png'
-                }
-            });
+      gpx.on('loaded', e => {
+        const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
+        const desnivelM = e.target.get_elevation_gain().toFixed(0);
 
-            gpx.on('loaded', function (e) {
-                const b = e.target.getBounds();
-                layersById.get(id).bounds = b;
-                boundsAccumulator.push(b);
+        let durTotalS = e.target.get_total_time();
+        let durMovS = e.target.get_moving_time();
 
-                // Actualizar bounds global
-                let union = boundsAccumulator[0];
-                for (let i = 1; i < boundsAccumulator.length; i++) {
-                    union = union.extend(boundsAccumulator[i]);
-                }
-                allBounds = union;
-                if (idx === 0) {
-                    map.fitBounds(b.pad(0.1));
-                }
+        function formatDuracion(segundos) {
+          if (!segundos || segundos <= 0) return 'N/A';
+          const h = Math.floor(segundos / 3600);
+          const m = Math.round((segundos % 3600) / 60);
+          return h > 0 ? `${h} h ${m} min` : `${m} min`;
+        }
 
-                // Datos principales
-                const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
-                const desnivelM = e.target.get_elevation_gain().toFixed(0);
+        const maxSegundosRazonable = 24 * 3600;
+        if (durTotalS > maxSegundosRazonable || durMovS > maxSegundosRazonable) {
+          const velocidadMediaKmH = 4.5;
+          const durH = distanciaKm / velocidadMediaKmH;
+          durTotalS = durH * 3600;
+          durMovS = durH * 3600;
+        }
 
-                let durTotalS = e.target.get_total_time();
-                let durMovS = e.target.get_moving_time();
+        const duracionTotalStr = formatDuracion(durTotalS);
+        const duracionMovStr = formatDuracion(durMovS);
 
-                function formatDuracion(segundos) {
-                    if (!segundos || segundos <= 0) return 'N/A';
-                    const h = Math.floor(segundos / 3600);
-                    const m = Math.round((segundos % 3600) / 60);
-                    return h > 0 ? `${h} h ${m} min` : `${m} min`;
-                }
-
-                const maxSegundosRazonable = 24 * 3600;
-                if (durTotalS > maxSegundosRazonable || durMovS > maxSegundosRazonable) {
-                    const velocidadMediaKmH = 4.5;
-                    const durH = distanciaKm / velocidadMediaKmH;
-                    durTotalS = durH * 3600;
-                    durMovS = durH * 3600;
-                }
-
-                const duracionTotalStr = formatDuracion(durTotalS);
-                const duracionMovStr = formatDuracion(durMovS);
-
-                const popupHtml = `
+        const popupHtml = `
           <div>
             <div style="font-weight:600;margin-bottom:4px;">${meta.nombre}</div>
             <div style="font-size:12px;color:#6b7280;">${meta.fecha || ''}</div>
@@ -188,21 +62,90 @@ fetch('data.json')
           </div>
         `;
 
-                e.target.bindPopup(popupHtml);
-            });
+        e.target.bindPopup(popupHtml);
 
-            gpx.on('error', function () {
-                console.error('Error cargando GPX', meta.archivo);
-            });
+        // Guardamos bounds para esta ruta
+        const bounds = e.target.getBounds();
+        layersById.set(id, { gpxLayer: gpx, meta, bounds });
 
-            layersById.set(id, { gpxLayer: gpx, meta, bounds: null });
-            gpx.addTo(map);
-        });
+        // Buscar picos dentro de los bounds de la ruta
+        fetchPeaks(bounds, e.target);
+      });
 
-        buildParticipantsFilter(people);
-        updateVisibility();
-    })
-    .catch(err => {
-        console.error('No se pudo cargar data.json', err);
-        alert('No se pudo cargar data.json. Asegúrate de servir los archivos vía HTTP (GitHub Pages o un servidor local).');
+      gpx.on('error', function() {
+        console.error('Error cargando GPX', meta.archivo);
+      });
+
+      layersById.set(id, { gpxLayer: gpx, meta, bounds: null });
+      gpx.addTo(map);
     });
+
+    buildParticipantsFilter(people);
+    updateVisibility();
+  })
+  .catch(err => {
+    console.error('No se pudo cargar data.json', err);
+    alert('No se pudo cargar data.json. Asegúrate de servir los archivos vía HTTP (GitHub Pages o un servidor local).');
+  });
+
+
+// ---------- NUEVO: Cargar picos de OSM ----------
+async function fetchPeaks(bounds, gpxLayer) {
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
+
+  // Consulta Overpass: nodos natural=peak en el bounding box
+  const query = `
+    [out:json][timeout:25];
+    node["natural"="peak"](${sw.lat},${sw.lng},${ne.lat},${ne.lng});
+    out;
+  `;
+
+  try {
+    const res = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: query
+    });
+    const data = await res.json();
+
+    data.elements.forEach(el => {
+      const latlng = [el.lat, el.lon];
+      const name = el.tags?.name || 'Pico sin nombre';
+      const ele = el.tags?.ele ? `${el.tags.ele} m` : '';
+
+      // Filtrar por distancia real al track
+      if (!isNearTrack(latlng, gpxLayer, MAX_PEAK_DISTANCE)) return;
+
+      const marker = L.marker(latlng, {
+        icon: L.divIcon({
+          className: 'peak-label',
+          html: `<div style="background:white;padding:2px 4px;border-radius:4px;border:1px solid #999;font-size:11px;">
+                  ⛰ ${name} ${ele}
+                </div>`,
+          iconSize: null
+        })
+      });
+
+      marker.addTo(peaksLayer);
+    });
+  } catch (err) {
+    console.error('Error consultando Overpass API', err);
+  }
+}
+
+// Función para comprobar si un punto está cerca de la ruta
+function isNearTrack(latlng, gpxLayer, maxDist) {
+  const line = gpxLayer.getLayers().find(l => l instanceof L.Polyline);
+  if (!line) return false;
+
+  const point = L.latLng(latlng);
+  const lineLatLngs = line.getLatLngs();
+
+  for (let i = 0; i < lineLatLngs.length - 1; i++) {
+    const segStart = lineLatLngs[i];
+    const segEnd = lineLatLngs[i + 1];
+    const dist = L.GeometryUtil.distanceSegment(map, point, segStart, segEnd);
+    if (dist <= maxDist) return true;
+  }
+  return false;
+}
