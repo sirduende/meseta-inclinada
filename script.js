@@ -18,9 +18,9 @@ function intersects(a, b) {
 }
 
 function updateVisibility() {
-    const checked = [...document.querySelectorAll('input[name="person"]:checked')].map(i => i.value);
+    const selected = document.getElementById('participantsSelect').value;
     layersById.forEach(({ gpxLayer, meta }) => {
-        const show = checked.length === 0 ? true : intersects(meta.participantes, checked);
+        const show = selected === "" ? true : meta.participantes.includes(selected);
         if (show) {
             if (!map.hasLayer(gpxLayer)) gpxLayer.addTo(map);
         } else {
@@ -77,27 +77,46 @@ function addRouteToList(id, meta) {
 }
 
 function buildParticipantsFilter(people) {
-    const container = document.getElementById('participants');
-    container.innerHTML = '';
+    const select = document.createElement('select');
+    select.id = 'participantsSelect';
+    select.className = 'form-select form-select-sm';
+
+    // opción inicial = sin filtro
+    const optAll = document.createElement('option');
+    optAll.value = "";
+    optAll.textContent = "Todos";
+    select.appendChild(optAll);
+
     const sorted = Array.from(people).sort((a, b) => a.localeCompare(b));
     sorted.forEach(name => {
-        const label = document.createElement('label');
-        label.style.display = 'flex';
-        label.style.alignItems = 'center';
-        label.style.gap = '8px';
-        label.style.margin = '4px 0';
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.name = 'person';
-        input.value = name;
-        input.addEventListener('change', updateVisibility);
-        label.appendChild(input);
-        const span = document.createElement('span');
-        span.textContent = name;
-        label.appendChild(span);
-        container.appendChild(label);
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+    });
+
+    select.addEventListener('change', updateVisibility);
+    var participants = document.getElementById('participants');
+
+    if (participants == null) {
+        return;
+    }
+    participants.appendChild(select);
+
+    // Botón quitar filtros
+    const clearBtn = document.getElementById('clearFilters');
+    clearBtn.addEventListener('click', () => {
+        select.value = "";              // volver a "Todos"
+        updateVisibility();
     });
 }
+
+// botón "Quitar filtros" → resetea el combo
+document.getElementById('clearFilters').addEventListener('click', () => {
+    document.getElementById('participantsSelect').value = '';
+    updateVisibility();
+});
+
 
 document.getElementById('clearFilters').addEventListener('click', () => {
     document.querySelectorAll('input[name="person"]').forEach(i => i.checked = false);
@@ -146,9 +165,6 @@ fetch('data.json')
                     union = union.extend(boundsAccumulator[i]);
                 }
                 allBounds = union;
-                if (idx === 0) {
-                    map.fitBounds(b.pad(0.1));
-                }
 
                 // Datos principales
                 const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
@@ -200,7 +216,7 @@ fetch('data.json')
         });
 
         buildParticipantsFilter(people);
-        updateVisibility();
+        updateVisibility();        
     })
     .catch(err => {
         console.error('No se pudo cargar data.json', err);
