@@ -39,42 +39,38 @@ function fitAllBounds() {
 
 function addRouteToList(id, meta) {
     const routesEl = document.getElementById('routes');
-    const item = document.createElement('div');
-    item.className = 'route-item';
 
-    const title = document.createElement('div');
-    title.className = 'route-item-title';
-    title.textContent = meta.nombre;
-    item.appendChild(title);
+    // Formatear fecha en dd-MM-yyyy
+    let fechaFmt = "";
+    if (meta.fecha) {
+        const d = new Date(meta.fecha);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        fechaFmt = `${dd}-${mm}-${yyyy}`;
+    }
 
-    const metaEl = document.createElement('div');
-    metaEl.className = 'route-item-meta';
-    const participantes = meta.participantes.join(', ');
-    metaEl.textContent = `${meta.fecha || ''} — ${participantes}`.trim();
-    item.appendChild(metaEl);
+    // Crear botón con el resumen
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-light w-100 text-start route-item-resumen';
+    btn.textContent = `${fechaFmt} — ${meta.nombre} (${meta.participantes.length})`;
 
-    const actions = document.createElement('div');
-    actions.className = 'actions';
-    const viewBtn = document.createElement('button');
-    viewBtn.textContent = 'Ver ruta';
-    viewBtn.addEventListener('click', () => {
+    // Click sobre el botón → centrar en la ruta
+    btn.addEventListener('click', () => {
         const entry = layersById.get(id);
         if (entry && entry.bounds) {
             map.fitBounds(entry.bounds.pad(0.1));
-        } else {
-            const e2 = layersById.get(id);
-            if (e2) {
-                e2.gpxLayer.once('loaded', () => {
-                    if (e2.bounds) map.fitBounds(e2.bounds.pad(0.1));
-                });
-            }
+        } else if (entry) {
+            entry.gpxLayer.once('loaded', () => {
+                if (entry.bounds) map.fitBounds(entry.bounds.pad(0.1));
+            });
         }
     });
-    actions.appendChild(viewBtn);
-    item.appendChild(actions);
 
-    routesEl.appendChild(item);
+    routesEl.appendChild(btn);
 }
+
+
 
 function buildParticipantsFilter(people) {
     const select = document.createElement('select');

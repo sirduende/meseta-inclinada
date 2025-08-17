@@ -43,3 +43,12 @@ main#map {
         height: 60vh; /* el mapa se ajusta */
     }
 }
+
+.route-item-resumen {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+    .route-item-resumen:hover {
+        background-color: #f0f0f0;
+    }
