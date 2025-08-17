@@ -3,7 +3,7 @@ import { buildParticipantsFilter, updateVisibility } from './participants.js';
 import { fitAllBounds } from './map.js';
 
 document.getElementById('clearFilters').addEventListener('click', () => {
-    document.querySelectorAll('input[name="person"]').forEach(i => i.checked = false);
+    document.getElementById('participantsSelect').value = '';
     updateVisibility();
 });
 

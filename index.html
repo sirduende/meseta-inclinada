@@ -51,7 +51,10 @@
 
             <div class="mb-3">
                 <div class="fw-bold">Filtrar por persona</div>
-                <div id="participants" class="mb-2"></div>
+                <select id="participantsSelect" class="form-select form-select-sm mb-2">
+                    <option value="">Todos</option>
+                    <!-- Las opciones se insertan dinámicamente -->
+                </select>
                 <div class="d-flex gap-2">
                     <button id="clearFilters" class="btn btn-sm btn-outline-secondary">Quitar filtros</button>
                     <a class="btn btn-sm btn-primary" href="#" id="fitAll">Ver todas</a>
