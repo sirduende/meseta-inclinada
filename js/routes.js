@@ -3,7 +3,7 @@
 
 import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
-import { colorForIndex, formatDuracion, intersects } from './utils.js';
+import { colorForIndex, formatDuracion } from './utils.js';
 
 export async function loadRoutes() {
     const response = await fetch('data.json');
@@ -57,7 +57,6 @@ export async function loadRoutes() {
             }
 
             const duracionTotalStr = formatDuracion(durTotalS);
-            const duracionMovStr = formatDuracion(durMovS);
 
             const popupHtml = `
                 <div>
