@@ -22,6 +22,8 @@
     <None Remove="gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx" />
     <None Remove="gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx" />
     <None Remove="gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx" />
+    <None Remove="libs\bootstrap.min.css" />
+    <None Remove="libs\bootstrap.min.js" />
     <None Remove="libs\gpx.min.js" />
     <None Remove="libs\leaflet.css" />
     <None Remove="libs\leaflet.js" />
@@ -71,6 +73,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libs\bootstrap.min.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="libs\bootstrap.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="libs\gpx.min.js">
