@@ -1,5 +1,20 @@
 [
   {
+    "id": "siete-picos",
+    "nombre": "Pico Somontano, Pico Segundo y Collado Ventoso desde Parking Navacerrada",
+    "archivo": "pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "JuanMa",
+      "Ana",
+      "Dani"
+    ],
+    "fecha": "2025-08-23",
+    "descripcion": "Siete Picos, haciendo el cabra",
+    "relive": ""
+  },
+  {
     "id": "cuchillon",
     "nombre": "Cuchillón, Cotomañinos y Cueto Mañin desde Brañavieja",
     "archivo": "cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx",

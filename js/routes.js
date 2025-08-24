@@ -8,14 +8,18 @@ import { colorForIndex, formatDuracion } from './utils.js';
 export async function loadRoutes() {
     const response = await fetch('data.json');
     const data = await response.json();
+    const total = data.length;
 
     const people = new Set();
     const boundsAccumulator = [];
 
-    data.forEach((meta, idx) => {
+    // 👇 Iteramos en orden inverso, pero calculamos el número original
+    data.slice().reverse().forEach((meta, idx) => {
+        const displayIndex = total - idx - 1; // 👈 Esto da 13, 12, 11... si total = 14
         const id = meta.id || meta.archivo;
+
         meta.participantes.forEach(p => people.add(p));
-        addRouteToList(id, meta);
+        addRouteToList(id, meta, displayIndex);
 
         const gpx = new L.GPX('gpx/' + meta.archivo, {
             async: true,
@@ -25,13 +29,28 @@ export async function loadRoutes() {
                 opacity: 0.9
             },
             marker_options: {
-                startIconUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-icon-start.png',
-                endIconUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-icon-end.png',
-                shadowUrl: 'https://unpkg.com/leaflet-gpx@1.7.0/pin-shadow.png'
+                startIconUrl: '',
+                endIconUrl: '',
+                shadowUrl:''                
             }
         });
-
         gpx.on('loaded', function (e) {
+
+            // ✅ Añadir número encima del punto de inicio manualmente
+            const polyline = e.target.getLayers().find(l => l instanceof L.Polyline);
+            if (polyline) {
+                const startLatLng = polyline.getLatLngs()[0];
+                const numberMarker = L.marker(startLatLng, {
+                    icon: L.divIcon({
+                        className: 'route-number-icon',
+                        html: `<div style="background:#fff;border-radius:50%;padding:4px 8px;border:1px solid #333;font-weight:bold;">${idx + 1}</div>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 35]
+                    })
+                });
+                numberMarker.addTo(map);
+            }
+
             const b = e.target.getBounds();
             layersById.get(id).bounds = b;
             boundsAccumulator.push(b);

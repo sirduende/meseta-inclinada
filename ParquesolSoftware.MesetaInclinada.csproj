@@ -16,6 +16,7 @@
     <None Remove="gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx" />
     <None Remove="gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx" />
     <None Remove="gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx" />
+    <None Remove="gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx" />
     <None Remove="gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx" />
     <None Remove="gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx" />
     <None Remove="gpx\teleno-desde-filiel.gpx" />
@@ -57,6 +58,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx">

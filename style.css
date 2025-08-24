@@ -43,3 +43,10 @@ main#map {
         height: 60vh; /* el mapa se ajusta */
     }
 }
+
+.route-number-icon {
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    pointer-events: none; /* evita que interfiera con clics en el marcador */
+}

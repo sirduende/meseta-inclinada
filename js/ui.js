@@ -1,6 +1,6 @@
 ﻿import { layersById, map } from './map.js';
 
-export function addRouteToList(id, meta) {
+export function addRouteToList(id, meta, idx) {
     const routesEl = document.getElementById('routes');
 
     const btn = document.createElement('button');
@@ -12,8 +12,11 @@ export function addRouteToList(id, meta) {
     const numParticipantes = meta.participantes?.length || 0;
 
     btn.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center">
         <div class="fw-bold">${fecha} — ${nombre}</div>
-        <div class="text-muted" style="font-size: 12px;">${numParticipantes} participante${numParticipantes !== 1 ? 's' : ''}</div>
+        <div class="badge bg-secondary rounded-pill ms-2">#${idx + 1}</div>
+    </div>
+    <div class="text-muted" style="font-size: 12px;">${numParticipantes} participante${numParticipantes !== 1 ? 's' : ''}</div>
     `;
 
     btn.addEventListener('click', () => {
