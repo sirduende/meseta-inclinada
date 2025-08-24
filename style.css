@@ -44,9 +44,17 @@ main#map {
     }
 }
 
-.route-number-icon {
+.route-number-circle {
+    background-color: #064e3b; /* verde oscuro */
+    color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
     font-size: 14px;
-    color: #333;
-    text-align: center;
-    pointer-events: none; /* evita que interfiera con clics en el marcador */
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }

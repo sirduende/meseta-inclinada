@@ -43,12 +43,20 @@ export async function loadRoutes() {
                 const numberMarker = L.marker(startLatLng, {
                     icon: L.divIcon({
                         className: 'route-number-icon',
-                        html: `<div style="background:#fff;border-radius:50%;padding:4px 8px;border:1px solid #333;font-weight:bold;">${idx + 1}</div>`,
+                        html: `<div class="route-number-circle">${displayIndex + 1}</div>`,
                         iconSize: [30, 30],
-                        iconAnchor: [15, 35]
+                        iconAnchor: [15, 35] // 👈 anclado justo debajo para que flote sobre el marcador
                     })
                 });
                 numberMarker.addTo(map);
+
+                // ✅ Al hacer clic, abrir el popup de la ruta
+                numberMarker.on('click', () => {
+                    const entry = layersById.get(id);
+                    if (entry?.gpxLayer) {
+                        entry.gpxLayer.openPopup();
+                    }
+                });
             }
 
             const b = e.target.getBounds();
