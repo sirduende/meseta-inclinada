@@ -5,6 +5,24 @@ import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
 import { colorForIndex, formatDuracion } from './utils.js';
 
+function getDifficulty(meta, distanciaKm, desnivelM) {
+    const nombre = meta.nombre.toLowerCase();
+    const dist = parseFloat(distanciaKm);
+    const desn = parseFloat(desnivelM);
+
+    if (nombre.includes("ferrata")) {
+        return { color: "black", nivel: "Ferrata" };
+    }
+    if (dist > 20 || desn > 1500) {
+        return { color: "red", nivel: "Alto" };
+    }
+    if (dist < 12 && desn < 1000) {
+        return { color: "green", nivel: "Bajo" };
+    }
+    return { color: "#f97316", nivel: "Medio" }; // naranja suave
+}
+
+
 export async function loadRoutes() {
     const response = await fetch('data.json');
     const data = await response.json();
@@ -13,9 +31,8 @@ export async function loadRoutes() {
     const people = new Set();
     const boundsAccumulator = [];
 
-    // 👇 Iteramos en orden inverso, pero calculamos el número original
     data.slice().forEach((meta, idx) => {
-        const displayIndex = total - idx - 1; // 👈 Esto da 13, 12, 11... si total = 14
+        const displayIndex = total - idx - 1;
         const id = meta.id || meta.archivo;
 
         meta.participantes.forEach(p => people.add(p));
@@ -24,33 +41,33 @@ export async function loadRoutes() {
         const gpx = new L.GPX('gpx/' + meta.archivo, {
             async: true,
             polyline_options: {
-                color: colorForIndex(idx),
+                color: 'gray', // inicial neutro, luego lo ajustamos
                 weight: 4,
                 opacity: 0.9
             },
             marker_options: {
                 startIconUrl: '',
                 endIconUrl: '',
-                shadowUrl:''                
+                shadowUrl: ''
             }
         });
-        gpx.on('loaded', function (e) {
 
-            // ✅ Añadir número encima del punto de inicio manualmente
+        gpx.on('loaded', function (e) {
             const polyline = e.target.getLayers().find(l => l instanceof L.Polyline);
+
             if (polyline) {
+                // marcador con número
                 const startLatLng = polyline.getLatLngs()[0];
                 const numberMarker = L.marker(startLatLng, {
                     icon: L.divIcon({
                         className: 'route-number-icon',
                         html: `<div class="route-number-circle">${displayIndex + 1}</div>`,
                         iconSize: [30, 30],
-                        iconAnchor: [15, 35] // 👈 anclado justo debajo para que flote sobre el marcador
+                        iconAnchor: [15, 35]
                     })
                 });
                 numberMarker.addTo(map);
 
-                // ✅ Al hacer clic, abrir el popup de la ruta
                 numberMarker.on('click', () => {
                     const entry = layersById.get(id);
                     if (entry?.gpxLayer) {
@@ -71,6 +88,14 @@ export async function loadRoutes() {
 
             const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
             const desnivelM = e.target.get_elevation_gain().toFixed(0);
+
+            // ✅ aplicar color en función de dificultad
+            const { color: difficultyColor, nivel } = getDifficulty(meta, distanciaKm, desnivelM);
+
+            // aplicar estilo al polyline
+            if (polyline) {
+                polyline.setStyle({ color: difficultyColor });
+            }
 
             let durTotalS = e.target.get_total_time();
             let durMovS = e.target.get_moving_time();
@@ -94,6 +119,7 @@ export async function loadRoutes() {
                     <div style="font-size:12px;"><b>Longitud:</b> ${distanciaKm} km</div>
                     <div style="font-size:12px;"><b>Desnivel:</b> ${desnivelM} m</div>
                     <div style="font-size:12px;"><b>Duración total:</b> ${duracionTotalStr}</div>
+                    <div style="font-size:12px;"><b>Nivel:</b> ${nivel}</div>
                     ${meta.relive ? `<div style="margin-top:4px;"><a href="${meta.relive}" target="_blank">Ver en Relive</a></div>` : ''}
                 </div>
             `;
