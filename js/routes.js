@@ -14,7 +14,7 @@ export async function loadRoutes() {
     const boundsAccumulator = [];
 
     // 👇 Iteramos en orden inverso, pero calculamos el número original
-    data.slice().reverse().forEach((meta, idx) => {
+    data.slice().forEach((meta, idx) => {
         const displayIndex = total - idx - 1; // 👈 Esto da 13, 12, 11... si total = 14
         const id = meta.id || meta.archivo;
 
