@@ -1,5 +1,32 @@
 [
   {
+    "id": "covacha",
+    "nombre": "La Covacha y 4 Lagunas",
+    "archivo": "cuatro-lagunas-gredos-occidental.gpx",
+    "participantes": [
+      "Pedro",
+      "Lolo"
+    ],
+    "fecha": "2025-08-31",
+    "descripcion": "Quedan dos para medalla de oro de Pedro",
+    "relive": "https://www.relive.com/es/view/vPOpKpANEEv"
+  },
+  {
+    "id": "zapatero",
+    "nombre": "Pico Zapatero y Peña Cabrera desde Navandrinal",
+    "archivo": "pico-zapatero-y-pena-cabrera-desde-navandrinal-circular.gpx",
+    "participantes": [
+      "Asun",
+      "Moisés",
+      "JuanMa",
+      "Ana",
+      "Dani"
+    ],
+    "fecha": "2025-08-31",
+    "descripcion": "Solo no puedes, con amigos si",
+    "relive": ""
+  },
+  {
     "id": "siete-picos",
     "nombre": "Pico Somontano, Pico Segundo y Collado Ventoso desde Parking Navacerrada",
     "archivo": "pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx",
