@@ -1,6 +1,6 @@
 ﻿import { layersById, map } from './map.js';
 
-export function addRouteToList(id, meta, idx) {
+export function addRouteToList(id, meta, idx, color, nivel) {
     const routesEl = document.getElementById('routes');
 
     const btn = document.createElement('button');
@@ -12,12 +12,20 @@ export function addRouteToList(id, meta, idx) {
     const numParticipantes = meta.participantes?.length || 0;
 
     btn.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center">
-        <div class="fw-bold">${fecha} — ${nombre}</div>
-        <div class="badge bg-secondary rounded-pill ms-2">#${idx + 1}</div>
-    </div>
-    <div class="text-muted" style="font-size: 12px;">${numParticipantes} participante${numParticipantes !== 1 ? 's' : ''}</div>
-    `;
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="fw-bold">${fecha} — ${nombre}</div>
+            <div class="badge bg-secondary rounded-pill ms-2">#${idx + 1}</div>
+        </div>
+        <div class="text-muted" style="font-size: 12px;">
+            ${numParticipantes} participante${numParticipantes !== 1 ? 's' : ''}
+        </div>
+        <div class="mt-1">
+            <span class="badge rounded-pill" style="background-color: ${color}; color: white;">
+                Nivel: ${nivel}
+            </span>
+        </div>
+        `;
+
 
     btn.addEventListener('click', () => {
         const entry = layersById.get(id);

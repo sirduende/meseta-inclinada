@@ -35,8 +35,7 @@ export async function loadRoutes() {
         const displayIndex = total - idx - 1;
         const id = meta.id || meta.archivo;
 
-        meta.participantes.forEach(p => people.add(p));
-        addRouteToList(id, meta, displayIndex);
+        meta.participantes.forEach(p => people.add(p));        
 
         const gpx = new L.GPX('gpx/' + meta.archivo, {
             async: true,
@@ -96,6 +95,8 @@ export async function loadRoutes() {
             if (polyline) {
                 polyline.setStyle({ color: difficultyColor });
             }
+
+            addRouteToList(id, meta, displayIndex, difficultyColor, nivel);
 
             let durTotalS = e.target.get_total_time();
             let durMovS = e.target.get_moving_time();
