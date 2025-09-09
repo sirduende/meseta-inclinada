@@ -7,114 +7,108 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx" />
-    <None Remove="gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx" />
-    <None Remove="gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx" />
-    <None Remove="gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx" />
-    <None Remove="gpx\espiguete-6-7-25.gpx" />
-    <None Remove="gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx" />
-    <None Remove="gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx" />
-    <None Remove="gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx" />
-    <None Remove="gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx" />
-    <None Remove="gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx" />
-    <None Remove="gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx" />
-    <None Remove="gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx" />
-    <None Remove="gpx\teleno-desde-filiel.gpx" />
-    <None Remove="gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx" />
-    <None Remove="gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx" />
-    <None Remove="gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx" />
-    <None Remove="image\meseta_inclinada.png" />
-    <None Remove="libs\bootstrap-icons\bootstrap-icons.css" />
-    <None Remove="libs\bootstrap.bundle.min.js" />
-    <None Remove="libs\bootstrap.min.css" />
-    <None Remove="libs\bootstrap.min.js" />
-    <None Remove="libs\gpx.min.js" />
-    <None Remove="libs\leaflet.css" />
-    <None Remove="libs\leaflet.js" />
+    <None Remove="public\gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx" />
+    <None Remove="public\gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx" />
+    <None Remove="public\gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx" />
+    <None Remove="public\gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx" />
+    <None Remove="public\gpx\espiguete-6-7-25.gpx" />
+    <None Remove="public\gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx" />
+    <None Remove="public\gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx" />
+    <None Remove="public\gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx" />
+    <None Remove="public\gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx" />
+    <None Remove="public\gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx" />
+    <None Remove="public\gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx" />
+    <None Remove="public\gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx" />
+    <None Remove="public\gpx\teleno-desde-filiel.gpx" />
+    <None Remove="public\gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx" />
+    <None Remove="public\gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx" />
+    <None Remove="public\gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx" />
+    <None Remove="public\image\meseta_inclinada.png" />
+    <None Remove="public\libs\bootstrap-icons\bootstrap-icons.css" />
+    <None Remove="public\libs\bootstrap.bundle.min.js" />
+    <None Remove="public\libs\bootstrap.min.css" />
+    <None Remove="public\libs\bootstrap.min.js" />
+    <None Remove="public\libs\gpx.min.js" />
+    <None Remove="public\libs\leaflet.css" />
+    <None Remove="public\libs\leaflet.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx">
+    <Content Include="public\gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx">
+    <Content Include="public\gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx">
+    <Content Include="public\gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx">
+    <Content Include="public\gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\espiguete-6-7-25.gpx">
+    <Content Include="public\gpx\espiguete-6-7-25.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx">
+    <Content Include="public\gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx">
+    <Content Include="public\gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx">
+    <Content Include="public\gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx">
+    <Content Include="public\gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx">
+    <Content Include="public\gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx">
+    <Content Include="public\gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx">
+    <Content Include="public\gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\teleno-desde-filiel.gpx">
+    <Content Include="public\gpx\teleno-desde-filiel.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx">
+    <Content Include="public\gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx">
+    <Content Include="public\gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx">
+    <Content Include="public\gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="image\meseta_inclinada.png">
+    <Content Include="public\image\meseta_inclinada.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libs\bootstrap-icons\bootstrap-icons.css">
+    <Content Include="public\libs\bootstrap-icons\bootstrap-icons.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libs\bootstrap.bundle.min.js">
+    <Content Include="public\libs\bootstrap.bundle.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libs\bootstrap.min.css">
+    <Content Include="public\libs\bootstrap.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libs\gpx.min.js">
+    <Content Include="public\libs\gpx.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libs\leaflet.css">
+    <Content Include="public\libs\leaflet.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libs\leaflet.js">
+    <Content Include="public\libs\leaflet.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="data.json">
+    <Content Update="public\data.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="index.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

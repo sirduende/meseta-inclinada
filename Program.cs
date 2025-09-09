@@ -12,7 +12,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 // Servir GPX desde /gpx
-var gpxPath = Path.Combine(Directory.GetCurrentDirectory(), "gpx");
+var gpxPath = Path.Combine(Directory.GetCurrentDirectory(), "public/gpx");
 
 // Registrar .gpx como application/gpx+xml
 var provider = new FileExtensionContentTypeProvider();
@@ -21,7 +21,7 @@ provider.Mappings[".gpx"] = "application/gpx+xml";
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(gpxPath),
-    RequestPath = "/gpx",
+    RequestPath = "/public/gpx",
     ContentTypeProvider = provider
 });
 
@@ -29,7 +29,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseDirectoryBrowser(new DirectoryBrowserOptions
 {
     FileProvider = new PhysicalFileProvider(gpxPath),
-    RequestPath = "/gpx"
+    RequestPath = "/public/gpx"
 });
 
 app.Run();
