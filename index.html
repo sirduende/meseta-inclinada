@@ -50,8 +50,8 @@
                 <div class="fw-bold">Filtrar por persona</div>
                 <select id="participantsSelect" class="form-select form-select-sm mb-2">
                     <option value="">Todos</option>-->
-                    <!-- Las opciones se insertan dinámicamente -->
-                <!--</select>
+            <!-- Las opciones se insertan dinámicamente -->
+            <!--</select>
                 <div class="d-flex gap-2">
                     <button id="clearFilters" class="btn btn-sm btn-outline-secondary">Quitar filtros</button>
                     <a class="btn btn-sm btn-primary" href="#" id="fitAll">Ver todas</a>
@@ -68,6 +68,29 @@
 
     <!-- Contenedor del mapa -->
     <main id="map" class="flex-grow-1"></main>
+
+    <!-- Servicios Firebase -->
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDKawxuPWz7mXIhy5bXTyEXLwjQWLqT2WY",
+            authDomain: "mesetainclinada.firebaseapp.com",
+            projectId: "mesetainclinada",
+            storageBucket: "mesetainclinada.firebasestorage.app",
+            messagingSenderId: "1021207844016",
+            appId: "1:1021207844016:web:b201c11b0ef9a8c39d5775",
+            measurementId: "G-2J00EBRTNF"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+    </script>
 
     <!-- Bootstrap JS -->
     <script src="./libs/bootstrap.bundle.min.js"></script>
