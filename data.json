@@ -1,5 +1,20 @@
 [
   {
+    "id": "friero2",
+    "nombre": "Torre del Friero (2)",
+    "archivo": "Collado_de_la_Chavida-_Torre_del_Friero_y_Collado_.gpx",
+    "participantes": [
+      "Asun",
+      "Lolo",
+      "JuanMa",
+      "Pedro"
+    ],
+    "fecha": "2025-09-06",
+    "dificultad" : "Alta",
+    "descripcion": "A por la medalla de Pedro. A falta de una.",
+    "relive": "https://www.relive.com/view/vZqNoeNA53v"
+  },
+  {
     "id": "covacha",
     "nombre": "La Covacha y 4 Lagunas",
     "archivo": "cuatro-lagunas-gredos-occidental.gpx",
@@ -80,6 +95,7 @@
       "JuanMa"
     ],
     "fecha": "2025-08-02",
+    "dificultad": "Alta",
     "descripcion": "Para los más valientes",
     "relive": ""
   },

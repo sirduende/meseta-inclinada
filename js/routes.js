@@ -6,6 +6,9 @@ import { addRouteToList } from './ui.js';
 import { colorForIndex, formatDuracion } from './utils.js';
 
 function getDifficulty(meta, distanciaKm, desnivelM) {
+
+    const dificultad = meta.dificultad;
+
     const nombre = meta.nombre.toLowerCase();
     const dist = parseFloat(distanciaKm);
     const desn = parseFloat(desnivelM);
@@ -13,13 +16,13 @@ function getDifficulty(meta, distanciaKm, desnivelM) {
     if (nombre.includes("ferrata")) {
         return { color: "black", nivel: "Ferrata" };
     }
-    if (dist > 20 || desn > 1500) {
-        return { color: "red", nivel: "Alto" };
+    if (dificultad == "Alta" || dist > 20 || desn > 1500) {
+        return { color: "red", nivel: "Alta" };
     }
     if (dist < 12 && desn < 1000) {
-        return { color: "green", nivel: "Bajo" };
+        return { color: "green", nivel: "Baja" };
     }
-    return { color: "#f97316", nivel: "Medio" }; // naranja suave
+    return { color: "#f97316", nivel: "Media" }; // naranja suave
 }
 
 
