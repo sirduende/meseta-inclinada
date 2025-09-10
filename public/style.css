@@ -5,6 +5,11 @@
     font-family: sans-serif;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+}
+
 .layout {
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -17,8 +22,8 @@
     overflow-y: auto;
 }
 
-main#map {
-    width: 100%;
+#map {
+    flex-grow: 1;
     height: 100%;
 }
 

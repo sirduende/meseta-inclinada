@@ -16,14 +16,6 @@
 
     <!-- Tu CSS -->
     <link rel="stylesheet" href="./style.css" />
-
-    <!-- FireBase -->
-    <script defer src="/__/firebase/12.2.1/firebase-app-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.2.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
 </head>
 <body>
 
@@ -77,74 +69,16 @@
     <!-- Contenedor del mapa -->
     <main id="map" class="flex-grow-1"></main>
 
-    <!-- Servicios Firebase -->
-
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDKawxuPWz7mXIhy5bXTyEXLwjQWLqT2WY",
-            authDomain: "mesetainclinada.firebaseapp.com",
-            projectId: "mesetainclinada",
-            storageBucket: "mesetainclinada.firebasestorage.app",
-            messagingSenderId: "1021207844016",
-            appId: "1:1021207844016:web:b201c11b0ef9a8c39d5775",
-            measurementId: "G-2J00EBRTNF"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-
-    </script>
-
     <!-- Bootstrap JS -->
     <script src="./libs/bootstrap.bundle.min.js"></script>
 
     <!-- Leaflet + scripts -->
     <script src="./libs/leaflet.js"></script>
     <script src="./libs/gpx.min.js"></script>
+
+    <!-- Firebase y módulos propios -->
+    <script type="module" src="./js/firebase.js"></script>
     <script type="module" src="./js/main.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const loadEl = document.querySelector('#load');
-
-            // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-            // // The Firebase SDK is initialized and available here!
-            //
-            // firebase.auth().onAuthStateChanged(user => { });
-            // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-            // firebase.firestore().doc('/foo/bar').get().then(() => { });
-            // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-            // firebase.messaging().requestPermission().then(() => { });
-            // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-            // firebase.analytics(); // call to activate
-            // firebase.analytics().logEvent('tutorial_completed');
-            // firebase.performance(); // call to activate
-            //
-            // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-
-            try {
-                let app = firebase.app();
-                let features = [
-                    'auth',
-                    'database',
-                    'firestore',
-                    'functions',
-                    'messaging',
-                    'analytics',
-                    'remoteConfig',
-                    'performance',
-                ].filter(feature => typeof app[feature] === 'function');
-                loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-            } catch (e) {
-                console.error(e);
-                loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-            }
-        });
-    </script>
 </body>
 </html>

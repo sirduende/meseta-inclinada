@@ -4,6 +4,8 @@
 import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
 import { colorForIndex, formatDuracion } from './utils.js';
+import { db } from './firebase.js';
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 function getDifficulty(meta, distanciaKm, desnivelM) {
 
@@ -27,8 +29,21 @@ function getDifficulty(meta, distanciaKm, desnivelM) {
 
 
 export async function loadRoutes() {
-    const response = await fetch('data.json');
-    const data = await response.json();
+
+    console.log("Cargando rutas de firebase");
+
+    const snapshot = await getDocs(collection(db, "rutas"));
+
+    // Aquí generamos el array 'data' como si fuera un JSON
+    const data = snapshot.docs.map(doc => {
+        const ruta = doc.data();
+        ruta.id = doc.id; // opcional: incluir el ID del documento
+        return ruta;
+    });
+
+    // Ahora 'data' es tu array de rutas, igual que antes
+    console.log("Rutas cargadas:", data);
+
     const total = data.length;
 
     const people = new Set();
