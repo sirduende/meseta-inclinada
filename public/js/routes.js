@@ -4,8 +4,7 @@
 import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
 import { colorForIndex, formatDuracion } from './utils.js';
-import { db } from './firebase.js';
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getRutas } from './firebase.js';
 
 function getDifficulty(meta, distanciaKm, desnivelM) {
 
@@ -30,28 +29,24 @@ function getDifficulty(meta, distanciaKm, desnivelM) {
 
 export async function loadRoutes() {
 
-    console.log("Cargando rutas de firebase");
+    console.log("Cargando rutas");
 
-    const snapshot = await getDocs(collection(db, "rutas"));
-
-    // Aquí generamos el array 'data' como si fuera un JSON
-    const data = snapshot.docs.map(doc => {
-        const ruta = doc.data();
-        ruta.id = doc.id; // opcional: incluir el ID del documento
-        return ruta;
-    });
+    const data = await getRutas();
 
     // Ahora 'data' es tu array de rutas, igual que antes
-    console.log("Rutas cargadas:", data);
+    console.log("Rutas cargadas");
 
     const total = data.length;
 
     const people = new Set();
     const boundsAccumulator = [];
 
-    data.slice().forEach((meta, idx) => {
-        const displayIndex = total - idx - 1;
+    data.forEach((meta, idx) => {
+        
+        // Guardar el índice en el mapa para usarlo luego y evitar errores de asincronía
         const id = meta.id || meta.archivo;
+        const displayIndex = total - idx - 1;
+        layersById.set(id, { meta, displayIndex, gpxLayer: null, bounds: null });        
 
         meta.participantes.forEach(p => people.add(p));        
 
@@ -70,6 +65,10 @@ export async function loadRoutes() {
         });
 
         gpx.on('loaded', function (e) {
+
+            const entry = layersById.get(id);
+            const idx = entry.displayIndex;
+
             const polyline = e.target.getLayers().find(l => l instanceof L.Polyline);
 
             if (polyline) {
@@ -114,7 +113,7 @@ export async function loadRoutes() {
                 polyline.setStyle({ color: difficultyColor });
             }
 
-            addRouteToList(id, meta, displayIndex, difficultyColor, nivel);
+            addRouteToList(id, meta, idx, difficultyColor, nivel);
 
             let durTotalS = e.target.get_total_time();
             let durMovS = e.target.get_moving_time();
@@ -146,7 +145,11 @@ export async function loadRoutes() {
         });
 
         gpx.on('error', () => console.error('Error cargando GPX', meta.archivo));
-        layersById.set(id, { gpxLayer: gpx, meta, bounds: null });
+
+        const entry = layersById.get(id);
+        entry.gpxLayer = gpx;
+        entry.bounds = null;
+
         gpx.addTo(map);
     });
 
