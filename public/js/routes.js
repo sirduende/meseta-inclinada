@@ -46,27 +46,20 @@ export async function loadRoutes() {
         ruta.url = await getGPXUrl(ruta.archivo);
     }
 
-    data.forEach((meta, idx) => {
-        
-        // Guardar el índice en el mapa para usarlo luego y evitar errores de asincronía
+    for (let idx = 0; idx < data.length; idx++) {
+        const meta = data[idx];
         const id = meta.id || meta.archivo;
-        const displayIndex = total - idx - 1;
-        layersById.set(id, { meta, displayIndex, gpxLayer: null, bounds: null });        
+        const displayIndex = data.length - idx - 1;
 
-        meta.participantes.forEach(p => people.add(p));        
+        layersById.set(id, { meta, displayIndex, gpxLayer: null, bounds: null });
+        meta.participantes.forEach(p => people.add(p));    
 
-        const gpx = new L.GPX(meta.url, {
+        const url = await getGPXUrl(meta.archivo);
+
+        const gpx = new L.GPX(url, {
             async: true,
-            polyline_options: {
-                color: 'gray', // inicial neutro, luego lo ajustamos
-                weight: 4,
-                opacity: 0.9
-            },
-            marker_options: {
-                startIconUrl: '',
-                endIconUrl: '',
-                shadowUrl: ''
-            }
+            polyline_options: { color: 'gray', weight: 4, opacity: 0.9 },
+            marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' }
         });
 
         gpx.on('loaded', function (e) {
@@ -151,12 +144,9 @@ export async function loadRoutes() {
 
         gpx.on('error', () => console.error('Error cargando GPX', meta.archivo));
 
-        const entry = layersById.get(id);
-        entry.gpxLayer = gpx;
-        entry.bounds = null;
-
+        layersById.get(id).gpxLayer = gpx;
         gpx.addTo(map);
-    });
+    };
 
     return people;
 }
