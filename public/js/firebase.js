@@ -1,6 +1,8 @@
 ﻿// firebase.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyDKawxuPWz7mXIhy5bXTyEXLwjQWLqT2WY",
@@ -15,6 +17,7 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Función para obtener rutas ordenadas por fecha descendente
 export async function getRutas() {
@@ -29,4 +32,15 @@ export async function getRutas() {
     rutas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
     return rutas;
+}
+
+export async function getGPXUrl(nombreArchivo) {
+    const archivoRef = ref(storage, 'gpx/' + nombreArchivo);
+    try {
+        const url = await getDownloadURL(archivoRef);
+        return url;
+    } catch (error) {
+        console.error("❌ Error al obtener la URL del GPX:", error);
+        return null;
+    }
 }

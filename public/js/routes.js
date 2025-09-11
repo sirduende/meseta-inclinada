@@ -4,7 +4,7 @@
 import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
 import { colorForIndex, formatDuracion } from './utils.js';
-import { getRutas } from './firebase.js';
+import { getRutas, getGPXUrl } from './firebase.js';
 
 function getDifficulty(meta, distanciaKm, desnivelM) {
 
@@ -41,6 +41,11 @@ export async function loadRoutes() {
     const people = new Set();
     const boundsAccumulator = [];
 
+    //Rellenar urls
+    for (const ruta of data) {
+        ruta.url = await getGPXUrl(ruta.archivo);
+    }
+
     data.forEach((meta, idx) => {
         
         // Guardar el índice en el mapa para usarlo luego y evitar errores de asincronía
@@ -50,7 +55,7 @@ export async function loadRoutes() {
 
         meta.participantes.forEach(p => people.add(p));        
 
-        const gpx = new L.GPX('gpx/' + meta.archivo, {
+        const gpx = new L.GPX(meta.url, {
             async: true,
             polyline_options: {
                 color: 'gray', // inicial neutro, luego lo ajustamos

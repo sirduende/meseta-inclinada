@@ -7,22 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="public\gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx" />
-    <None Remove="public\gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx" />
-    <None Remove="public\gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx" />
-    <None Remove="public\gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx" />
-    <None Remove="public\gpx\espiguete-6-7-25.gpx" />
-    <None Remove="public\gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx" />
-    <None Remove="public\gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx" />
-    <None Remove="public\gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx" />
-    <None Remove="public\gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx" />
-    <None Remove="public\gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx" />
-    <None Remove="public\gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx" />
-    <None Remove="public\gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx" />
-    <None Remove="public\gpx\teleno-desde-filiel.gpx" />
-    <None Remove="public\gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx" />
-    <None Remove="public\gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx" />
-    <None Remove="public\gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx" />
+    <None Remove="exportador-gpx\gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx" />
+    <None Remove="exportador-gpx\gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx" />
+    <None Remove="exportador-gpx\gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx" />
+    <None Remove="exportador-gpx\gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx" />
+    <None Remove="exportador-gpx\gpx\espiguete-6-7-25.gpx" />
+    <None Remove="exportador-gpx\gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx" />
+    <None Remove="exportador-gpx\gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx" />
+    <None Remove="exportador-gpx\gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx" />
+    <None Remove="exportador-gpx\gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx" />
+    <None Remove="exportador-gpx\gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx" />
+    <None Remove="exportador-gpx\gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx" />
+    <None Remove="exportador-gpx\gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx" />
+    <None Remove="exportador-gpx\gpx\teleno-desde-filiel.gpx" />
+    <None Remove="exportador-gpx\gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx" />
+    <None Remove="exportador-gpx\gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx" />
+    <None Remove="exportador-gpx\gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx" />
     <None Remove="public\image\meseta_inclinada.png" />
     <None Remove="public\libs\bootstrap-icons\bootstrap-icons.css" />
     <None Remove="public\libs\bootstrap.bundle.min.js" />
@@ -34,52 +34,52 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="public\gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx">
+    <Content Include="exportador-gpx\gpx\Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx">
+    <Content Include="exportador-gpx\gpx\collado-sestil-sestil-alto-y-valdecebollas-desde-branosera.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx">
+    <Content Include="exportador-gpx\gpx\cuchillon-cotomaninos-y-cueto-manin-desde-branavieja.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx">
+    <Content Include="exportador-gpx\gpx\curavacas-pico-hospital-y-huelgas-28-6-25.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\espiguete-6-7-25.gpx">
+    <Content Include="exportador-gpx\gpx\espiguete-6-7-25.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx">
+    <Content Include="exportador-gpx\gpx\iglesia-de-torrebarrio-pena-ubina-y-collado-ronzon-desde-tor.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx">
+    <Content Include="exportador-gpx\gpx\laguna-hondera-mulhacen-y-mulhacen-ii-desde-trevelez.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx">
+    <Content Include="exportador-gpx\gpx\mirador-de-piedrasluengas-pena-labra-y-pico-tres-mares-desde.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx">
+    <Content Include="exportador-gpx\gpx\pena-de-la-cruz-pico-de-recacabiello-y-pico-mediodia-desde-l.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx">
+    <Content Include="exportador-gpx\gpx\pico-somontano-pico-segundo-y-collado-ventoso-desde-parking-.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx">
+    <Content Include="exportador-gpx\gpx\pozo-de-las-lomas-tres-provincias-y-pena-prieta-desde-cardan.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx">
+    <Content Include="exportador-gpx\gpx\san-millan-collado-flecho-y-trigaza-sur-desde-pineda-de-la-s.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\teleno-desde-filiel.gpx">
+    <Content Include="exportador-gpx\gpx\teleno-desde-filiel.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx">
+    <Content Include="exportador-gpx\gpx\torre-bermeja-los-moledizos-y-collado-del-burro-desde-los-ll.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx">
+    <Content Include="exportador-gpx\gpx\Torre_del_Friero-_Collado_de_la_Chavida_y_Collado_.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="public\gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx">
+    <Content Include="exportador-gpx\gpx\wikiloc_via-ferrata-valdetorno-sabero.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="public\image\meseta_inclinada.png">
