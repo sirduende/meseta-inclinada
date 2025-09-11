@@ -1,60 +1,43 @@
-﻿// ❌ No importamos Leaflet
-// ✅ Usamos directamente L.GPX
-
-import { map, layersById, setAllBounds } from './map.js';
+﻿import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
-import { colorForIndex, formatDuracion } from './utils.js';
+import { enriquecerListado } from './routes-view-model.js';
 import { getRutas, getGPXUrl } from './firebase.js';
 
-function getDifficulty(meta, distanciaKm, desnivelM) {
-
-    const dificultad = meta.dificultad;
-
-    const nombre = meta.nombre.toLowerCase();
-    const dist = parseFloat(distanciaKm);
-    const desn = parseFloat(desnivelM);
-
-    if (nombre.includes("ferrata")) {
-        return { color: "black", nivel: "Ferrata" };
-    }
-    if (dificultad == "Alta" || dist > 20 || desn > 1500) {
-        return { color: "red", nivel: "Alta" };
-    }
-    if (dist < 12 && desn < 1000) {
-        return { color: "green", nivel: "Baja" };
-    }
-    return { color: "#f97316", nivel: "Media" }; // naranja suave
+function mostrarListadoLateral(rutasRenderizadas) {
+    rutasRenderizadas
+        .sort((a, b) => b.index - a.index)
+        .forEach(r => {
+            addRouteToList(r.id || r.archivo, r);
+        });
 }
 
-
 export async function loadRoutes() {
-
     console.log("Cargando rutas");
 
     const data = await getRutas();
-
-    // Ahora 'data' es tu array de rutas, igual que antes
-    console.log("Rutas cargadas");
-
-    const total = data.length;
+    const totalRutas = data.length;
+    let rutasCargadas = 0;
+    const loadingStatus = document.getElementById("loading-status");
+    loadingStatus.textContent = `🔄 Recopilando datos`;
 
     const people = new Set();
     const boundsAccumulator = [];
-
-    //Rellenar urls
-    for (const ruta of data) {
-        ruta.url = await getGPXUrl(ruta.archivo);
-    }
+    const gpxStatsPorId = {};
+    const rutasRenderizadas = [];
 
     for (let idx = 0; idx < data.length; idx++) {
         const meta = data[idx];
         const id = meta.id || meta.archivo;
         const displayIndex = data.length - idx - 1;
+        meta.index = displayIndex;
 
-        layersById.set(id, { meta, displayIndex, gpxLayer: null, bounds: null });
-        meta.participantes.forEach(p => people.add(p));    
+        loadingStatus.textContent = `🔄 Cargando ruta ${idx + 1} de ${data.length}: ${meta.nombre}`;
 
         const url = await getGPXUrl(meta.archivo);
+        meta.url = url;
+
+        layersById.set(id, { meta, displayIndex, gpxLayer: null, bounds: null });
+        meta.participantes.forEach(p => people.add(p));
 
         const gpx = new L.GPX(url, {
             async: true,
@@ -63,14 +46,29 @@ export async function loadRoutes() {
         });
 
         gpx.on('loaded', function (e) {
+  
+            const distanciaKm = e.target.get_distance() / 1000;
+            const desnivelM = e.target.get_elevation_gain();
+            let durTotalS = e.target.get_total_time();
+            let durMovS = e.target.get_moving_time();
 
-            const entry = layersById.get(id);
-            const idx = entry.displayIndex;
+            gpxStatsPorId[id] = {
+                distanciaKm,
+                desnivelM,
+                duracionTotalS: durTotalS,
+                duracionMovS: durMovS
+            };
+
+            const enriched = enriquecerListado([meta], gpxStatsPorId)[0];
+            rutasRenderizadas.push(enriched);
+            rutasCargadas++;
+
+            if (rutasCargadas === totalRutas) {
+                mostrarListadoLateral(rutasRenderizadas);
+            }
 
             const polyline = e.target.getLayers().find(l => l instanceof L.Polyline);
-
             if (polyline) {
-                // marcador con número
                 const startLatLng = polyline.getLatLngs()[0];
                 const numberMarker = L.marker(startLatLng, {
                     icon: L.divIcon({
@@ -81,13 +79,12 @@ export async function loadRoutes() {
                     })
                 });
                 numberMarker.addTo(map);
-
                 numberMarker.on('click', () => {
                     const entry = layersById.get(id);
-                    if (entry?.gpxLayer) {
-                        entry.gpxLayer.openPopup();
-                    }
+                    if (entry?.gpxLayer) entry.gpxLayer.openPopup();
                 });
+
+                polyline.setStyle({ color: enriched.color });
             }
 
             const b = e.target.getBounds();
@@ -100,43 +97,17 @@ export async function loadRoutes() {
             }
             setAllBounds(union);
 
-            const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
-            const desnivelM = e.target.get_elevation_gain().toFixed(0);
-
-            // ✅ aplicar color en función de dificultad
-            const { color: difficultyColor, nivel } = getDifficulty(meta, distanciaKm, desnivelM);
-
-            // aplicar estilo al polyline
-            if (polyline) {
-                polyline.setStyle({ color: difficultyColor });
-            }
-
-            addRouteToList(id, meta, idx, difficultyColor, nivel);
-
-            let durTotalS = e.target.get_total_time();
-            let durMovS = e.target.get_moving_time();
-
-            const maxSegundosRazonable = 24 * 3600;
-            if (durTotalS > maxSegundosRazonable || durMovS > maxSegundosRazonable) {
-                const velocidadMediaKmH = 4.5;
-                const durH = distanciaKm / velocidadMediaKmH;
-                durTotalS = durH * 3600;
-                durMovS = durH * 3600;
-            }
-
-            const duracionTotalStr = formatDuracion(durTotalS);
-
             const popupHtml = `
                 <div>
-                    <div style="font-weight:600;margin-bottom:4px;">${meta.nombre}</div>
-                    <div style="font-size:12px;color:#6b7280;">${meta.fecha || ''}</div>
-                    <div style="margin:6px 0;">${meta.descripcion || ''}</div>
-                    <div style="font-size:12px;"><b>Participantes:</b> ${meta.participantes.join(', ')}</div>
-                    <div style="font-size:12px;"><b>Longitud:</b> ${distanciaKm} km</div>
-                    <div style="font-size:12px;"><b>Desnivel:</b> ${desnivelM} m</div>
-                    <div style="font-size:12px;"><b>Duración total:</b> ${duracionTotalStr}</div>
-                    <div style="font-size:12px;"><b>Nivel:</b> ${nivel}</div>
-                    ${meta.relive ? `<div style="margin-top:4px;"><a href="${meta.relive}" target="_blank">Ver en Relive</a></div>` : ''}
+                    <div style="font-weight:600;margin-bottom:4px;">${enriched.nombre}</div>
+                    <div style="font-size:12px;color:#6b7280;">${enriched.fecha || ''}</div>
+                    <div style="margin:6px 0;">${enriched.descripcion || ''}</div>
+                    <div style="font-size:12px;"><b>Participantes:</b> ${enriched.participantes.join(', ')}</div>
+                    <div style="font-size:12px;"><b>Longitud:</b> ${enriched.distanciaKm} km</div>
+                    <div style="font-size:12px;"><b>Desnivel:</b> ${enriched.desnivelM} m</div>
+                    <div style="font-size:12px;"><b>Duración total:</b> ${enriched.duracionFormateada}</div>
+                    <div style="font-size:12px;"><b>Nivel:</b> ${enriched.nivel}</div>
+                    ${enriched.relive ? `<div style="margin-top:4px;"><a href="${enriched.relive}" target="_blank">Ver en Relive</a></div>` : ''}
                 </div>
             `;
             e.target.bindPopup(popupHtml);
@@ -146,7 +117,9 @@ export async function loadRoutes() {
 
         layersById.get(id).gpxLayer = gpx;
         gpx.addTo(map);
-    };
+    }
+
+    loadingStatus.textContent = `✅ Rutas cargadas`; 
 
     return people;
 }
