@@ -63,3 +63,29 @@ body {
     border: 2px solid #ffffff;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
+
+.hall-of-fame {
+    border: 4px solid gold;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    background: linear-gradient(to right, #fffbe6, #fff);
+}
+
+.fame-image {
+    border: 6px solid gold;
+    border-radius: 50%;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+    width: 100%;
+    max-width: 250px;
+    margin: 20px auto;
+    display: block;
+}
+
+.fame-title {
+    font-family: 'Georgia', serif;
+    font-size: 1.5rem;
+    color: #b8860b;
+    text-align: center;
+    margin-top: 10px;
+}
+
