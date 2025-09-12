@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administración</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./libs/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="mb-4">Panel de Administración</h1>
+        <div id="login-section">
+            <button id="login-btn" class="btn btn-outline-primary">Acceder con Google</button>
+        </div>
+        <div id="admin-content" style="display:none;">
+            <p class="text-success">Bienvenido, administrador.</p>
+            <button id="logout-btn" class="btn btn-outline-danger">Cerrar sesión</button>
+            <!-- Aquí puedes añadir más controles -->
+        </div>
+    </div>
+
+    <script type="module">
+        import { loginWithGoogle, onUserChange, isAdmin, logout } from './js/firebase.js';
+
+        const loginBtn = document.getElementById("login-btn");
+        const logoutBtn = document.getElementById("logout-btn");
+        const loginSection = document.getElementById("login-section");
+        const adminContent = document.getElementById("admin-content");
+
+        loginBtn.addEventListener("click", async () => {
+            try {
+                await loginWithGoogle();
+            } catch (error) {
+                alert("Error al iniciar sesión");
+                console.error(error);
+            }
+        });
+
+        logoutBtn.addEventListener("click", async () => {
+            await logout();
+        });
+
+        onUserChange(async user => {
+            if (user) {
+                const autorizado = await isAdmin(user.uid);
+                if (autorizado) {
+                    loginSection.style.display = "none";
+                    adminContent.style.display = "block";
+                } else {
+                    alert("No tienes permisos para acceder.");
+                    await logout();
+                }
+            } else {
+                loginSection.style.display = "block";
+                adminContent.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

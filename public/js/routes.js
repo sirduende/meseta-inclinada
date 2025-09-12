@@ -31,7 +31,7 @@ export async function loadRoutes() {
         const displayIndex = data.length - idx - 1;
         meta.index = displayIndex;
 
-        loadingStatus.textContent = `🔄 Cargando ruta ${idx + 1} de ${data.length}: ${meta.nombre}`;
+        loadingStatus.textContent = `🔄 Cargando ${idx + 1} de ${data.length}`;
 
         const url = await getGPXUrl(meta.archivo);
         meta.url = url;
