@@ -1,8 +1,16 @@
 ﻿// firebase.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+    getFirestore, collection, getDocs, getDoc, doc, setDoc, updateDoc, addDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import {
+    getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+import {
+    getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDKawxuPWz7mXIhy5bXTyEXLwjQWLqT2WY",
@@ -65,3 +73,76 @@ export async function getGPXUrl(nombreArchivo) {
         return null;
     }
 }
+
+// 🔄 Crear o actualizar ruta
+export async function saveRuta(id, data) {
+    try {
+        await setDoc(doc(db, "rutas", id), data);
+        return id;
+    } catch (error) {
+        console.error("❌ Error al guardar ruta:", error.code, error.message);
+        throw error;
+    }
+}
+
+
+export async function getNextRutaId() {
+    try {
+        const snapshot = await getDocs(collection(db, "rutas"));
+        const ids = snapshot.docs
+            .map(doc => parseInt(doc.data().id)) // ← accede al campo interno
+            .filter(n => !isNaN(n));
+
+        const maxId = ids.length ? Math.max(...ids) : 0;
+        return (maxId + 1).toString();
+    } catch (error) {
+        console.error("❌ Error al obtener id:", error);
+        throw error;
+    }
+}
+
+export async function getParticipantesUnicos() {
+    const snapshot = await getDocs(collection(db, "rutas"));
+    const nombres = new Set();
+
+    snapshot.docs.forEach(doc => {
+        const ruta = doc.data();
+        if (Array.isArray(ruta.participantes)) {
+            ruta.participantes.forEach(nombre => nombres.add(nombre));
+        }
+    });
+
+    const nombresOrdenados = Array.from(nombres).sort();
+    return nombresOrdenados;
+}
+
+
+
+// 🗑️ Eliminar ruta
+export async function deleteRuta(id) {
+
+    const rutaRef = doc(db, "rutas", id);
+    await deleteDoc(rutaRef);
+}
+
+// 📤 Subir archivo GPX
+export async function uploadGPX(nombreArchivo, archivo) {
+
+    if (!archivo) {
+        console.warn("⚠️ No se ha seleccionado ningún archivo");
+        return null;
+    }
+    console.log("📤 Intentando subir archivo:", nombreArchivo);
+
+    const archivoRef = ref(storage, 'gpx/' + nombreArchivo);
+    try {
+        await uploadBytes(archivoRef, archivo);
+        console.log("✅ Archivo subido correctamente:", nombreArchivo);
+        return nombreArchivo;
+    } catch (error) {
+        console.error("❌ Error al subir GPX:", error.code, error.message);
+        throw error;
+    }
+}
+
+

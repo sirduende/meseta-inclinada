@@ -7,7 +7,6 @@ export function addRouteToList(id, meta) {
     btn.className = 'btn btn-sm btn-light w-100 text-start mb-2 route-button';
     btn.style.whiteSpace = 'normal';
 
-    console.log(meta);
     const fecha = meta.fecha || '';
     const nombre = meta.nombre || 'Ruta sin nombre';
     const numParticipantes = meta.participantes?.length || 0;

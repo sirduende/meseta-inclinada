@@ -15,7 +15,41 @@
         <div id="admin-content" style="display:none;">
             <p class="text-success">Bienvenido, administrador.</p>
             <button id="logout-btn" class="btn btn-outline-danger">Cerrar sesión</button>
-            <!-- Aquí puedes añadir más controles -->
+
+            <form id="ruta-form" class="mb-4">
+                <h4>Crear o editar ruta</h4>
+
+                <input type="text" id="ruta-nombre" placeholder="Nombre de la ruta" class="form-control mb-2" required>
+                <input type="date" id="ruta-fecha" class="form-control mb-2" required>
+                <textarea id="ruta-descripcion" placeholder="Descripción" class="form-control mb-2"></textarea>
+
+                <!-- Dificultad -->
+                <select id="ruta-dificultad" class="form-select mb-2">
+                    <option value="">Dificultad (opcional)</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Media">Media</option>
+                    <option value="Baja">Baja</option>
+                </select>
+
+                <!-- Relive -->
+                <input type="url" id="ruta-relive" placeholder="Enlace Relive (opcional)" class="form-control mb-2">
+
+                <!-- GPX -->
+                <input type="file" id="ruta-gpx" accept=".gpx" class="form-control mb-2" required>
+
+                <!-- Participantes -->
+                <div class="mb-2">
+                    <label class="form-label">Participantes:</label>
+                    <div id="participantes-checklist" class="mb-2"></div>
+                    <input type="text" id="nuevo-participante" placeholder="Añadir nuevo participante" class="form-control mb-2">
+                    <button type="button" id="agregar-participante" class="btn btn-outline-secondary btn-sm">Agregar</button>
+                </div>
+
+                <button type="submit" class="btn btn-success">Guardar ruta</button>
+            </form>
+
+
+            <div id="rutas-lista"></div>
         </div>
     </div>
 
@@ -56,5 +90,6 @@
             }
         });
     </script>
+    <script type="module" src="./js/admin.js"></script>
 </body>
 </html>
