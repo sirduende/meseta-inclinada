@@ -63,16 +63,35 @@ export async function getRutas() {
     return rutas;
 }
 
-// 📁 Obtener URL de archivo GPX
+
+
+// 📁 Obtener URL de archivo GPX (primero local y en caso contrario remoto)
 export async function getGPXUrl(nombreArchivo) {
+    const localUrl = `./gpx/${nombreArchivo}`;
+    try {
+        const response = await fetch(localUrl, { method: 'HEAD' });
+        if (response.ok) {
+            console.log(`📂 Cargando GPX local: ${nombreArchivo}`);
+            return localUrl;
+        } else {
+            console.warn(`⚠️ GPX local no encontrado: ${nombreArchivo}`);
+        }
+    } catch (error) {
+        console.warn(`⚠️ Error al verificar GPX local: ${nombreArchivo}`, error);
+    }
+
+    // Fallback a Firebase
     const archivoRef = ref(storage, 'gpx/' + nombreArchivo);
     try {
-        return await getDownloadURL(archivoRef);
+        const remoteUrl = await getDownloadURL(archivoRef);
+        console.log(`☁️ Cargando GPX desde Firebase: ${nombreArchivo}`);
+        return remoteUrl;
     } catch (error) {
-        console.error("❌ Error al obtener la URL del GPX:", error);
+        console.error("❌ Error al obtener la URL del GPX desde Firebase:", error);
         return null;
     }
 }
+
 
 // 🔄 Crear o actualizar ruta
 export async function saveRuta(id, data) {
