@@ -1,21 +1,9 @@
 ﻿import { loadRoutes } from './routes.js';
-import { buildParticipantsFilter, updateVisibility } from './participants.js';
 import { fitAllBounds } from './map.js';
 
-//document.getElementById('clearFilters').addEventListener('click', () => {
-//    document.getElementById('participantsSelect').value = '';
-//    updateVisibility();
-//});
-
-//document.getElementById('fitAll').addEventListener('click', (e) => {
-//    e.preventDefault();
-//    fitAllBounds();
-//});
 
 loadRoutes()
     .then(people => {
-        //buildParticipantsFilter(people);
-        //updateVisibility();
         fitAllBounds();
     })
     .catch(err => {
