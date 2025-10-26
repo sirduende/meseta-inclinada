@@ -13,15 +13,15 @@ const cumbresFDMESCYL = [
     { nombre: "08 Peña Ten", lat: 43.10349, lng: -5.14182 },
     { nombre: "09 Peña Santa", lat: 43.20195, lng: -4.96219 },
     { nombre: "10 Torre Bermeja", lat: 43.17306, lng: -4.95091 },
-    { nombre: "Torre del Friero", lat: 43.15728, lng: -4.87518 },
-    { nombre: "Llambrión", lat: 43.17083, lng: -4.82361 },
+    { nombre: "11 Torre del Friero", lat: 43.15727, lng: -4.87524 },
+    { nombre: "12 Llambrión", lat: 43.17327, lng: -4.85700 },
     { nombre: "Torrecerredo", lat: 43.19782, lng: -4.85292 },
     { nombre: "Espigüete", lat: 42.94472, lng: -4.79611 },
     { nombre: "Peña Prieta", lat: 42.97920, lng: -4.66833 },
     { nombre: "Curavacas", lat: 42.97632, lng: -4.67401 },
-    { nombre: "San Millán", lat: 42.23157, lng: -3.20633 },
-    { nombre: "Urbión", lat: 42.11694, lng: -2.84167 },
-    { nombre: "Moncayo", lat: 41.79278, lng: -1.83333 },
+    { nombre: "17 San Millán", lat: 42.23190, lng: -3.20630 },
+    { nombre: "18 Urbión", lat: 42.01144, lng: -2.87849 },
+    { nombre: "19 Moncayo", lat: 41.78717, lng: -1.83969 },
     { nombre: "Pico del Lobo", lat: 41.21111, lng: -3.48750 },
     { nombre: "Peñalara", lat: 40.78528, lng: -3.95556 },
     { nombre: "La Pinareja", lat: 40.80000, lng: -4.00000 },
@@ -32,7 +32,7 @@ const cumbresFDMESCYL = [
     { nombre: "La Covacha", lat: 40.24722, lng: -5.31667 },
     { nombre: "La Serrota", lat: 40.51667, lng: -5.23333 },
     { nombre: "El Torreón de Béjar", lat: 40.38333, lng: -5.75000 },
-    { nombre: "Castro Valnera", lat: 43.15030, lng: -3.65170 }
+    { nombre: "30 Castro Valnera", lat: 43.14585, lng: -3.68190 }
 ];
 
 const rutasSecundarias = [
@@ -151,7 +151,72 @@ const rutasSecundarias = [
         añoRuta: 2020,
         enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/2020-09-06-la-travesona-desde-posada-de-valdeon-55952382",
         archivoGPX: "gpx2026/10_pambuches.gpx"
-    }
+    },
+    {
+        nombreRuta: "Peña Remona",
+        cumbrePrincipal: "11 Torre del Friero",
+        dificultad: "Difícil",
+        colorDificultad: "#ef4444",
+        iconoDificultad: "🔴",
+        añoRuta: 2019,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-san-carlos-sagrado-corazon-macizo-de-andara-41008792",
+        archivoGPX: "gpx2026/11_pena_remona.gpx"
+    },
+    {
+        nombreRuta: "Cabeza Guilez y Mojón Alto",
+        cumbrePrincipal: "17 San Millán",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2017,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/cabeza-aguilez-mojon-alto-remendia-sierra-de-la-demanda-18225576",
+        archivoGPX: "gpx2026/17_mojon_alto.gpx"
+    },   
+    {
+        nombreRuta: "Peñas Claras, Picacho, Tres Provincias y Urbión",
+        cumbrePrincipal: "18 Urbión",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2024,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-urbion-2228m-penas-claras-2168m-picacho-camperon-2101m-pico-las-tres-provincias-2069m-desde-c-171817551",
+        archivoGPX: "gpx2026/18_penas_claras.gpx"
+    },  
+    {
+        nombreRuta: "Lobera. Subida desde Beratón",
+        cumbrePrincipal: "19 Moncayo",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2018,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/alto-del-moncayo-lobera-subida-desde-beraton-cabezo-del-cahiz-y-regreso-por-collado-bellido-y-gr-90-24229735",
+        archivoGPX: "gpx2026/19_lobera.gpx"
+    },  
+    {
+        nombreRuta: "Picon del Fraile",
+        cumbrePrincipal: "30 Castro Valnera",
+        dificultad: "Fácil",
+        colorDificultad: "#10b981",
+        iconoDificultad: "🟢",
+        añoRuta: 2017,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/ruta-circular-por-el-picon-del-fraile-16031579",
+        archivoGPX: "gpx2026/30_picon_fraile.gpx"
+    },
+
+
+
+    {
+        nombreRuta: "Pico San Carlos 'Sagrado Corazón'",
+        cumbrePrincipal: "(Fuera de Reto)",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2019,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-san-carlos-sagrado-corazon-macizo-de-andara-41008792",
+        archivoGPX: "gpx2026/00_san_carlos.gpx"
+    },
+
+    
 
 ];
 
