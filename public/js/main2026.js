@@ -22,16 +22,16 @@ const cumbresFDMESCYL = [
     { nombre: "17 San Millán", lat: 42.23190, lng: -3.20630 },
     { nombre: "18 Urbión", lat: 42.01144, lng: -2.87849 },
     { nombre: "19 Moncayo", lat: 41.78717, lng: -1.83969 },
-    { nombre: "Pico del Lobo", lat: 41.21111, lng: -3.48750 },
-    { nombre: "Peñalara", lat: 40.78528, lng: -3.95556 },
-    { nombre: "La Pinareja", lat: 40.80000, lng: -4.00000 },
+    { nombre: "20 Pico del Lobo", lat: 41.18319, lng: -3.46628 },
+    { nombre: "21 Peñalara", lat: 40.85001, lng: -3.95601 },
+    { nombre: "22 La Pinareja", lat: 40.81005, lng: -4.09429 },
     { nombre: "El Torozo", lat: 40.28333, lng: -5.15000 },
     { nombre: "Torreón de los Galayos", lat: 40.25167, lng: -5.17417 },
     { nombre: "La Mira", lat: 40.25833, lng: -5.24167 },
     { nombre: "Almanzor", lat: 40.24603, lng: -5.29748 },
     { nombre: "La Covacha", lat: 40.24722, lng: -5.31667 },
     { nombre: "La Serrota", lat: 40.51667, lng: -5.23333 },
-    { nombre: "El Torreón de Béjar", lat: 40.38333, lng: -5.75000 },
+    { nombre: "29 El Torreón de Béjar", lat: 40.29217, lng: -5.74084 },
     { nombre: "30 Castro Valnera", lat: 43.14585, lng: -3.68190 }
 ];
 
@@ -193,6 +193,47 @@ const rutasSecundarias = [
         archivoGPX: "gpx2026/19_lobera.gpx"
     },  
     {
+        nombreRuta: "Picos el Cervunal y los Picachos",
+        cumbrePrincipal: "20 Pico del Lobo",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2024,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/picos-el-cervunal-y-los-picachos-desde-rosuero-por-la-canada-real-soriana-occidental-el-gr-88-y-la-176340865",
+        archivoGPX: "gpx2026/20_picachos.gpx"
+    },  
+    {
+        nombreRuta: "Peña Citores por Senda del Batallón Alpino",
+        cumbrePrincipal: "21 Peñalara",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2019,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pena-citores-por-senda-del-batallon-alpino-refugio-citores-mirador-del-cancho-fuente-de-la-peseta-d-32362419",
+        archivoGPX: "gpx2026/21_citores.gpx"
+    },  
+    {
+        nombreRuta: "Peña del Oso desde las Dehesas de Cercedilla",
+        cumbrePrincipal: "22 La Pinareja",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2013,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pena-del-oso-2-196-m-desde-las-dehesas-de-cercedilla-paso-por-la-pinareja-3877388",
+        archivoGPX: "gpx2026/22_oso.gpx"
+    }, 
+    {
+        nombreRuta: "Calvitero y Canchal de la Ceja",
+        cumbrePrincipal: "29 Torreón de Béjar",
+        dificultad: "Fácil",
+        colorDificultad: "#10b981",
+        iconoDificultad: "🟢",
+        añoRuta: 2020,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/calvitero-y-canchal-de-la-ceja-desde-plataforma-del-travieso-circular-55794170",
+        archivoGPX: "gpx2026/29_calvitero.gpx",
+        aviso: "Es posible alargar, pero con un diseñador de rutas"
+    },     
+    {
         nombreRuta: "Picon del Fraile",
         cumbrePrincipal: "30 Castro Valnera",
         dificultad: "Fácil",
@@ -202,9 +243,6 @@ const rutasSecundarias = [
         enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/ruta-circular-por-el-picon-del-fraile-16031579",
         archivoGPX: "gpx2026/30_picon_fraile.gpx"
     },
-
-
-
     {
         nombreRuta: "Pico San Carlos 'Sagrado Corazón'",
         cumbrePrincipal: "(Fuera de Reto)",
