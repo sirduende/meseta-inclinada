@@ -83,6 +83,35 @@
         <p>Un pico secundario es una cumbre cercana a una principal ya visitada, que no forma parte del reto original de la FDMESCYL. Puede ser menos conocido, menos alto o simplemente menos transitado.</p>
         <p>El objetivo es descubrir nuevas perspectivas partiendo de una zona ya transitada</p>
 
+        <h3 class="mt-5 text-secondary">¿Dónde se consultan las rutas?</h3>
+        <p>Las propuestas recibidas se irán actualizando en el mapa interactivo:</p>
+        <a href="./propuestas.html" class="btn btn-outline-success">
+            <i class="bi bi-map"></i> Ver mapa de propuestas
+        </a>
+
+        <h3 class="mt-5 text-secondary">¿Cómo se visualiza una ruta?</h3>
+        <p>
+            En el mapa interactivo, cada ruta se representa con una línea de color según su dificultad, comenzando en el punto de inicio y finalizando en la cima secundaria.
+            Además, se muestra un círculo de referencia alrededor de la cumbre principal para indicar el área del reto.
+        </p>
+
+        <div class="text-center my-4">
+            <img src="./image/reto_ejemplo.png" class="img-fluid rounded shadow-sm" alt="Ejemplo de visualización de ruta secundaria">
+            <p class="text-muted mt-2" style="font-size: 0.9rem;">
+                Ejemplo de ruta. El círculo en color naranja marca el pico original.<br />
+                El recorrido se marca en color naranja al ser moderado. Si aparece en verde será fácil y en rojo difícil<br />
+                La propuesta parte del punto marcado con la letra "P" y finaliza en un pico secundario.
+            </p>
+        </div>
+
+        <div class="text-center my-4">
+            <img src="./image/reto_ejemplo_2.png" class="img-fluid rounded shadow-sm" alt="Ejemplo de visualización de ruta secundaria">
+            <p class="text-muted mt-2" style="font-size: 0.9rem;">
+                Al pulsar sobre el icono "P" podemos visualizar datos sobre la ruta.<br />
+                Los datos de longitud y desnivel se calculan directamente desde el fichero .gpx<br />
+            </p>
+        </div>
+
         <h3 class="mt-5 text-secondary">¿Quién puede participar?</h3>
         <p>Cualquier miembro del grupo puede proponer, consultar o realizar rutas del reto. No hay requisitos de antigüedad ni compromiso obligatorio. El reto está pensado para disfrutar, compartir y explorar juntos.</p>
         <p>Si aún no formas parte del grupo, puedes escribirnos y te incluiremos en las comunicaciones.</p>
@@ -101,13 +130,6 @@
         <p>La decisión dependerá del número de participantes, la dificultad, el clima y las ganas del momento. Aunque el reto tiene 30 destinos orientativos, <strong>no hay un orden fijo</strong>: el grupo marca el ritmo.</p>
         <p>Además, durante el año también se podrán realizar <strong>rutas fuera del reto</strong>, sin perder el espíritu de exploración y disfrute que nos une.</p>
 
-
-        <h3 class="mt-5 text-secondary">¿Dónde se consultan las rutas?</h3>
-        <p>Las propuestas recibidas se irán actualizando en el mapa interactivo:</p>
-        <a href="./propuestas.html" class="btn btn-outline-success">
-            <i class="bi bi-map"></i> Ver mapa de propuestas
-        </a>
-
         <h3 class="mt-5 text-secondary">¿Cuándo empezamos?</h3>
         <ul class="list-group list-group-flush mb-4">
             <li class="list-group-item">Si estás en el grupo de Whatsapp, iremos comentando próximas salidas cuando empiece el año</li>
@@ -117,6 +139,31 @@
 
         <h3 class="mt-5 text-secondary">¿Y el orden?</h3>
         <p>El orden será marcado por el grupo. Aunque hay números orientativos (los del reto original de la Federación de Castilla y León), <strong>no tenemos por qué seguirlo</strong>. Lo importante es disfrutar del camino.</p>
+
+        <h3 class="mt-5 text-secondary">Propuestas</h3>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item">Este listado no marca las rutas a realizar. Son posibles rutas y se actualizan con nuevas ideas de los miembros del grupo</li>
+        </ul>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle" id="tablaRutas">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Ruta</th>
+                        <th>Cumbre principal</th>
+                        <th>Dificultad</th>
+                        <th>Año (Wikiloc)</th>
+                        <th>Propuesto por</th>
+                        <th>Enlace Wikiloc</th>
+                        <th>Distancia</th>
+                        <th>Desnivel</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+        </div>
+
     </section>
 
     <footer class="bg-dark text-white text-center py-3">
@@ -125,6 +172,16 @@
 
     <!-- Bootstrap JS -->
     <script src="./libs/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet + scripts -->
+    <script src="./libs/leaflet.js"></script>
+    <script src="./libs/gpx.min.js"></script>
+
+    <script type="module">
+        import { renderTablaRutas } from './js/tablaRutas.js';
+        renderTablaRutas();
+    </script>
+
 </body>
 
 </html>
