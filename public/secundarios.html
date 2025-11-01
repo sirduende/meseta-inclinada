@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Grupo de Montaña - Meseta Inclinada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="Grupo de montaña autogestionado en Castilla y León. Rutas, decálogo, valores y logros como el Trofeo de Cumbres FDMESCYL.">
+    <meta name="keywords" content="grupo montaña, Castilla y León, rutas senderismo, decálogo montaña, FDMESCYL, Meseta Inclinada">
+    <meta name="author" content="Daniel Fernández Casado">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./libs/bootstrap.min.css" />
+    <link rel="stylesheet" href="./libs/bootstrap-icons/bootstrap-icons.min.css">
+
+    <!-- Tu CSS -->
+    <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="bg-light">
+
+    <!-- Navbar con botón hamburguesa -->
+    <nav class="navbar bg-light">
+        <div class="container-fluid">
+            <!-- Botón para abrir offcanvas -->
+            <button class="btn btn-outline-secondary me-2" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
+                <i class="bi bi-list"></i> <!-- icono hamburguesa -->
+            </button>
+
+            <div id="loading-status" style="font-size:14px;color:#6b7280;margin:10px;"></div>
+
+            <!-- Imagen PNG + título -->
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="./image/meseta_inclinada.png" alt="Logo" width="24" height="24" class="me-2">
+                <span>Meseta Inclinada</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Offcanvas Sidebar -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title d-flex align-items-center" id="sidebarLabel">
+                Propuestas
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <a href="index.html" class="btn btn-outline-primary mb-3">
+                <i class="bi bi-house-door"></i> Página principal
+            </a>
+            <a href="rutas.html" class="btn btn-outline-secondary mb-3">
+                <i class="bi bi-map-fill"></i> Rutas realizadas
+            </a>
+            <a href="propuestas.html" class="btn btn-outline-success mb-3">
+                <i class="bi bi-lightbulb"></i> Propuestas de rutas
+            </a>
+            <a href="secundarios.html" class="btn btn-outline-danger mb-3">
+                <i class="bi bi-binoculars"></i> Reto 2026: Picos secundarios
+            </a>
+            <div id="routes" class="flex-grow-1 overflow-auto"></div>
+        </div>
+    </div>
+
+    <!-- Portada -->
+    <header class="text-center bg-dark text-white py-5">
+        <h1 class="display-4">Reto 2026</h1>
+        <p class="lead">Nuevas cumbres, viejos caminos, nuevos puntos de vista</p>
+    </header>
+
+    <!-- Contenido principal -->
+    <section class="container my-5">
+        <h2 class="text-success mb-4">¿En qué consiste el reto?</h2>
+        <p>A lo largo del año <strong>2026</strong>, el grupo se propone realizar <strong>30 recorridos</strong> en zonas cercanas, marcadas con un radar, con el objetivo de alcanzar <strong>picos secundarios</strong> respecto al reto realizado en 2025 por nuestro compañero Pedro.</p>
+        <p>Gracias a su inspiración, el grupo continúa. Motivados, seguiremos buscando nuevas cumbres partiendo de terrenos ya conocidos, tratando de ver y disfrutar desde nuevos puntos de vista.</p>
+
+        <!-- Imagen adaptada para móviles -->
+        <div class="text-center my-4">
+            <img src="./image/secundarios.jpg" class="img-fluid rounded shadow-sm" alt="Portada del reto secundarios">
+        </div>
+
+        <h3 class="mt-5 text-secondary">¿Qué se considera un “pico secundario”?</h3>
+        <p>Un pico secundario es una cumbre cercana a una principal ya visitada, que no forma parte del reto original de la FDMESCYL. Puede ser menos conocido, menos alto o simplemente menos transitado.</p>
+        <p>El objetivo es descubrir nuevas perspectivas partiendo de una zona ya transitada</p>
+
+        <h3 class="mt-5 text-secondary">¿Quién puede participar?</h3>
+        <p>Cualquier miembro del grupo puede proponer, consultar o realizar rutas del reto. No hay requisitos de antigüedad ni compromiso obligatorio. El reto está pensado para disfrutar, compartir y explorar juntos.</p>
+        <p>Si aún no formas parte del grupo, puedes escribirnos y te incluiremos en las comunicaciones.</p>
+
+        <h3 class="mt-5 text-secondary">¿Cómo puedo realizar propuestas?</h3>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item">Envía tu recorrido por correo a <a href="mailto:mesetainclinada@gmail.com">mesetainclinada@gmail.com</a></li>
+            <li class="list-group-item">Incluye un fichero <strong>.gpx</strong> o un <strong>enlace de Wikiloc</strong> desde el que se pueda descargar</li>
+            <li class="list-group-item">Si no usas Wikiloc, indica la <strong>dificultad aproximada</strong> del recorrido</li>
+            <li class="list-group-item">Revisa si hay tramos complicados para que otros puedan decidir si se sienten con fuerzas para ir a por ella</li>
+            <li class="list-group-item">Recuerda, el pico secundario debe estar <strong>dentro del radar</strong> de la cumbre de referencia</li>
+        </ul>
+
+        <h3 class="mt-5 text-secondary">¿Cómo se elegirá cada ruta?</h3>
+        <p>La elección de cada recorrido se hará de forma colaborativa. En el grupo de <strong>WhatsApp</strong>, durante los días entre salidas, se propondrán opciones y se decidirá mediante votación cuál afrontar en la siguiente salida.</p>
+        <p>La decisión dependerá del número de participantes, la dificultad, el clima y las ganas del momento. Aunque el reto tiene 30 destinos orientativos, <strong>no hay un orden fijo</strong>: el grupo marca el ritmo.</p>
+        <p>Además, durante el año también se podrán realizar <strong>rutas fuera del reto</strong>, sin perder el espíritu de exploración y disfrute que nos une.</p>
+
+
+        <h3 class="mt-5 text-secondary">¿Dónde se consultan las rutas?</h3>
+        <p>Las propuestas recibidas se irán actualizando en el mapa interactivo:</p>
+        <a href="./propuestas.html" class="btn btn-outline-success">
+            <i class="bi bi-map"></i> Ver mapa de propuestas
+        </a>
+
+        <h3 class="mt-5 text-secondary">¿Cuándo empezamos?</h3>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item">Si estás en el grupo de Whatsapp, iremos comentando próximas salidas cuando empiece el año</li>
+            <li class="list-group-item">Si todavía no estás en el grupo, indícanos tu interés a <a href="mailto:mesetainclinada@gmail.com">mesetainclinada@gmail.com</a>y te avisaremos de nuestras próximas salidas</li>
+            <li class="list-group-item">Es posible que un mismo destino se realice en modo Invernal o no Invernal, iremos adaptándonos e improvisando</li>
+        </ul>
+
+        <h3 class="mt-5 text-secondary">¿Y el orden?</h3>
+        <p>El orden será marcado por el grupo. Aunque hay números orientativos (los del reto original de la Federación de Castilla y León), <strong>no tenemos por qué seguirlo</strong>. Lo importante es disfrutar del camino.</p>
+    </section>
+
+    <footer class="bg-dark text-white text-center py-3">
+        <small>&copy; 2026 Meseta Inclinada</small>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="./libs/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

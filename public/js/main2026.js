@@ -224,13 +224,57 @@ const rutasSecundarias = [
     },
     {
         nombreRuta: "Alto de los Corralillos, Torozo y Collado del Risco desde Puerto de Serranillos",
-        cumbrePrincipal: "22 Torozo",
+        cumbrePrincipal: "23 El Torozo",
         dificultad: "Fácil",
         colorDificultad: "#10b981",
         iconoDificultad: "🟢",
         añoRuta: 2023,
         enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/alto-de-los-corralillos-torozo-y-collado-del-risco-desde-puerto-de-serranillos-152821469",
         archivoGPX: "gpx2026/23_corralillos.gpx"
+    },
+    {
+        nombreRuta: "Refugio Domingo Fernando ( El Hornillo ) - Mirador del Espaldar - Puerto del Peón - Peña del Mediodia - R. Domingo Fernando",
+        cumbrePrincipal: "24 Torreón de los Galayos",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2015,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/refugio-domingo-fernando-el-hornillo-mirador-del-espaldar-puerto-del-peon-pena-del-mediodia-r-domin-10634179",
+        archivoGPX: "gpx2026/24_mediodia.gpx",
+        aviso: "Aunque la ruta es antigua hay comentarios que indican que está bien y no tiene dificultad"
+    },
+    {
+        nombreRuta: "Morrito Covacha, Peñón del Mediodía y Puerto del Peón",
+        cumbrePrincipal: "25 La Mira",
+        dificultad: "Fácil",
+        colorDificultad: "#10b981",
+        iconoDificultad: "🟢",
+        añoRuta: 2024,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/morrito-covacha-penon-del-mediodia-y-puerto-del-peon-desde-el-km-6-167225019",
+        archivoGPX: "gpx2026/25_morrito_covacha.gpx",
+        aviso: "Sin comentarios en Wikiloc"
+    },
+    {
+        nombreRuta: "Alto de los Barrerones, Cuento Alto y Morezon desde Plataforma",
+        cumbrePrincipal: "26 Almanzor",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2025,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/alto-de-los-barrerones-cuento-alto-y-morezon-desde-plataforma-200566643",
+        archivoGPX: "gpx2026/26_cuento_alto.gpx",
+        aviso: "Ruta guardada en febrero. Revisar en función de si hay nieve"
+    },
+    {
+        nombreRuta: "Nava del Barco-Pico Mosquito-Corral Diablo- Laguna de la Nava- La Nava. Gredos.",
+        cumbrePrincipal: "27 La Covacha",
+        dificultad: "Moderada",
+        colorDificultad: "#f97316",
+        iconoDificultad: "🟠",
+        añoRuta: 2021,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/nava-del-barco-pico-mosquito-corral-diablo-laguna-de-la-nava-la-nava-gredos-83589079",
+        archivoGPX: "gpx2026/27_mosquito.gpx",
+        aviso: "Cuidado con el agbua. Vías de bajada complicadas. Valorar alternativas"
     },
     {
         nombreRuta: "Serrota desde Pradosegar, por la Peña Pajarita",

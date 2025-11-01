@@ -40,11 +40,21 @@
     <!-- Offcanvas Sidebar -->
     <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebar">
         <div class="offcanvas-body d-flex flex-column">
-            <a href="rutas.html" class="btn btn-outline-primary mb-3">
-                <i class="bi bi-house-door"></i> Ver rutas
+            <a href="index.html" class="btn btn-outline-primary mb-3">
+                <i class="bi bi-house-door"></i> Página principal
+            </a>
+            <a href="rutas.html" class="btn btn-outline-secondary mb-3">
+                <i class="bi bi-map-fill"></i> Rutas realizadas
+            </a>
+            <a href="propuestas.html" class="btn btn-outline-success mb-3">
+                <i class="bi bi-lightbulb"></i> Propuestas de rutas
+            </a>
+            <a href="secundarios.html" class="btn btn-outline-danger mb-3">
+                <i class="bi bi-binoculars"></i> Reto 2026: Picos secundarios
             </a>
         </div>
     </div>
+
 
     <header class="bg-dark text-white text-center py-5">
         <h1 class="display-4">Autogestión, respeto y pasión por el camino</h1>
@@ -57,6 +67,11 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="quienes-tab" data-bs-toggle="tab" data-bs-target="#quienes" type="button" role="tab" aria-controls="quienes" aria-selected="true">
                     ¿Quiénes somos?
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="secundarios-tab" data-bs-toggle="tab" data-bs-target="#secundarios" type="button" role="tab" aria-controls="secundarios" aria-selected="false">
+                    Reto 2026
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -79,7 +94,14 @@
                 <p>Somos un grupo pequeño (menos de 10 personas) autogestionado para realizar salidas a la montaña</p>
                 <p>De origen vallisoletano, somos gente corriente que le encanta salir cada semana a la montaña recorriendo diferentes puntos de Castilla y León</p>
                 <p>No hay jerarquías ni estamos registrados en ningún sitio, solo ganas de caminar, compartir y respetar.</p>
-                <a href="./rutas.html" target="_blank" class="btn btn-outline-primary mt-3">Ver rutas y actividades realizadas</a>
+                <div class="d-flex flex-column flex-md-row gap-3 mt-3">
+                    <a href="./rutas.html" target="_blank" class="btn btn-outline-primary">
+                        <i class="bi bi-map-fill"></i> Rutas realizadas
+                    </a>
+                    <a href="./propuestas.html" target="_blank" class="btn btn-outline-success">
+                        <i class="bi bi-lightbulb"></i> Propuestas de rutas
+                    </a>
+                </div>
                 <img src="./image/03.jpg" class="img-fluid rounded mb-3" alt="Grupo en la montaña">
                 <div class="mt-4">
                     <h5 class="text-muted">¿Estás buscando gente para salir a la montaña sin ser socio de un grupo?</h5>
@@ -89,7 +111,25 @@
                 </div>
             </div>
 
-            <!-- Pestaña 2: Decálogo -->
+            <!-- Pestaña 2: Reto 2026 -->
+            <div class="tab-pane fade" id="secundarios" role="tabpanel" aria-labelledby="secundarios-tab">
+                <h2 class="mb-4 text-warning">La hora de los secundarios</h2>
+                <p>
+                    Para el año <strong>2026</strong> tenemos un reto muy especial que estamos preparando...
+                </p>
+                <p>Cualquier miembro puede enviar sus ideas por correo, y se irán actualizando en el mapa interactivo.</p>
+
+                <div class="d-flex flex-column flex-md-row gap-3 mb-4">
+                    <a href="./secundarios.html" target="_blank" class="btn btn-outline-danger">
+                        <i class="bi bi-binoculars"></i> Ver más detalle sobre el reto
+                    </a>
+                    <a href="./propuestas.html" target="_blank" class="btn btn-outline-success">
+                        <i class="bi bi-map"></i> Ver mapa de propuestas
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pestaña 3: Decálogo -->
             <div class="tab-pane fade" id="decalogo" role="tabpanel" aria-labelledby="decalogo-tab">
                 <h2 class="mb-4 text-primary">Nuestro Decálogo</h2>
                 <ol class="list-group list-group-numbered">
@@ -121,7 +161,7 @@
             </div>
 
 
-            <!-- Pestaña 3: Hall of Fame -->
+            <!-- Pestaña 4: Hall of Fame -->
             <div class="tab-pane fade" id="fame" role="tabpanel" aria-labelledby="fame-tab">
                 <h2 class="mb-4 text-warning text-center"><i class="bi bi-trophy-fill"></i></h2>
 
