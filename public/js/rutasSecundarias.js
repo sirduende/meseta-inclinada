@@ -124,6 +124,15 @@ export const rutasSecundarias = [
         propuestoPor: "Dani"
     },
     {
+        nombreRuta: "Sierra de la Demanda. Pozo Negro. Pico Otero",
+        cumbrePrincipal: "17 San Millán",
+        dificultad: "Moderada",
+        añoRuta: 2017,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/sierra-de-la-demanda-pozo-negro-pico-otero-burgos-19420546",
+        archivoGPX: "gpx2026/17_demanda.gpx",
+        propuestoPor: "Michel"
+    },
+    {
         nombreRuta: "Peñas Claras, Picacho, Tres Provincias y Urbión",
         cumbrePrincipal: "18 Urbión",
         dificultad: "Moderada",
@@ -149,6 +158,16 @@ export const rutasSecundarias = [
         enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/picos-el-cervunal-y-los-picachos-desde-rosuero-por-la-canada-real-soriana-occidental-el-gr-88-y-la-176340865",
         archivoGPX: "gpx2026/20_picachos.gpx",
         propuestoPor: "Dani"
+    },
+    {
+        nombreRuta: "Peña Cebollera Vieja o Tres Provincias desde Puerto de Somosierra",
+        cumbrePrincipal: "20 Pico del Lobo",
+        dificultad: "Moderada",
+        añoRuta: 2014,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-raquetas/pena-cebollera-vieja-o-tres-provincias-desde-puerto-de-somosierra-6077961",
+        archivoGPX: "gpx2026/20_cebollera_vieja.gpx",
+        aviso: "Invernal. Raquetas",
+        propuestoPor: "Michel"
     },
     {
         nombreRuta: "Peña Citores por Senda del Batallón Alpino",
@@ -245,5 +264,14 @@ export const rutasSecundarias = [
         enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/ruta-circular-por-el-picon-del-fraile-16031579",
         archivoGPX: "gpx2026/30_picon_fraile.gpx",
         propuestoPor: "Dani"
-    }
+    },
+    {
+        nombreRuta: "Pico Pandián",
+        cumbrePrincipal: "Fuera de Reto",
+        dificultad: "Moderada",
+        añoRuta: 2014,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-pandian-8454189",
+        archivoGPX: "gpx2026/00_pandian.gpx",
+        propuestoPor: "Asun"
+    },
 ];

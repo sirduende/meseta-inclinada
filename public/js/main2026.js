@@ -52,7 +52,7 @@ function pintarTodosLosRadars(cumbres) {
 
         // 🔘 Radar de 5 km
         L.circle([lat, lng], {
-            radius: 5000,
+            radius: 8000,
             color: '#f97316',
             fillColor: '#f97316',
             fillOpacity: 0.15,
@@ -116,20 +116,26 @@ function cargarRutaSecundaria(meta) {
         const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
         const desnivelM = Math.round(e.target.get_elevation_gain());
 
+        const esFueraDeReto = cumbrePrincipal === "Fuera de Reto";
+
         let popupHtml = `
-      <div>
-        <div style="font-weight:600;margin-bottom:4px;">${nombreRuta}</div>
-        <div style="font-size:12px;color:#6b7280;">Secundario de: ${cumbrePrincipal}</div>
-        <div style="margin:6px 0;">
-          <b>Longitud:</b> ${distanciaKm} km<br>
-          <b>Desnivel acumulado:</b> ${desnivelM} m<br>
-          <b>Dificultad:</b> <span style="color:${visual.color};">${visual.icono} ${dificultad}</span>
-        </div>
-        <div style="font-size:12px;color:#6b7280;">Propuesto por ${propuestoPor || "—"}</div>
-        <div style="margin-top:6px;">
-          <a href="${enlaceWikiloc}" target="_blank">🌐 Ver en Wikiloc (${añoRuta})</a>
-        </div>
-    `;
+          <div>
+            <div style="font-weight:600;margin-bottom:4px;">${nombreRuta}</div>
+            <div style="font-size:12px;color:#6b7280;">
+              ${esFueraDeReto ? "Ruta fuera de reto Secundarias" : `Secundario de: ${cumbrePrincipal}`}
+            </div>
+            <div style="margin:6px 0;">
+              <b>Longitud:</b> ${distanciaKm} km<br>
+              <b>Desnivel acumulado:</b> ${desnivelM} m<br>
+              <b>Dificultad:</b> <span style="color:${visual.color};">${visual.icono} ${dificultad}</span>
+            </div>
+            <div style="font-size:12px;color:#6b7280;">Propuesto por ${propuestoPor || "—"}</div>
+            <div style="margin-top:6px;">
+              <a href="${enlaceWikiloc}" target="_blank">🌐 Ver en Wikiloc (${añoRuta})</a>
+            </div>
+          </div>
+        `;
+
 
         if (meta.aviso) {
             popupHtml += `
@@ -146,7 +152,9 @@ function cargarRutaSecundaria(meta) {
             const marker = L.marker(startLatLng, {
                 icon: L.divIcon({
                     className: 'route-number-icon',
-                    html: `<div class="route-number-circle">P</div>`,
+                    html: esFueraDeReto
+                        ? `<div class="route-number-circle" style="background:#facc15;">F</div>`
+                        : `<div class="route-number-circle">S</div>`,
                     iconSize: [30, 30],
                     iconAnchor: [15, 35]
                 })
