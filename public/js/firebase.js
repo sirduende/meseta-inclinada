@@ -69,10 +69,21 @@ export async function getRutas() {
 export async function getGPXUrl(nombreArchivo) {
     const localUrl = `./gpx/${nombreArchivo}`;
     try {
-        const response = await fetch(localUrl, { method: 'HEAD' });
+        const response = await fetch(localUrl);
         if (response.ok) {
-            console.log(`📂 Cargando GPX local: ${nombreArchivo}`);
-            return localUrl;
+            const text = await response.text();
+
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(text, "application/xml");
+            const root = xmlDoc.documentElement.nodeName.toLowerCase();
+
+            // Validar si parece un GPX/XML
+            if (root === "gpx") {
+                console.log(`📂 Ok GPX local válido: ${nombreArchivo}`);
+                return localUrl;
+            } else {
+                console.warn(`⚠️ GPX local inválido: ${nombreArchivo}`);
+            }
         } else {
             console.warn(`⚠️ GPX local no encontrado: ${nombreArchivo}`);
         }
