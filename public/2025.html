@@ -1,0 +1,1194 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meseta Inclinada · Wrapped 2025</title>
+    <style>
+        :root {
+            --bg-main: #020617;
+            --bg-section: #050816;
+            --accent: #22c55e;
+            --accent-soft: #22c55e22;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --card-bg: #0b1120;
+            --radius-lg: 18px;
+            --radius-sm: 999px;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --easy: #22c55e;
+            --ferrata: #000000;
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #020617 0, #000 55%);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            min-height: 100vh;
+            max-width: 880px;
+            margin: 0 auto;
+            padding-bottom: 3rem;
+        }
+
+        .section {
+            padding: 2.5rem 1.5rem 2.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .section {
+                padding: 3.5rem 2rem;
+            }
+        }
+
+        .section-inner {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        /* HERO / PORTADA */
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-gradient {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, #22c55e33, transparent 55%), radial-gradient(circle at top right, #f9731633, transparent 55%), radial-gradient(circle at bottom, #0ea5e933, transparent 55%);
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            padding: 0 1.5rem;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            background: rgba(15, 23, 42, 0.7);
+            color: var(--accent);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+            line-height: 1.1;
+            margin: 0 0 0.6rem;
+        }
+
+        .hero-subtitle {
+            margin: 0 0 1.75rem;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.85rem;
+            border-radius: var(--radius-sm);
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+
+        .hero-pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        /* TITULOS & TEXTOS */
+
+        h2 {
+            font-size: 1.5rem;
+            margin: 0 0 0.75rem;
+        }
+
+        .section-lead {
+            margin: 0 0 1rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .big-number {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin: 0.5rem 0 0.25rem;
+        }
+
+        .big-number-sub {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .muted {
+            color: var(--text-muted);
+        }
+
+        .highlight {
+            color: var(--accent);
+        }
+
+        .highlight-strong {
+            color: #38bdf8;
+        }
+
+        .pill-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: var(--radius-sm);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* CARDS Y BLOQUES */
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.05rem 1.1rem;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+            .card + .card {
+                margin-top: 1rem;
+            }
+
+        .card-title {
+            margin: 0 0 0.4rem;
+            font-size: 1.05rem;
+        }
+
+        .card-meta {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* SECCIÓN 29 RUTAS (LEYENDA + GRAFICAS) */
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            margin: 1rem 0 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+            .legend-dot.easy {
+                background: var(--easy);
+            }
+
+            .legend-dot.medium {
+                background: var(--warning);
+            }
+
+            .legend-dot.hard {
+                background: var(--danger);
+            }
+
+            .legend-dot.ferrata {
+                background: var(--ferrata);
+                border: 1px solid #4b5563;
+            }
+
+        .charts-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .chart-card {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: var(--radius-lg);
+            padding: 0.9rem 0.9rem 1rem;
+            border: 1px solid rgba(30, 64, 175, 0.7);
+        }
+
+        .chart-title {
+            margin: 0 0 0.35rem;
+            font-size: 0.95rem;
+        }
+
+        .chart-subtitle {
+            margin: 0 0 0.7rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .chart-placeholder {
+            height: 180px;
+            border-radius: 0.9rem;
+            background-image: linear-gradient( 120deg, rgba(55, 65, 81, 0.4), rgba(30, 64, 175, 0.5) );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(15, 23, 42, 0.9);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .charts-wrapper {
+                flex-direction: row;
+            }
+
+            .chart-card {
+                flex: 1;
+            }
+        }
+
+        /* MES MAS ACTIVO */
+
+        .month-highlight {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.4rem 0 0.3rem;
+        }
+
+        .subtle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .months-bars {
+            margin-top: 1.1rem;
+            display: grid;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+        }
+
+        .month-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .month-label {
+            width: 70px;
+            color: var(--text-muted);
+        }
+
+        .month-bar-outer {
+            flex: 1;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.8);
+            overflow: hidden;
+        }
+
+        .month-bar-inner {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #22c55e, #22d3ee);
+        }
+
+            .month-bar-inner.peak {
+                background: linear-gradient(90deg, #eab308, #f97316);
+            }
+
+        .month-count {
+            width: 22px;
+            text-align: right;
+            color: var(--text-muted);
+        }
+
+        /* RUTA MAS LARGA + FERRATAS */
+
+        .route-name-big {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0.2rem 0 0.4rem;
+        }
+
+        .route-meta {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .inline-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.55rem;
+        }
+
+        .badge {
+            padding: 0.18rem 0.6rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-muted);
+            border: 1px solid rgba(148, 163, 184, 0.5);
+        }
+
+        /* PODIO PARTICIPANTES */
+
+        .podium {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+
+        .podium-item {
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: var(--radius-lg);
+            padding: 0.65rem 0.55rem 0.75rem;
+            text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .podium-rank {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.1rem;
+        }
+
+        .podium-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+
+        .podium-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .podium-item.gold {
+            border-color: #facc15;
+            background: radial-gradient(circle at top, #facc1544, #020617 60%);
+        }
+
+        .podium-item.silver {
+            border-color: #e5e7eb;
+            background: radial-gradient(circle at top, #e5e7eb33, #020617 60%);
+        }
+
+        .podium-item.bronze {
+            border-color: #fb923c;
+            background: radial-gradient(circle at top, #fb923c33, #020617 60%);
+        }
+
+        /* LISTA DE HABITUALES */
+
+        .regulars-list {
+            margin-top: 0.9rem;
+            display: grid;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .regular-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            padding: 0.25rem 0.1rem;
+            border-bottom: 1px dashed rgba(55, 65, 81, 0.7);
+        }
+
+        .regular-name {
+            color: var(--text-main);
+        }
+
+        .regular-count {
+            color: var(--text-muted);
+        }
+
+        /* NUBE DE NOMBRES (1 RUTA) */
+
+        .tags-cloud {
+            margin-top: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag-name {
+            padding: 0.2rem 0.7rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px dashed rgba(148, 163, 184, 0.7);
+            color: var(--text-main);
+        }
+
+        /* CIERRE / GRACIAS */
+
+        .final-section {
+            text-align: center;
+        }
+
+        .final-title {
+            font-size: 2rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin: 0 0 0.8rem;
+        }
+
+        .final-text {
+            margin: 0.25rem auto;
+            max-width: 520px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .final-strong {
+            margin-top: 1.2rem;
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .km-bars {
+            margin-top: 1.1rem;
+            display: grid;
+            gap: 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        .km-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .km-label {
+            width: 140px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .km-bar-outer {
+            flex: 1;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.8);
+            overflow: hidden;
+        }
+
+        .km-bar-inner {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+            .km-bar-inner.easy {
+                background: var(--easy);
+            }
+
+            .km-bar-inner.medium {
+                background: var(--warning);
+            }
+
+            .km-bar-inner.hard {
+                background: var(--danger);
+            }
+
+            .km-bar-inner.ferrata {
+                background: var(--ferrata);
+                border: 1px solid #4b5563;
+            }
+
+        .km-value {
+            width: 60px;
+            text-align: right;
+            color: var(--text-muted);
+        }
+
+        .photo-wrapper {
+            width: 100%;
+            height: 320px; /* ajusta según quieras */
+            border-radius: 18px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+            .photo-wrapper img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover; /* magia */
+                object-position: center; /* centra la parte importante */
+            }
+
+
+
+    </style>
+</head>
+<body>
+    <audio autoplay loop>
+        <source src="audio/picopasta.mp3" type="audio/mpeg">
+    </audio>
+    <main class="page">
+        <!-- PORTADA -->
+        <section class="section hero">
+            <div class="hero-gradient"></div>
+            <div class="hero-inner">
+                <div class="hero-tag">
+                    <span>Meseta Inclinada</span>
+                    <span>·</span>
+                    <span>Wrapped 2025</span>
+                </div>
+                <h1 class="hero-title">Somos un grupo pequeño,<br />pero con datos increíbles.</h1>
+                <p class="hero-subtitle">
+                    Nos conocimos como miembros del <span class="highlight">Grupo de Montaña de Viana de Cega</span>:
+                    las dos primeras rutas fueron un subgrupo dentro de algo más grande.
+                </p>
+                <p class="hero-subtitle">
+                    Desde ahí, decidimos autoorganizarnos y ponerle nombre a lo que ya sabíamos:
+                    nos gusta la montaña, los retos y la buena compañía.
+                </p>
+                <div class="hero-pill">
+                    <span class="hero-pill-dot"></span>
+                    <span>¡La 1ª temporada del grupo!</span>
+                    <span>Desliza hacia abajo para ver toda la información.</span>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_01.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_01_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+        <!-- SUMATORIOS: KM Y DESNIVEL -->
+        <section class="section">
+            <div class="section-inner">
+                <p class="pill-label">Nuestra huella en 2025</p>
+
+                <div class="card">
+                    <h2>¿Sabes cuántos kilómetros hemos recorrido juntos?</h2>
+                    <p class="big-number">389,4 km</p>
+                    <p class="big-number-sub">recorridos en buena compañía.</p>
+                    <p class="section-lead">
+                        Cada kilómetro es una charla al pie de la montaña, un "última vez que vengo", una foto movida, un
+                        "espera, que me ato la bota".
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h2>¿Y cuántos metros hemos ascendido?</h2>
+                    <p class="big-number">33.931 m+</p>
+                    <p class="big-number-sub">
+                        Como subir el <span class="highlight-strong">Everest</span> más de tres veces…
+                        pero con más risas, barro y bocatas.
+                    </p>
+                    <p class="section-lead">
+                        No somos un grupo grande, pero nuestras piernas cuentan otra cosa.
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_02.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_02_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+        <!-- 29 RUTAS + LEYENDA NIVELES + GRÁFICAS -->
+        <section class="section">
+            <div class="section-inner">
+                <p class="pill-label">29 rutas · un año entero</p>
+                <h2>29 rutas, muchos colores</h2>
+                <p class="section-lead">
+                    En total, hemos realizado <span class="highlight">29 rutas</span>.
+                    ¡29! ¿Cuántos grupos de Valladolid pueden decir lo mismo en 8 meses de vida?
+                    Nuestra prioridad es salir siempre que podamos.
+                    Cada salida, cada ruta, tiene su historia, su experiencia y su nivel de sufrimiento.
+                </p>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-dot easy"></span><span>Baja</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot medium"></span><span>Media</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot hard"></span><span>Alta</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot ferrata"></span><span>Ferrata</span>
+                    </div>
+                </div>
+
+                <div class="charts-wrapper">
+                    <p class="chart-title">Kilómetros por ruta</p>
+                    <p class="chart-subtitle">
+                        Nuestras rutas de 2025
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="km-bars">
+
+                        <div class="km-row">
+                            <span class="km-label">Collado Sestil</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:70.1%"></div></div>
+                            <span class="km-value">17.58 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Piedrasluengas</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:56.1%"></div></div>
+                            <span class="km-value">14.06 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">San Millán</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:92.4%"></div></div>
+                            <span class="km-value">23.16 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Mulhacén</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:100%"></div></div>
+                            <span class="km-value">25.07 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Peña Prieta</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:81%"></div></div>
+                            <span class="km-value">20.32 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Teleno</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:65.6%"></div></div>
+                            <span class="km-value">16.46 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Curavacas</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:55.2%"></div></div>
+                            <span class="km-value">13.84 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Espigüete</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:39.6%"></div></div>
+                            <span class="km-value">9.93 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Peña Ubiña</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:43.5%"></div></div>
+                            <span class="km-value">10.91 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Peña de la Cruz</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:41.7%"></div></div>
+                            <span class="km-value">10.45 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Torre Bermeja</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:74.4%"></div></div>
+                            <span class="km-value">18.66 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Ferrata Sabero</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner ferrata" style="width:19.5%"></div></div>
+                            <span class="km-value">4.90 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Torre del Friero</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:40.7%"></div></div>
+                            <span class="km-value">10.20 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Castro Valnera</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner easy" style="width:35%"></div></div>
+                            <span class="km-value">8.77 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Cuchillón</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner easy" style="width:44%"></div></div>
+                            <span class="km-value">11.02 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Siete Picos</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner easy" style="width:43%"></div></div>
+                            <span class="km-value">10.79 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">La Covacha</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:93.1%"></div></div>
+                            <span class="km-value">23.33 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Pico Zapatero</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:58.5%"></div></div>
+                            <span class="km-value">14.67 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Friero (2)</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:46.4%"></div></div>
+                            <span class="km-value">11.63 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Pico Fontún</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:45.8%"></div></div>
+                            <span class="km-value">11.50 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Peñalara</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:48.5%"></div></div>
+                            <span class="km-value">12.17 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Arista Este</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:30.6%"></div></div>
+                            <span class="km-value">7.67 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Galayos</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:52.2%"></div></div>
+                            <span class="km-value">13.09 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Ferrata Elefante</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner ferrata" style="width:7.2%"></div></div>
+                            <span class="km-value">1.82 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Argovejo</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner hard" style="width:44.8%"></div></div>
+                            <span class="km-value">11.24 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Buitrera</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:67.1%"></div></div>
+                            <span class="km-value">16.82 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Peña Negra</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:64.9%"></div></div>
+                            <span class="km-value">16.28 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Peña Fraile</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:52.5%"></div></div>
+                            <span class="km-value">13.17 km</span>
+                        </div>
+
+                        <div class="km-row">
+                            <span class="km-label">Peña Ulaña</span>
+                            <div class="km-bar-outer"><div class="km-bar-inner medium" style="width:66.4%"></div></div>
+                            <span class="km-value">16.65 km</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_03.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_03_b.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_03_c.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+
+        <!-- MES MAS ACTIVO -->
+        <section class="section">
+            <div class="section-inner">
+                <p class="pill-label">Ritmo del año</p>
+                <h2>¿Sabes cuál fue nuestro mes más activo?</h2>
+                <p class="month-highlight">Agosto</p>
+                <p class="section-lead">
+                    El mes más caluroso del año, y nosotros a lo nuestro:
+                    buscando el mejor aire “acondicionado” de todos: el de la montaña.
+                </p>
+
+                <div class="card">
+                    <p class="subtle">Rutas por mes</p>
+                    <div class="months-bars">
+                        <div class="month-row">
+                            <span class="month-label">Mayo</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner" style="width: 20%;"></div>
+                            </div>
+                            <span class="month-count">2</span>
+                        </div>
+                        <div class="month-row">
+                            <span class="month-label">Junio</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner" style="width: 60%;"></div>
+                            </div>
+                            <span class="month-count">6</span>
+                        </div>
+                        <div class="month-row">
+                            <span class="month-label">Julio</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner" style="width: 60%;"></div>
+                            </div>
+                            <span class="month-count">6</span>
+                        </div>
+                        <div class="month-row">
+                            <span class="month-label">Agosto</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner peak" style="width: 100%;"></div>
+                            </div>
+                            <span class="month-count">7</span>
+                        </div>
+                        <div class="month-row">
+                            <span class="month-label">Septiembre</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner" style="width: 40%;"></div>
+                            </div>
+                            <span class="month-count">4</span>
+                        </div>
+                        <div class="month-row">
+                            <span class="month-label">Octubre</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner" style="width: 40%;"></div>
+                            </div>
+                            <span class="month-count">4</span>
+                        </div>
+                        <div class="month-row">
+                            <span class="month-label">Noviembre</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner" style="width: 20%;"></div>
+                            </div>
+                            <span class="month-count">2</span>
+                        </div>
+                        <div class="month-row">
+                            <span class="month-label">Diciembre</span>
+                            <div class="month-bar-outer">
+                                <div class="month-bar-inner" style="width: 20%;"></div>
+                            </div>
+                            <span class="month-count">2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_04.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_04_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+        <!-- RUTA MAS LARGA + FERRATAS -->
+        <section class="section">
+            <div class="section-inner">
+                <p class="pill-label">Días especiales</p>
+
+                <div class="card">
+                    <h2>La ruta más larga</h2>
+                    <p class="section-lead">
+                        Entre todas, hubo una que se estiró más que ninguna.
+                    </p>
+                    <p class="route-name-big">
+                        Laguna Hondera, Mulhacén I y II desde Trevélez
+                    </p>
+                    <p class="route-meta">
+                        <strong>25,07 km</strong> · <strong>2.047 m+</strong> · Nivel <span class="highlight">Alta</span>
+                    </p>
+                    <p class="section-lead">
+                        Un día largo, alto y muy andado.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h2>También nos colgamos del arnés</h2>
+                    <p class="section-lead">
+                        No todo han sido senderos. Este año también hemos mirado al vacío con casco
+                        y disipador:
+                    </p>
+                    <ul class="section-lead" style="list-style: none; padding-left: 0; margin-top: 0.75rem;">
+                        <li>
+                            <strong>Ferrata de Sabero</strong> —
+                        </li>
+                        <li>
+                            <strong>Ferrata Cueva del Elefante</strong> —
+                        </li>
+                    </ul>
+                    <div class="inline-badges">
+                        <span class="badge">2 ferratas</span>
+                        <span class="badge">Más altura, menos suelo</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_05.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_05_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+        <!-- PODIO PARTICIPANTES -->
+        <section class="section">
+            <div class="section-inner">
+                <p class="pill-label">Gente que nunca falla</p>
+                <h2>Podio de participación</h2>
+                <p class="section-lead">
+                    Ninguna ruta se hace sola. Este es el podio de quienes más veces se han
+                    calzado las botas con Meseta Inclinada.
+                </p>
+
+                <div class="podium">
+                    <div class="podium-item gold">
+                        <div class="podium-rank">🥇 1º</div>
+                        <div class="podium-name">Asun</div>
+                        <div class="podium-count">28 rutas</div>
+                    </div>
+                    <div class="podium-item silver">
+                        <div class="podium-rank">🥈 2º</div>
+                        <div class="podium-name">Lolo</div>
+                        <div class="podium-count">26 rutas</div>
+                    </div>
+                    <div class="podium-item bronze">
+                        <div class="podium-rank">🥉 3º</div>
+                        <div class="podium-name">JuanMa</div>
+                        <div class="podium-count">22 rutas</div>
+                    </div>
+                </div>
+
+                <p class="section-lead" style="margin-top: 1.1rem;">
+                    Si, Asún falló porque no puede estar en el mismo sitio dos veces, en el único día que el grupo convocó dos rutas diferentes en dos zonas, ya que Lolo y Pedro hicieron su propia ruta mesetera. Así que sí, estuvo en los 28 días.
+                    Asún ha sido nuestra conductora, nuestra madre y el motor del grupo, sin duda alguna. Pero ha estado bien acompañada.
+                </p>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_06.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_06_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+        <!-- HABITUALES ORDENADOS -->
+        <section class="section">
+            <div class="section-inner">
+                <p class="pill-label">La columna vertebral del grupo</p>
+                <h2>Los que más repiten</h2>
+                <p class="section-lead">
+                    Además del podio, hay un buen puñado de gente que ha hecho de la montaña
+                    un plan habitual.
+                </p>
+
+                <div class="card">
+                    <div class="regulars-list">
+                        <div class="regular-row">
+                            <span class="regular-name">Ana</span>
+                            <span class="regular-count">15 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Dani</span>
+                            <span class="regular-count">15 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Pedro</span>
+                            <span class="regular-count">14 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Fran</span>
+                            <span class="regular-count">6 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Mariano</span>
+                            <span class="regular-count">6 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Carina</span>
+                            <span class="regular-count">3 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Javier</span>
+                            <span class="regular-count">3 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Alberto</span>
+                            <span class="regular-count">2 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Víctor</span>
+                            <span class="regular-count">2 rutas</span>
+                        </div>
+                        <div class="regular-row">
+                            <span class="regular-name">Moisés</span>
+                            <span class="regular-count">2 rutas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_07.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_07_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+        <!-- NUBE DE LOS QUE VINIERON UNA VEZ -->
+        <section class="section">
+            <div class="section-inner">
+                <p class="pill-label">Una primera vez</p>
+                <h2>Los que nos acompañaron una única vez</h2>
+                <p class="section-lead">
+                    Una vez también cuenta. Algunos abrieron la puerta, y veremos quién vuelve
+                    a cruzarla. En total 21 personas que han participado en la primera temporada de Meseta Inclinada.
+                </p>
+
+                <div class="card">
+                    <div class="tags-cloud">
+                        <span class="tag-name">Julia</span>
+                        <span class="tag-name">JaviRocco</span>
+                        <span class="tag-name">Alejandro</span>
+                        <span class="tag-name">Santiago</span>
+                        <span class="tag-name">Michel</span>
+                        <span class="tag-name">Álvaro</span>
+                        <span class="tag-name">María José</span>
+                        <span class="tag-name">Ramón</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_08.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_08_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+
+        <!-- CIERRE / GRACIAS -->
+        <section class="section">
+            <div class="section-inner final-section">
+                <h2 class="final-title">GRACIAS</h2>
+                <p class="final-text">
+                    Por cada madrugón, cada pasta, cada bocata, cada chubasquero de última hora.
+                </p>
+                <p class="final-text">
+                    Por las sonrisas, los resbalones, las fotos interminables y los “¿falta mucho?”
+                    cuando en realidad sí, faltaba bastante.
+                </p>
+                <p class="final-strong">
+                    Somos un grupo pequeño, pero con datos increíbles.<br />
+                    Y esto solo es el principio.
+                </p>
+            </div>
+        </section>
+        <section>
+            <div class="section-inner">
+                <div class="photo-wrapper">
+                    <img src="image/2025_09.jpg" alt="Foto del grupo">
+                </div>
+                <div class="photo-wrapper">
+                    <img src="image/2025_09_b.jpg" alt="Foto del grupo">
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
