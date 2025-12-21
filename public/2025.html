@@ -567,9 +567,12 @@
     </style>
 </head>
 <body>
-    <audio autoplay loop>
+    <audio id="bg-music" autoplay loop muted>
         <source src="audio/picopasta.mp3" type="audio/mpeg">
     </audio>
+    <button onclick="document.getElementById('bg-music').muted = false;">
+        Activar sonido
+    </button>
     <main class="page">
         <!-- PORTADA -->
         <section class="section hero">
