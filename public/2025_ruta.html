@@ -3,15 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <title>Ruta</title>
+
+    <style>
+        /* Barra fija */
+        #nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #111;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 9999;
+        }
+
+        #sep {
+            height: 30px;
+        }
+
+        /* Layout principal */
+        #galeria {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Miniaturas */
+        #miniaturas {
+            width: 90px;
+            height: 80vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            #miniaturas img {
+                width: 70px;
+                height: 70px;
+                object-fit: cover;
+                cursor: pointer;
+                opacity: 0.7;
+                border: 2px solid transparent;
+                border-radius: 4px;
+            }
+
+                #miniaturas img:hover {
+                    opacity: 1;
+                }
+
+        .activa {
+            border-color: #38bdf8;
+            opacity: 1 !important;
+        }
+
+        /* Foto grande */
+        #foto-grande img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Móvil */
+        @media (max-width: 700px) {
+            #galeria {
+                flex-direction: column;
+            }
+
+            #miniaturas {
+                flex-direction: row;
+                width: 100%;
+                height: auto;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+                #miniaturas img {
+                    width: 60px;
+                    height: 60px;
+                }
+        }
+    </style>
+
 </head>
+
 <body>
-    <div id="nav" style=" position: fixed; top: 0; left: 0; right: 0; background: #111; color: white; padding: 10px; display: flex; justify-content: center; gap: 20px; z-index: 9999; "> </div> 
-    
-    <div style="height: 60px;"></div> <!-- separador para que no tape el título -->
+
+    <!-- Barra fija -->
+    <div id="nav"></div>
+    <div id="sep"></div>
 
     <h1 id="titulo"></h1>
 
-    <div id="fotos"></div>
+    <!-- Galería -->
+    <div id="galeria">
+        <div id="miniaturas"></div>
+        <div id="foto-grande"></div>
+    </div>
 
     <script>
         const rutas = {
@@ -52,47 +145,69 @@
 
         document.getElementById("titulo").textContent = carpeta || "Ruta no encontrada";
 
-        const contenedor = document.getElementById("fotos");
+        const miniaturas = document.getElementById("miniaturas");
+        const fotoGrande = document.getElementById("foto-grande");
 
-        // Cargar fotos con patrón: ID (n).jpg
+        let primera = true;
+
         for (let i = 1; i <= 200; i++) {
+            const src = `fotos/${carpeta}/${id} (${i}).jpg`;
+
             const img = new Image();
-            img.src = `fotos/${carpeta}/${id} (${i}).jpg`;
+            img.src = src;
 
             img.onload = () => {
-                contenedor.appendChild(img);
-                contenedor.appendChild(document.createElement("br"));
-                contenedor.appendChild(document.createElement("br"));
-            };
+                const thumb = new Image();
+                thumb.src = src;
 
-            img.onerror = () => { };
+                thumb.onclick = () => mostrarFoto(src, thumb);
+
+                miniaturas.appendChild(thumb);
+
+                if (primera) {
+                    mostrarFoto(src, thumb);
+                    primera = false;
+                }
+            };
         }
 
+        function mostrarFoto(src, thumb) {
+            fotoGrande.innerHTML = `<img src="${src}">`;
+
+            document.querySelectorAll("#miniaturas img").forEach(t => t.classList.remove("activa"));
+            thumb.classList.add("activa");
+        }
+
+        let fotos = []; // lista de fotos cargadas let indiceActual = 0; function mostrarFoto(src, thumb) { fotoGrande.innerHTML = `<img src="${src}">`; document.querySelectorAll("#miniaturas img").forEach(t => t.classList.remove("activa")); thumb.classList.add("activa"); indiceActual = fotos.indexOf(src); } /* Detectar gestos táctiles */ let startX = 0; fotoGrande.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }); fotoGrande.addEventListener("touchend", e => { const endX = e.changedTouches[0].clientX; const diff = endX - startX; if (Math.abs(diff) < 50) return; // gesto demasiado corto if (diff < 0) cambiarFoto(1); // swipe izquierda → siguiente else cambiarFoto(-1); // swipe derecha → anterior }); function cambiarFoto(direccion) { let nuevo = indiceActual + direccion; if (nuevo < 0 || nuevo >= fotos.length) return; const nuevaSrc = fotos[nuevo]; const thumb = document.querySelector(`#miniaturas img[src="${CSS.escape(nuevaSrc)}"]`); mostrarFoto(nuevaSrc, thumb); 
+
+        /* Navegación fija con flechas */
         function crearNavegacion(idActual) {
             const nav = document.getElementById("nav");
             const idNum = parseInt(idActual);
             const prev = idNum > 1 ? String(idNum - 1).padStart(2, "0") : null;
             const next = idNum < 29 ? String(idNum + 1).padStart(2, "0") : null;
 
-            // Crear HTML
             let html = "";
 
-            // Botón anterior
-            if (prev) {
-                html += `<a href="2025_ruta.html?id=${prev}">Anterior</a> &nbsp;&nbsp;`;
-            } else { html += `Anterior &nbsp;&nbsp;`; }
+            html += prev
+                ? `<a href="2025_ruta.html?id=${prev}" style="color:white;text-decoration:none;">⬅️</a>`
+                : `<span style="opacity:0.4;">⬅️</span>`;
 
-            // Selector con nombres completos 
-            html += ` <select id="selectorRuta"> ${Object.keys(rutas).sort((a, b) => Number(a) - Number(b)).map(id => `<option value="${id}" ${id === idActual ? "selected" : ""}>${rutas[id]}</option>`).join("")} </select> `;
-            
-            // Botón siguiente
-            if (next) {
-                html += `<a href="2025_ruta.html?id=${next}">Siguiente</a>`;
-            } else {
-                html += `Siguiente`;
-            } nav.innerHTML = html;
+            html += `
+                    <select id="selectorRuta">
+                        ${Object.keys(rutas)
+                    .sort((a, b) => Number(a) - Number(b))
+                    .map(id => `<option value="${id}" ${id === idActual ? "selected" : ""}>${rutas[id]}</option>`)
+                    .join("")}
+                    </select>
+                `;
 
-            // Evento del selector
+            html += next
+                ? `<a href="2025_ruta.html?id=${next}" style="color:white;text-decoration:none;">➡️</a>`
+                : `<span style="opacity:0.4;">➡️</span>`;
+
+            nav.innerHTML = html;
+
             document.getElementById("selectorRuta").onchange = function () {
                 location.href = "2025_ruta.html?id=" + this.value;
             };
@@ -100,5 +215,6 @@
 
         crearNavegacion(id);
     </script>
+
 </body>
 </html>
