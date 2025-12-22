@@ -562,21 +562,23 @@
                 object-position: center; /* centra la parte importante */
             }
     </style>
-    <script>
-        const audio = document.getElementById("bg-music");
-        const btn = document.getElementById("play-music");
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
 
-        btn.addEventListener("click", () => {
-            audio.play();   // ESTA es la clave
-            btn.style.display = "none"; // opcional: ocultar botón
-        });
-    </script>
 </head>
 <body>
-    <audio id="bg-music" autoplay loop>
-        <source src="audio/picopasta.mp3" type="audio/mpeg">
-    </audio>
-    <button id="play-music">🔊 Activar sonido</button>
+    <button id="play">▶️ Reproducir "Pico Pasta"</button>
+    <button id="pause">⏸️ Pausar</button>
+
+    <script>
+        const sound = new Howl({
+            src: ['./audio/picopasta.mp3'],
+            html5: true   // clave para móvil
+        });
+
+        document.getElementById('play').onclick = () => sound.play();
+        document.getElementById('pause').onclick = () => sound.pause();
+    </script>
+
     <main class="page">
         <!-- PORTADA -->
         <section class="section hero">
