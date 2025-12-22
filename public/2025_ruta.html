@@ -5,6 +5,9 @@
     <title>Ruta</title>
 </head>
 <body>
+    <div id="nav" style=" position: fixed; top: 0; left: 0; right: 0; background: #111; color: white; padding: 10px; display: flex; justify-content: center; gap: 20px; z-index: 9999; "> </div> 
+    
+    <div style="height: 60px;"></div> <!-- separador para que no tape el título -->
 
     <h1 id="titulo"></h1>
 
@@ -64,7 +67,38 @@
 
             img.onerror = () => { };
         }
-    </script>
 
+        function crearNavegacion(idActual) {
+            const nav = document.getElementById("nav");
+            const idNum = parseInt(idActual);
+            const prev = idNum > 1 ? String(idNum - 1).padStart(2, "0") : null;
+            const next = idNum < 29 ? String(idNum + 1).padStart(2, "0") : null;
+
+            // Crear HTML
+            let html = "";
+
+            // Botón anterior
+            if (prev) {
+                html += `<a href="2025_ruta.html?id=${prev}">Anterior</a> &nbsp;&nbsp;`;
+            } else { html += `Anterior &nbsp;&nbsp;`; }
+
+            // Selector con nombres completos 
+            html += ` <select id="selectorRuta"> ${Object.keys(rutas).sort((a, b) => Number(a) - Number(b)).map(id => `<option value="${id}" ${id === idActual ? "selected" : ""}>${rutas[id]}</option>`).join("")} </select> `;
+            
+            // Botón siguiente
+            if (next) {
+                html += `<a href="2025_ruta.html?id=${next}">Siguiente</a>`;
+            } else {
+                html += `Siguiente`;
+            } nav.innerHTML = html;
+
+            // Evento del selector
+            document.getElementById("selectorRuta").onchange = function () {
+                location.href = "2025_ruta.html?id=" + this.value;
+            };
+        }
+
+        crearNavegacion(id);
+    </script>
 </body>
 </html>
