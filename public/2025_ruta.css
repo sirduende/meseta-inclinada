@@ -152,13 +152,34 @@ body {
         height: auto;
         overflow-x: auto;
         overflow-y: hidden;
-        padding: 10px 0;
+        gap:12px;
+        padding: 12px 0;
         scroll-snap-type: x mandatory;
     }
 
         #miniaturas img {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             scroll-snap-align: center;
+        }
+}
+
+@media (max-width: 700px) {
+    #foto-grande img {
+        padding: 4px;
+        border-radius: 6px;
+        max-height: 80vh;
+    }
+}
+
+@media (max-width: 700px) {
+    #nav {
+        padding: 6px 10px;
+        gap: 12px;
+    }
+
+        #nav select {
+            padding: 4px 6px;
+            font-size: 0.9rem;
         }
 }
