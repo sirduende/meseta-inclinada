@@ -23,6 +23,12 @@
         let miniaturas;
         let fotoGrande;
 
+        let fotos = [];        // lista de fotos cargadas
+        let indiceActual = 0;  // índice de la foto actual
+
+        /* ------------------------------
+           1. Cargar JSON de rutas
+        ------------------------------ */
         fetch("2025_rutas.json")
             .then(r => r.json())
             .then(data => {
@@ -30,12 +36,27 @@
                 iniciarPagina();
             });
 
+        /* ------------------------------
+           2. Iniciar página
+        ------------------------------ */
+        function formatearFecha(f) {
+            const [a, m, d] = f.split("_");
+            return `${d}/${m}/${a}`;
+        }
+
         function iniciarPagina() {
             const params = new URLSearchParams(window.location.search);
             const id = params.get("id");
-            const carpeta = rutas[id];
+            const carpeta = id;
 
-            document.getElementById("titulo").textContent = carpeta || "Ruta no encontrada";
+            const partes = rutas[id].split(" - ");
+            const fecha = partes[0]; // "2025_08_15" 
+            const tituloRuta = partes[2]; // "Cuchillón, Cotomañinos y Cueto Mañín"
+            document.getElementById("titulo").innerHTML = ` 
+                <div id="titulo-album"> 
+                    <div class="fecha">${fecha}</div> 
+                    <div class="ruta">${tituloRuta}</div> 
+                </div> `;
 
             miniaturas = document.getElementById("miniaturas");
             fotoGrande = document.getElementById("foto-grande");
@@ -56,23 +77,48 @@
 
                     miniaturas.appendChild(thumb);
 
+                    fotos.push(src);
+
                     if (primera) {
                         mostrarFoto(src, thumb);
                         primera = false;
                     }
                 };
             }
+
             crearNavegacion(id);
+            activarControles();
         }
 
+        /* ------------------------------
+           3. Mostrar foto grande
+        ------------------------------ */
         function mostrarFoto(src, thumb) {
-            fotoGrande.innerHTML = `<img src="${src}">`;
+            fotoGrande.innerHTML = `<img src="${src}" id="fotoActual">`;
 
             document.querySelectorAll("#miniaturas img").forEach(t => t.classList.remove("activa"));
             thumb.classList.add("activa");
+
+            indiceActual = fotos.indexOf(src);
         }
 
-        /* Navegación fija con flechas */
+        /* ------------------------------
+           4. Cambiar foto (±1)
+        ------------------------------ */
+        function cambiarFoto(direccion) {
+            let nuevo = indiceActual + direccion;
+
+            if (nuevo < 0 || nuevo >= fotos.length) return;
+
+            const nuevaSrc = fotos[nuevo];
+            const thumb = document.querySelector(`#miniaturas img[src="${CSS.escape(nuevaSrc)}"]`);
+
+            mostrarFoto(nuevaSrc, thumb);
+        }
+
+        /* ------------------------------
+           5. Navegación fija superior
+        ------------------------------ */
         function crearNavegacion(idActual) {
             const nav = document.getElementById("nav");
             const idNum = parseInt(idActual);
@@ -103,6 +149,52 @@
             document.getElementById("selectorRuta").onchange = function () {
                 location.href = "2025_ruta.html?id=" + this.value;
             };
+        }
+
+        /* ------------------------------
+           6. Controles extra:
+              - Teclado ← →
+              - Swipe móvil
+              - Rueda del ratón
+              - Clic en la foto
+        ------------------------------ */
+        function activarControles() {
+
+            /* Teclado */
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "ArrowRight") cambiarFoto(1);
+                if (e.key === "ArrowLeft") cambiarFoto(-1);
+            });
+
+            /* Swipe móvil */
+            let startX = 0;
+
+            fotoGrande.addEventListener("touchstart", e => {
+                startX = e.touches[0].clientX;
+            });
+
+            fotoGrande.addEventListener("touchend", e => {
+                const endX = e.changedTouches[0].clientX;
+                const diff = endX - startX;
+
+                if (Math.abs(diff) < 50) return;
+
+                if (diff < 0) cambiarFoto(1);   // izquierda → siguiente
+                else cambiarFoto(-1);           // derecha → anterior
+            });
+
+            /* Rueda del ratón */
+            fotoGrande.addEventListener("wheel", e => {
+                if (e.deltaY > 0) cambiarFoto(1);
+                else cambiarFoto(-1);
+            });
+
+            /* Clic en la foto */
+            fotoGrande.addEventListener("click", e => {
+                const mitad = fotoGrande.clientWidth / 2;
+                if (e.clientX > mitad) cambiarFoto(1);
+                else cambiarFoto(-1);
+            });
         }
     </script>
 

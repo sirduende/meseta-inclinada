@@ -1,37 +1,88 @@
-﻿/* Barra fija */
+﻿/* Fondo general */
+body {
+    background: #000;
+    color: #ddd;
+    font-family: system-ui, sans-serif;
+    margin: 0;
+}
+
+/* Barra fija */
 #nav {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: #111;
-    color: white;
-    padding: 10px;
+    background: #0d0d0d;
+    color: #eee;
+    padding: 10px 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 25px;
+    border-bottom: 1px solid #222;
     z-index: 9999;
 }
 
+    #nav a {
+        color: #eee;
+        text-decoration: none;
+        font-size: 1.2rem;
+    }
+
+    #nav select {
+        background: #111;
+        color: #eee;
+        border: 1px solid #333;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+/* Separador */
 #sep {
-    height: 60px;
+    height: 50px;
 }
 
 /* Layout principal */
 #galeria {
     display: flex;
-    gap: 10px;
+    gap: 15px;
+    padding: 10px;
 }
+
+/* Título del álbum */
+#titulo-album {
+    text-align: center;
+    margin: 20px 0 25px;
+    line-height: 1.4;
+}
+
+    #titulo-album .fecha {
+        font-size: 0.95rem;
+        color: #888;
+    }
+
+    #titulo-album .grupo {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #ccc;
+    }
+
+    #titulo-album .ruta {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        margin-top: 5px;
+    }
 
 /* Miniaturas */
 #miniaturas {
-    width: 90px;
+    width: 95px;
     height: 80vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    padding-right: 5px;
 }
 
     #miniaturas img {
@@ -39,37 +90,60 @@
         height: 70px;
         object-fit: cover;
         cursor: pointer;
-        opacity: 0.7;
-        border: 2px solid transparent;
-        border-radius: 4px;
+        opacity: 0.75;
+        border: 2px solid #222;
+        border-radius: 6px;
+        transition: 0.2s;
     }
 
         #miniaturas img:hover {
             opacity: 1;
+            border-color: #555;
         }
 
 .activa {
-    border-color: #38bdf8;
+    border-color: #38bdf8 !important;
     opacity: 1 !important;
 }
 
 /* Foto grande */
 #foto-grande {
-    max-width: 900px; /* evita que las verticales queden pequeñas */
-    margin: 0 auto; /* centra el contenedor */
-}
-#foto-grande img {
-    max-width: 100%;
-    max-height: 90vh;
-    object-fit: contain;
-    display: block;
+    max-width: 900px;
     margin: 0 auto;
+    padding: 10px;
+}
+
+    #foto-grande img {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+        border-radius: 8px;
+        background: #111;
+        padding: 8px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+/* Scrollbar oscuro */
+#miniaturas::-webkit-scrollbar {
+    width: 8px;
+}
+
+#miniaturas::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+#miniaturas::-webkit-scrollbar-track {
+    background: #111;
 }
 
 /* Móvil */
 @media (max-width: 700px) {
     #galeria {
         flex-direction: column;
+        padding: 0 10px;
     }
 
     #miniaturas {
@@ -78,10 +152,13 @@
         height: auto;
         overflow-x: auto;
         overflow-y: hidden;
+        padding: 10px 0;
+        scroll-snap-type: x mandatory;
     }
 
         #miniaturas img {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
+            scroll-snap-align: center;
         }
 }
