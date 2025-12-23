@@ -3,101 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Ruta</title>
-
-    <style>
-        /* Barra fija */
-        #nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #111;
-            color: white;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            z-index: 9999;
-        }
-
-        #sep {
-            height: 30px;
-        }
-
-        /* Layout principal */
-        #galeria {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* Miniaturas */
-        #miniaturas {
-            width: 90px;
-            height: 80vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-            #miniaturas img {
-                width: 70px;
-                height: 70px;
-                object-fit: cover;
-                cursor: pointer;
-                opacity: 0.7;
-                border: 2px solid transparent;
-                border-radius: 4px;
-            }
-
-                #miniaturas img:hover {
-                    opacity: 1;
-                }
-
-        .activa {
-            border-color: #38bdf8;
-            opacity: 1 !important;
-        }
-
-        /* Foto grande */
-        #foto-grande img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto;
-        }
-
-        /* Móvil */
-        @media (max-width: 700px) {
-            #galeria {
-                flex-direction: column;
-            }
-
-            #miniaturas {
-                flex-direction: row;
-                width: 100%;
-                height: auto;
-                overflow-x: auto;
-                overflow-y: hidden;
-            }
-
-                #miniaturas img {
-                    width: 60px;
-                    height: 60px;
-                }
-        }
-    </style>
-
+    <link rel="stylesheet" href="2025_ruta.css">
 </head>
 
 <body>
-
     <!-- Barra fija -->
     <div id="nav"></div>
     <div id="sep"></div>
-
     <h1 id="titulo"></h1>
 
     <!-- Galería -->
@@ -107,68 +19,50 @@
     </div>
 
     <script>
-        const rutas = {
-            "01": "2025_05_03 - Meseta Inclinada 01 - Collado Sestil, Sestil Alto y Valdecobellas",
-            "02": "2025_05_18 - Meseta Inclinada 02 - Piedrasluengas, Peña Labra y Pico Tres Mares",
-            "03": "2025_06_03 - Meseta Inclinada 03 - San Millán, Collado Flecho y Trigaza Sur",
-            "04": "2025_06_11 - Meseta Inclinada 04 - Laguna Hondera, Mulhacén I y II",
-            "05": "2025_06_14 - Meseta Inclinada 05 - Peña Prieta, Pico Infierno, Tres Provincias",
-            "06": "2025_06_21 - Meseta Inclinada 06 - Teleno desde Filiel",
-            "07": "2025_06_28 - Meseta Inclinada 07 - Curavacas, Pico Hospital y Huelgas",
-            "08": "2025_07_06 - Meseta Inclinada 08 - Espigüete",
-            "09": "2025_07_12 - Meseta Inclinada 09 - Peña Ubiña",
-            "10": "2025_07_19 - Meseta Inclinada 10 - Peña de la Cruz, Pico de recabellio y pico mediodía",
-            "11": "2025_07_26 - Meseta Inclinada 11 - Torre Bermeja",
-            "12": "2025_07_31 - Meseta Inclinada 12 - Ferrata de Sabero",
-            "13": "2025_08_02 - Meseta Inclinada 13 - Torre del Friero",
-            "14": "2025_08_11 - Meseta Inclinada 14 - Castro Valnera",
-            "15": "2025_08_15 - Meseta Inclinada 15 - Cuchillón, Cotomañinos y Cueto Mañín",
-            "16": "2025_08_23 - Meseta Inclinada 16 - Pico Somontano, Pico Segundo y Collado Ventoso",
-            "17": "2025_08_31 - Meseta Inclinada 17 - La Covacha y 4 Lagunas",
-            "18": "2025_08_31 - Meseta Inclinada 18 - Pico Zapatero y Peña Cabrera",
-            "19": "2025_09_06 - Meseta Inclinada 19 - Torre del Friero (2)",
-            "20": "2025_09_13 - Meseta Inclinada 20 - Pico Pontún",
-            "21": "2025_09_20 - Meseta Inclinada 21 - Laguna grande de Peñalara",
-            "22": "2025_10_04 - Meseta Inclinada 22 - Espigüete Arista este",
-            "23": "2025_10_11 - Meseta Inclinada 23 - La Mira por los Galayos",
-            "24": "2025_10_12 - Meseta Inclinada 24 - Ferrata Cueva del Elefante",
-            "25": "2025_10_18 - Meseta Inclinada 25 - Collado Argovejo y Pico Cerroso",
-            "26": "2025_11_02 - Meseta Inclinada 26 - Buitrera y Alto del Parrejón",
-            "27": "2025_11_16 - Meseta Inclinada 27 - Peña Negra, Peña de la Cruz y Fuente",
-            "28": "2025_12_07 - Meseta Inclinada 28 - Peña Fraile y Cueto",
-            "29": "2025_12_13 - Meseta Inclinada 29 - Peña Ulaña, Royo Cinto y Peña del Castillo"
-        };
+        let rutas = {};
+        let miniaturas;
+        let fotoGrande;
 
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get("id");
-        const carpeta = rutas[id];
+        fetch("2025_rutas.json")
+            .then(r => r.json())
+            .then(data => {
+                rutas = data;
+                iniciarPagina();
+            });
 
-        document.getElementById("titulo").textContent = carpeta || "Ruta no encontrada";
+        function iniciarPagina() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get("id");
+            const carpeta = rutas[id];
 
-        const miniaturas = document.getElementById("miniaturas");
-        const fotoGrande = document.getElementById("foto-grande");
+            document.getElementById("titulo").textContent = carpeta || "Ruta no encontrada";
 
-        let primera = true;
+            miniaturas = document.getElementById("miniaturas");
+            fotoGrande = document.getElementById("foto-grande");
 
-        for (let i = 1; i <= 200; i++) {
-            const src = `fotos/${carpeta}/${id} (${i}).jpg`;
+            let primera = true;
 
-            const img = new Image();
-            img.src = src;
+            for (let i = 1; i <= 200; i++) {
+                const src = `fotos/${carpeta}/${id} (${i}).jpg`;
 
-            img.onload = () => {
-                const thumb = new Image();
-                thumb.src = src;
+                const img = new Image();
+                img.src = src;
 
-                thumb.onclick = () => mostrarFoto(src, thumb);
+                img.onload = () => {
+                    const thumb = new Image();
+                    thumb.src = src;
 
-                miniaturas.appendChild(thumb);
+                    thumb.onclick = () => mostrarFoto(src, thumb);
 
-                if (primera) {
-                    mostrarFoto(src, thumb);
-                    primera = false;
-                }
-            };
+                    miniaturas.appendChild(thumb);
+
+                    if (primera) {
+                        mostrarFoto(src, thumb);
+                        primera = false;
+                    }
+                };
+            }
+            crearNavegacion(id);
         }
 
         function mostrarFoto(src, thumb) {
@@ -177,8 +71,6 @@
             document.querySelectorAll("#miniaturas img").forEach(t => t.classList.remove("activa"));
             thumb.classList.add("activa");
         }
-
-        let fotos = []; // lista de fotos cargadas let indiceActual = 0; function mostrarFoto(src, thumb) { fotoGrande.innerHTML = `<img src="${src}">`; document.querySelectorAll("#miniaturas img").forEach(t => t.classList.remove("activa")); thumb.classList.add("activa"); indiceActual = fotos.indexOf(src); } /* Detectar gestos táctiles */ let startX = 0; fotoGrande.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }); fotoGrande.addEventListener("touchend", e => { const endX = e.changedTouches[0].clientX; const diff = endX - startX; if (Math.abs(diff) < 50) return; // gesto demasiado corto if (diff < 0) cambiarFoto(1); // swipe izquierda → siguiente else cambiarFoto(-1); // swipe derecha → anterior }); function cambiarFoto(direccion) { let nuevo = indiceActual + direccion; if (nuevo < 0 || nuevo >= fotos.length) return; const nuevaSrc = fotos[nuevo]; const thumb = document.querySelector(`#miniaturas img[src="${CSS.escape(nuevaSrc)}"]`); mostrarFoto(nuevaSrc, thumb); 
 
         /* Navegación fija con flechas */
         function crearNavegacion(idActual) {
@@ -212,8 +104,6 @@
                 location.href = "2025_ruta.html?id=" + this.value;
             };
         }
-
-        crearNavegacion(id);
     </script>
 
 </body>

@@ -1,0 +1,83 @@
+﻿/* Barra fija */
+#nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #111;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    z-index: 9999;
+}
+
+#sep {
+    height: 60px;
+}
+
+/* Layout principal */
+#galeria {
+    display: flex;
+    gap: 10px;
+}
+
+/* Miniaturas */
+#miniaturas {
+    width: 90px;
+    height: 80vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    #miniaturas img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        cursor: pointer;
+        opacity: 0.7;
+        border: 2px solid transparent;
+        border-radius: 4px;
+    }
+
+        #miniaturas img:hover {
+            opacity: 1;
+        }
+
+.activa {
+    border-color: #38bdf8;
+    opacity: 1 !important;
+}
+
+/* Foto grande */
+#foto-grande img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Móvil */
+@media (max-width: 700px) {
+    #galeria {
+        flex-direction: column;
+    }
+
+    #miniaturas {
+        flex-direction: row;
+        width: 100%;
+        height: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+        #miniaturas img {
+            width: 60px;
+            height: 60px;
+        }
+}
