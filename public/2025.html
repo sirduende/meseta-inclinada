@@ -561,6 +561,78 @@
                 object-fit: cover; /* magia */
                 object-position: center; /* centra la parte importante */
             }
+
+        #galeria-index {
+            background: #000;
+            padding: 40px 0;
+            color: #ddd;
+            text-align: center;
+        }
+
+        .index-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .index-subtitle {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .lista-galerias {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .galeria-item {
+            background: #111;
+            padding: 12px 18px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+            .galeria-item:hover {
+                background: #1a1a1a;
+                border-color: #38bdf8;
+            }
+
+            .galeria-item a {
+                color: #eee;
+                text-decoration: none;
+                font-size: 1.1rem;
+                font-weight: 500;
+            }
+
+            #titulo-album {
+    text-align: center;
+    margin: 20px 0 25px;
+    line-height: 1.4;
+}
+
+#titulo-album .fecha {
+    font-size: 1rem;
+    color: #888;
+}
+
+#titulo-album .ruta {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 5px;
+}
+
+        .icono-fecha, .icono-ruta {
+            opacity: 0.9;
+            margin-right: 4px;
+        }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
 
@@ -1198,6 +1270,55 @@
                 </div>
             </div>
         </section>
+        <section id="galeria-index">
+            <div class="section-inner">
+                <h2 class="index-title">¿Quieres ver más fotos?</h2>
+                <p class="index-subtitle">
+                    Ya están disponibles todas las galerías desde nuestra web, pero únicamente accesibles desde este enlace.
+                </p>
+                <div id="lista-galerias" class="lista-galerias">
+                    <!-- Aquí se insertará el índice generado desde el JSON -->
+                </div>
+            </div>
+        </section>
     </main>
+
+    <script>
+        function formatearFecha(f) {
+            const [a, m, d] = f.split("_");
+            return `${d}/${m}/${a}`;
+        }
+
+        fetch("2025_rutas.json")
+            .then(r => r.json())
+            .then(rutas => {
+                const contenedor = document.getElementById("lista-galerias");
+
+                Object.keys(rutas)
+                    .sort((a, b) => Number(a) - Number(b))
+                    .forEach(id => {
+
+                        // Partimos el título original
+                        const partes = rutas[id].split(" - ");
+                        const fecha = formatearFecha(partes[0]);   // AAAA_MM_DD → DD/MM/AAAA
+                        const tituloRuta = partes[2];              // Título final
+
+                        const div = document.createElement("div");
+                        div.className = "galeria-item";
+
+                        div.innerHTML = `
+                            <a href="2025_ruta.html?id=${id}">
+                                <span class="icono-fecha">📅</span> ${fecha}
+                                &nbsp;–&nbsp;
+                                <span class="icono-ruta">🏔️</span> ${tituloRuta}
+                            </a>
+                        `;
+
+                        contenedor.appendChild(div);
+                    });
+            });
+    </script>
+
+
 </body>
 </html>
