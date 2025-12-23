@@ -54,6 +54,10 @@
 }
 
 /* Foto grande */
+#foto-grande {
+    max-width: 900px; /* evita que las verticales queden pequeñas */
+    margin: 0 auto; /* centra el contenedor */
+}
 #foto-grande img {
     max-width: 100%;
     max-height: 90vh;
