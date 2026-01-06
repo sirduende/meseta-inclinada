@@ -1,4 +1,4 @@
-﻿import { rutasSecundarias } from './rutasSecundarias.js';
+﻿import { rutasSecundarias } from './rutasSecundarias.js?v=20260104';
 
 function getDificultadVisual(dificultad) {
     const niveles = {

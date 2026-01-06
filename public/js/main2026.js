@@ -1,5 +1,5 @@
 ﻿// main2026.js
-import { rutasSecundarias } from './rutasSecundarias.js';
+import { rutasSecundarias } from './rutasSecundarias.js?v=20260104';
 
 
 // 🏔️ Lista de cumbres del reto FDMESCYL

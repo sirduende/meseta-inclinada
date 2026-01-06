@@ -113,6 +113,42 @@ export const rutasSecundarias = [
         enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-san-carlos-sagrado-corazon-macizo-de-andara-41008792",
         archivoGPX: "gpx2026/11_pena_remona.gpx",
         propuestoPor: "Dani"
+    },    
+    {
+        nombreRuta: "El cable",
+        cumbrePrincipal: "12 Llambrión", ///
+        dificultad: "Difícil",
+        añoRuta: 2023,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-alpinismo/el-cable-tiro-tirso-llambrion-jermoso-fuente-de-10877532",
+        archivoGPX: "gpx2026/12_cable.gpx",
+        propuestoPor: "Asun"        
+    },
+    {
+        nombreRuta: "Pico Murcia",
+        cumbrePrincipal: "14 Espiguete",
+        dificultad: "Moderada",
+        añoRuta: 2023,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-murcia-la-cerezuela-castillo-de-arriba-y-cascadas-martin-vaquero-y-mazobre-desde-cardano-de-ar-148143378",
+        archivoGPX: "gpx2026/14_murcia.gpx",
+        propuestoPor: "Asun"
+    },
+    {
+        nombreRuta: "Pico Celestino",
+        cumbrePrincipal: "15 Peña Prieta",
+        dificultad: "Moderada",
+        añoRuta: 2019,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-celestino-32036806",
+        archivoGPX: "gpx2026/15_celestino.gpx",
+        propuestoPor: "Asun"
+    },
+    {
+        nombreRuta: "Coruño, Monte de las Huelgas",
+        cumbrePrincipal: "16 Curavacas",
+        dificultad: "Fácil",
+        añoRuta: 2015,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/coruno-monte-de-las-huelgas-y-el-hospital-9490113",
+        archivoGPX: "gpx2026/16_coruno.gpx",
+        propuestoPor: "Asun"
     },
     {
         nombreRuta: "Cabeza Guilez y Mojón Alto",
