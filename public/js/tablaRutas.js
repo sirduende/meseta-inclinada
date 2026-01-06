@@ -1,4 +1,4 @@
-﻿import { rutasSecundarias } from './rutasSecundarias.js?v=20260104';
+﻿import { rutasSecundarias } from './rutasSecundarias.js?v=20260106';
 
 function getDificultadVisual(dificultad) {
     const niveles = {
@@ -57,6 +57,7 @@ export async function renderTablaRutas(selector = "#tablaRutas tbody") {
       <td>${index + 1}</td>
       <td>${ruta.nombreRuta}</td>
       <td>${ruta.cumbrePrincipal}</td>
+      <td><a href="${ruta.archivoGPX}" download>Descargar</a></td>
       <td><span style="color:${visual.color};">${visual.icono} ${ruta.dificultad}</span></td>
       <td>${ruta.añoRuta}</td>
       <td>${ruta.propuestoPor || "—"}</td>

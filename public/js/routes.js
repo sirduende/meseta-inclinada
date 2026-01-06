@@ -112,6 +112,7 @@ export async function loadRoutes(year = null) {
                     <div style="font-size:12px;"><b>Desnivel:</b> ${enriched.desnivelM} m</div>
                     <div style="font-size:12px;"><b>Duración total:</b> ${enriched.duracionFormateada}</div>
                     <div style="font-size:12px;"><b>Nivel:</b> ${enriched.nivel}</div>
+                    <div style="margin-top:6px;"> <a href="${meta.url}" download="${meta.archivo}">📥 Descargar GPX</a> </div>
                     ${enriched.relive ? `<div style="margin-top:4px;"><a href="${enriched.relive}" target="_blank">Ver en Relive</a></div>` : ''}
                 </div>
             `;

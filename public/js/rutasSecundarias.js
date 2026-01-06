@@ -310,4 +310,13 @@ export const rutasSecundarias = [
         archivoGPX: "gpx2026/00_pandian.gpx",
         propuestoPor: "Asun"
     },
+    {
+        nombreRuta: "Valdorria - Peña Galicia - Peña Morquera (trincheras) - bosque de las hadas - chozo - pozo burbuliegas - ermita de San Froilan",
+        cumbrePrincipal: "Fuera de Reto",
+        dificultad: "Moderada",
+        añoRuta: 2022,
+        enlaceWikiloc: "https://www.wikiloc.com/hiking-trails/valdorria-pena-galicia-pena-morquera-trincheras-bosque-de-las-hadas-chozo-pozo-burbuliegas-ermita-d-94531595?wa=sw&utm_campaign=badge&utm_source=whatsapp&utm_medium=social",
+        archivoGPX: "gpx2026/00_valdorria.gpx",
+        propuestoPor: "Juanma"
+    },
 ];

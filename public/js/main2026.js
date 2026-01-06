@@ -1,5 +1,5 @@
 ﻿// main2026.js
-import { rutasSecundarias } from './rutasSecundarias.js?v=20260104';
+import { rutasSecundarias } from './rutasSecundarias.js?v=20260106';
 
 
 // 🏔️ Lista de cumbres del reto FDMESCYL
@@ -130,7 +130,10 @@ function cargarRutaSecundaria(meta) {
               <b>Dificultad:</b> <span style="color:${visual.color};">${visual.icono} ${dificultad}</span>
             </div>
             <div style="font-size:12px;color:#6b7280;">Propuesto por ${propuestoPor || "—"}</div>
-            <div style="margin-top:6px;">
+            <div style="margin-top:4px;">
+              <a href="${archivoGPX}" download>📥 Descargar GPX</a>
+            </div>
+            <div style="margin-top:4px;">
               <a href="${enlaceWikiloc}" target="_blank">🌐 Ver en Wikiloc (${añoRuta})</a>
             </div>
           </div>
