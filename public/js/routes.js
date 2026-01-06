@@ -1,7 +1,7 @@
 ﻿import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
 import { enriquecerListado } from './routes-view-model.js';
-import { getRutasByYear, getGPXUrl } from './firebase.js';
+import { getRutasByYear, getGPXUrl } from './firebase.js?v=20260106';
 
 function mostrarListadoLateral(rutasRenderizadas) {
     rutasRenderizadas
