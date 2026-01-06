@@ -1,7 +1,7 @@
 ﻿import { map, layersById, setAllBounds } from './map.js';
 import { addRouteToList } from './ui.js';
 import { enriquecerListado } from './routes-view-model.js';
-import { getRutas, getGPXUrl } from './firebase.js';
+import { getRutasByYear, getGPXUrl } from './firebase.js';
 
 function mostrarListadoLateral(rutasRenderizadas) {
     rutasRenderizadas
@@ -11,10 +11,10 @@ function mostrarListadoLateral(rutasRenderizadas) {
         });
 }
 
-export async function loadRoutes() {
-    console.log("Cargando rutas");
+export async function loadRoutes(year = null) {
+    console.log("Cargando rutas para " + year);
 
-    const data = await getRutas();
+    const data = await getRutasByYear(year);
     const totalRutas = data.length;
     let rutasCargadas = 0;
     const loadingStatus = document.getElementById("loading-status");
@@ -31,7 +31,12 @@ export async function loadRoutes() {
         const displayIndex = data.length - idx - 1;
         meta.index = displayIndex;
 
-        loadingStatus.textContent = `🔄 Cargando ${idx + 1} de ${data.length}`;
+        if (year == null) {
+            loadingStatus.textContent = `🔄 Cargando ${idx + 1} de ${data.length}`;
+        } else {
+            loadingStatus.textContent = `🔄 Cargando ${idx + 1} de ${data.length} del año ${year}`;
+        }
+        
 
         const url = await getGPXUrl(meta.archivo);
         meta.url = url;
@@ -119,7 +124,11 @@ export async function loadRoutes() {
         gpx.addTo(map);
     }
 
-    loadingStatus.textContent = `✅ Rutas cargadas`; 
+    if (year == null) {
+        loadingStatus.textContent = `✅ Rutas cargadas`; 
+    } else {
+        loadingStatus.textContent = `✅ Rutas cargadas del año ${year}`; 
+    }
 
     return people;
 }

@@ -63,6 +63,45 @@ export async function getRutas() {
     return rutas;
 }
 
+export async function getRutasByYear(year = null) {
+    const snapshot = await getDocs(collection(db, "rutas"));
+    const rutas = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+
+    if (!year) {
+        console.log("Devolver todas. Total rutas:", rutas.length);
+        return rutas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    }
+
+    const yearStr = String(year);
+    console.log("Filtrar por año", yearStr, "Total rutas antes de filtrar:", rutas.length);
+
+    const filtradas = rutas.filter(ruta => {
+        const f = ruta.fecha;
+
+        let rutaYear = null;
+
+        // Caso 1: Timestamp de Firestore (tiene .toDate)
+        if (f && typeof f.toDate === "function") {
+            rutaYear = f.toDate().getFullYear().toString();
+        }
+        // Caso 2: Date nativo
+        else if (f instanceof Date) {
+            rutaYear = f.getFullYear().toString();
+        }
+        // Caso 3: string "YYYY-MM-DD"
+        else if (typeof f === "string") {
+            rutaYear = f.substring(0, 4);
+        }
+
+        console.log("Ruta:", ruta.id, "fecha:", f, "rutaYear:", rutaYear);
+
+        return rutaYear === yearStr;
+    });
+
+    console.log("Rutas tras filtrar por", yearStr, ":", filtradas.length);
+
+    return filtradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+}
 
 
 // 📁 Obtener URL de archivo GPX (primero local y en caso contrario remoto)

@@ -51,6 +51,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column">
+
             <a href="index.html" class="btn btn-outline-primary mb-3">
                 <i class="bi bi-house-door"></i> Página principal
             </a>
@@ -63,8 +64,20 @@
             <a href="secundarios.html" class="btn btn-outline-danger mb-3">
                 <i class="bi bi-binoculars"></i> Reto 2026: Picos secundarios
             </a>
+
+            <!-- 🆕 Selector de año -->
+            <div class="mb-3">
+                <label for="yearSelector" class="form-label fw-bold">Filtrar por año</label>
+                <select id="yearSelector" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+            </div>
+
             <div id="routes" class="flex-grow-1 overflow-auto"></div>
         </div>
+
     </div>
 
     <!-- Contenedor del mapa -->
