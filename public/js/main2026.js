@@ -109,7 +109,7 @@ function cargarRutaSecundaria(meta) {
 
     const gpx = new L.GPX(archivoGPX, {
         async: true,
-        polyline_options: { color: visual.color, weight: 4, opacity: 0.9 },
+        polyline_options: { color: '#6b7280', weight: 4, opacity: 0.9 }, //Gris
         marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' }
     });
 
@@ -157,8 +157,8 @@ function cargarRutaSecundaria(meta) {
                 icon: L.divIcon({
                     className: 'route-number-icon',
                     html: esFueraDeReto
-                        ? `<div class="route-number-circle" style="background:#facc15;">F</div>`
-                        : `<div class="route-number-circle">S</div>`,
+                        ? `<div class="route-number-circle" style="background:#6b7280;">F</div>`
+                        : `<div class="route-number-circle" style="background:#6b7280;">S</div>`,
                     iconSize: [30, 30],
                     iconAnchor: [15, 35]
                 })
@@ -188,7 +188,7 @@ async function cargarRutasRealizadas(year = null) {
 
         const gpx = new L.GPX(url, {
             async: true,
-            polyline_options: { color: '#3b82f6', weight: 4, opacity: 0.9 }, // azul
+            polyline_options: { color: '#22c55e', weight: 4, opacity: 0.9 }, // verde
             marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' }
         });
 
@@ -218,7 +218,7 @@ async function cargarRutasRealizadas(year = null) {
                 const marker = L.marker(startLatLng, {
                     icon: L.divIcon({
                         className: 'route-number-icon',
-                        html: `<div class="route-number-circle" style="background:#3b82f6;">R</div>`,
+                        html: `<div class="route-number-circle" style="background:#22c55e;">R</div>`,
                         iconSize: [30, 30],
                         iconAnchor: [15, 35]
                     })
