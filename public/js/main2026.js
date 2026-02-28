@@ -5,36 +5,36 @@ import { getRutasByYear, getGPXUrl } from './firebase.js?v=20260106';
 
 // 🏔️ Lista de cumbres del reto FDMESCYL
 const cumbresFDMESCYL = [
-    { nombre: "01 Peña Trevinca", lat: 42.24278, lng: -6.79611 },
-    { nombre: "02 Miravalles", lat: 42.88019, lng: -6.77764 },
-    { nombre: "03 Catoute", lat: 42.80144, lng: -6.32146 },
-    { nombre: "04 Cornón de Peñarrubia", lat: 43.02848, lng: -6.30648 },
-    { nombre: "05 Peña Orniz", lat: 43.02426, lng: -6.12095 },
-    { nombre: "06 Peña Ubiña", lat: 43.01834, lng: -5.95673 },
-    { nombre: "07 Peña la Cruz", lat: 43.03131, lng: -5.19122 },
-    { nombre: "08 Peña Ten", lat: 43.10349, lng: -5.14182 },
-    { nombre: "09 Peña Santa", lat: 43.20195, lng: -4.96219 },
-    { nombre: "10 Torre Bermeja", lat: 43.17306, lng: -4.95091 },
-    { nombre: "11 Torre del Friero", lat: 43.15727, lng: -4.87524 },
-    { nombre: "12 Llambrión", lat: 43.17327, lng: -4.85700 },
-    { nombre: "13 Torrecerredo", lat: 43.19776, lng: -4.85287 },
-    { nombre: "14 Espigüete", lat: 42.94461, lng: -4.79622 },
-    { nombre: "15 Peña Prieta", lat: 43.02385, lng: -4.73001 },
-    { nombre: "16 Curavacas", lat: 42.97635, lng: -4.67397 },
-    { nombre: "17 San Millán", lat: 42.23190, lng: -3.20630 },
-    { nombre: "18 Urbión", lat: 42.01144, lng: -2.87849 },
-    { nombre: "19 Moncayo", lat: 41.78717, lng: -1.83969 },
-    { nombre: "20 Pico del Lobo", lat: 41.18319, lng: -3.46628 },
-    { nombre: "21 Peñalara", lat: 40.85001, lng: -3.95601 },
-    { nombre: "22 La Pinareja", lat: 40.81005, lng: -4.09429 },
-    { nombre: "23 El Torozo", lat: 40.31771, lng: -4.98664 },
-    { nombre: "24 Torreón de los Galayos", lat: 40.26204, lng: -5.17187 },
-    { nombre: "25 La Mira", lat: 40.25990, lng: -5.18253 },
-    { nombre: "26 Almanzor", lat: 40.24606, lng: -5.29750 },
-    { nombre: "27 La Covacha", lat: 40.21662, lng: -5.59881 },
-    { nombre: "28 La Serrota", lat: 40.49926, lng: -5.07869 },
-    { nombre: "29 El Torreón de Béjar", lat: 40.29217, lng: -5.74084 },
-    { nombre: "30 Castro Valnera", lat: 43.14585, lng: -3.68190 }
+    { nombre: "01 Peña Trevinca", lat: 42.24278, lng: -6.79611, cubierta : false },
+    { nombre: "02 Miravalles", lat: 42.88019, lng: -6.77764, cubierta : false },
+    { nombre: "03 Catoute", lat: 42.80144, lng: -6.32146, cubierta : false },
+    { nombre: "04 Cornón de Peñarrubia", lat: 43.02848, lng: -6.30648, cubierta : false },
+    { nombre: "05 Peña Orniz", lat: 43.02426, lng: -6.12095, cubierta : false },
+    { nombre: "06 Peña Ubiña", lat: 43.01834, lng: -5.95673, cubierta : false },
+    { nombre: "07 Peña la Cruz", lat: 43.03131, lng: -5.19122, cubierta : false },
+    { nombre: "08 Peña Ten", lat: 43.10349, lng: -5.14182, cubierta : false },
+    { nombre: "09 Peña Santa", lat: 43.20195, lng: -4.96219, cubierta : false },
+    { nombre: "10 Torre Bermeja", lat: 43.17306, lng: -4.95091, cubierta : false },
+    { nombre: "11 Torre del Friero", lat: 43.15727, lng: -4.87524, cubierta : false },
+    { nombre: "12 Llambrión", lat: 43.17327, lng: -4.85700, cubierta : false },
+    { nombre: "13 Torrecerredo", lat: 43.19776, lng: -4.85287, cubierta : false },
+    { nombre: "14 Espigüete", lat: 42.94461, lng: -4.79622, cubierta : false },
+    { nombre: "15 Peña Prieta", lat: 43.02385, lng: -4.73001, cubierta : false },
+    { nombre: "16 Curavacas", lat: 42.97635, lng: -4.67397, cubierta : true },
+    { nombre: "17 San Millán", lat: 42.23190, lng: -3.20630, cubierta : false },
+    { nombre: "18 Urbión", lat: 42.01144, lng: -2.87849, cubierta : false },
+    { nombre: "19 Moncayo", lat: 41.78717, lng: -1.83969, cubierta : false },
+    { nombre: "20 Pico del Lobo", lat: 41.18319, lng: -3.46628, cubierta : false },
+    { nombre: "21 Peñalara", lat: 40.85001, lng: -3.95601, cubierta : false },
+    { nombre: "22 La Pinareja", lat: 40.81005, lng: -4.09429, cubierta : false },
+    { nombre: "23 El Torozo", lat: 40.31771, lng: -4.98664, cubierta : false },
+    { nombre: "24 Torreón de los Galayos", lat: 40.26204, lng: -5.17187, cubierta : false },
+    { nombre: "25 La Mira", lat: 40.25990, lng: -5.18253, cubierta : false },
+    { nombre: "26 Almanzor", lat: 40.24606, lng: -5.29750, cubierta : false },
+    { nombre: "27 La Covacha", lat: 40.21662, lng: -5.59881, cubierta : false },
+    { nombre: "28 La Serrota", lat: 40.49926, lng: -5.07869, cubierta : false },
+    { nombre: "29 El Torreón de Béjar", lat: 40.29217, lng: -5.74084, cubierta : false },
+    { nombre: "30 Castro Valnera", lat: 43.14585, lng: -3.68190, cubierta : false }
 ];
 
 function distanciaKm(lat1, lng1, lat2, lng2) {
@@ -51,22 +51,26 @@ function pintarTodosLosRadars(cumbres) {
     cumbres.forEach((cumbre, index) => {
         const { lat, lng, nombre } = cumbre;
 
+        const esCubierta = cumbre.cubierta === true;
+
         // 🔘 Radar de 5 km
         L.circle([lat, lng], {
             radius: 8000,
-            color: '#f97316',
-            fillColor: '#f97316',
-            fillOpacity: 0.15,
+            color: esCubierta ? '#22c55e' : '#6b7280', // borde verde o gris
+            fillColor: esCubierta ? '#86efac' : '#d1d5db', // relleno verde claro o gris 
+            fillOpacity: 0.25,
             weight: 1
         }).addTo(map);
 
         // 🔵 Marcador numerado
         const marcador = L.marker([lat, lng], {
+            pane: esCubierta ? 'pane-cumbres-cubiertas' : 'pane-cumbres-pendientes',
             icon: L.divIcon({
                 className: 'route-number-icon',
-                html: `<div class="route-number-circle-candidate">${index + 1}</div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 35]
+                html: esCubierta
+                    ? `<div class="cumbre-realizada-icon">🤖</div>`
+                    : `<div class="route-number-circle-candidate">${index + 1}</div>`,
+                iconAnchor: [15, 15]
             })
         }).addTo(map);
 
@@ -75,12 +79,12 @@ function pintarTodosLosRadars(cumbres) {
             .filter((otra, i) => i !== index && distanciaKm(lat, lng, otra.lat, otra.lng) <= 10)
             .map(otra => otra.nombre);
 
-        let popup = `<strong>${nombre}</strong><br>Cumbre #${index + 1}`;
+        let popupHtml = `<strong>${nombre}</strong><br>Cumbre #${index + 1}`;
         if (cercanas.length > 0) {
-            popup += `<br><span style="color:#f97316;">🟠 Dentro del radar:</span><br>${cercanas.join(', ')}`;
+            popupHtml += `<br><span style="color:#f97316;">🟠 Dentro del radar:</span><br>${cercanas.join(', ')}`;
         }
 
-        marcador.bindPopup(popup);
+        marcador.bindPopup(popupHtml, { pane: 'pane-popups' });
     });
 }
 
@@ -157,16 +161,16 @@ function cargarRutaSecundaria(meta) {
                 icon: L.divIcon({
                     className: 'route-number-icon',
                     html: esFueraDeReto
-                        ? `<div class="route-number-circle" style="background:#6b7280;">F</div>`
-                        : `<div class="route-number-circle" style="background:#6b7280;">S</div>`,
-                    iconSize: [30, 30],
-                    iconAnchor: [15, 35]
+                        ? `<div class="ruta-icon" style="background:#6b7280;">F</div>`
+                        : `<div class="ruta-icon" style="background:#6b7280;">S</div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [15, 15]
                 })
             }).addTo(map);
-            marker.bindPopup(popupHtml);
+            marker.bindPopup(popupHtml, { pane: 'pane-popups' });
         }
 
-        e.target.bindPopup(popupHtml);
+        e.target.bindPopup(popupHtml, { pane: 'pane-popups' });
         e.target.addTo(map);
     });
 
@@ -219,14 +223,14 @@ async function cargarRutasRealizadas(year = null) {
                     icon: L.divIcon({
                         className: 'route-number-icon',
                         html: `<div class="route-number-circle" style="background:#22c55e;">R</div>`,
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 35]
+                        iconSize: [25, 25],
+                        iconAnchor: [15, 15]
                     })
                 }).addTo(map);
-                marker.bindPopup(popupHtml);
+                marker.bindPopup(popupHtml, { pane: 'pane-popups' });
             }
 
-            e.target.bindPopup(popupHtml);
+            e.target.bindPopup(popupHtml, { pane: 'pane-popups' });
             e.target.addTo(map);
         });
 
@@ -240,6 +244,15 @@ document.addEventListener('DOMContentLoaded', () => {
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+
+    map.createPane('pane-popups');
+    map.getPane('pane-popups').style.zIndex = 800;
+    map.createPane('pane-cumbres-cubiertas');
+    map.getPane('pane-cumbres-cubiertas').style.zIndex = 700;
+    map.createPane('pane-cumbres-pendientes');
+    map.getPane('pane-cumbres-pendientes').style.zIndex = 650;
+    map.createPane('pane-rutas');
+    map.getPane('pane-rutas').style.zIndex = 600
 
     pintarTodosLosRadars(cumbresFDMESCYL);
 
