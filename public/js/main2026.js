@@ -1,5 +1,6 @@
 ﻿// main2026.js
 import { rutasSecundarias } from './rutasSecundarias.js?v=20260106';
+import { getRutasByYear, getGPXUrl } from './firebase.js?v=20260106';
 
 
 // 🏔️ Lista de cumbres del reto FDMESCYL
@@ -172,6 +173,66 @@ function cargarRutaSecundaria(meta) {
     gpx.on('error', () => console.error(`Error cargando GPX: ${archivoGPX}`));
 }
 
+// 🟦 Cargar rutas realizadas (versión simplificada)
+// 🟦 Versión simplificada para pintar rutas realizadas en main2026.js
+async function cargarRutasRealizadas(year = null) {
+    console.log("Cargando rutas realizadas para", year);
+
+    const data = await getRutasByYear(year);
+
+    for (let idx = 0; idx < data.length; idx++) {
+        const meta = data[idx];
+
+        // 🔗 Obtener URL real del GPX desde Firebase
+        const url = await getGPXUrl(meta.archivo);
+
+        const gpx = new L.GPX(url, {
+            async: true,
+            polyline_options: { color: '#3b82f6', weight: 4, opacity: 0.9 }, // azul
+            marker_options: { startIconUrl: '', endIconUrl: '', shadowUrl: '' }
+        });
+
+        gpx.on('loaded', function (e) {
+            const distanciaKm = (e.target.get_distance() / 1000).toFixed(2);
+            const desnivelM = Math.round(e.target.get_elevation_gain());
+
+            const popupHtml = `
+                <div>
+                    <div style="font-weight:600;margin-bottom:4px;">${meta.nombre}</div>
+                    <div style="font-size:12px;color:#6b7280;">${meta.fecha || ''}</div>
+                    <div style="margin:6px 0;">
+                        <b>Longitud:</b> ${distanciaKm} km<br>
+                        <b>Desnivel:</b> ${desnivelM} m<br>
+                        <b>Participantes:</b> ${meta.participantes?.join(', ') || '—'}
+                    </div>
+                    <div style="margin-top:4px;">
+                        <a href="${url}" download="${meta.archivo}">📥 Descargar GPX</a>
+                    </div>
+                </div>
+            `;
+
+            // 📍 Marcador de inicio
+            const polyline = e.target.getLayers().find(l => l instanceof L.Polyline);
+            if (polyline) {
+                const startLatLng = polyline.getLatLngs()[0];
+                const marker = L.marker(startLatLng, {
+                    icon: L.divIcon({
+                        className: 'route-number-icon',
+                        html: `<div class="route-number-circle" style="background:#3b82f6;">R</div>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 35]
+                    })
+                }).addTo(map);
+                marker.bindPopup(popupHtml);
+            }
+
+            e.target.bindPopup(popupHtml);
+            e.target.addTo(map);
+        });
+
+        gpx.on('error', () => console.error('Error cargando GPX', meta.archivo));
+    }
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -183,5 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pintarTodosLosRadars(cumbresFDMESCYL);
 
     rutasSecundarias.forEach(meta => cargarRutaSecundaria(meta));
+
+    cargarRutasRealizadas(2026);
 
 });
