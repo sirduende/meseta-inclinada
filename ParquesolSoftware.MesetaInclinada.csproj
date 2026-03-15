@@ -111,4 +111,10 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="public\gpx2026\21_cabeza.gpx">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
-﻿import { rutasSecundarias } from './rutasSecundarias.js?v=20260106';
+﻿import { rutasSecundarias } from './rutasSecundarias.js?v=20260229';
+import { getCumbresFDMESCYL } from './firebase.js?v=20260229'
 
 function getDificultadVisual(dificultad) {
     const niveles = {
@@ -33,6 +34,22 @@ function cargarGPX(ruta) {
         });
     });
 }
+
+export async function actualizarProgreso() {
+    const cumbres = await getCumbresFDMESCYL();
+
+    const total = cumbres.length;
+    const cubiertas = cumbres.filter(c => c.cubierta).length;
+
+    const porcentaje = Math.round((cubiertas / total) * 100);
+
+    const barra = document.getElementById("progresoBarra");
+    const texto = document.getElementById("progresoTexto");
+
+    barra.style.width = porcentaje + "%";
+    texto.textContent = `${cubiertas} de ${total} completadas (${porcentaje}%)`;
+}
+
 
 export async function renderTablaRutas(selector = "#tablaRutas tbody") {
     const tablaBody = document.querySelector(selector);

@@ -1,41 +1,6 @@
 ﻿// main2026.js
-import { rutasSecundarias } from './rutasSecundarias.js?v=20260106';
-import { getRutasByYear, getGPXUrl } from './firebase.js?v=20260106';
-
-
-// 🏔️ Lista de cumbres del reto FDMESCYL
-const cumbresFDMESCYL = [
-    { nombre: "01 Peña Trevinca", lat: 42.24278, lng: -6.79611, cubierta : false },
-    { nombre: "02 Miravalles", lat: 42.88019, lng: -6.77764, cubierta : false },
-    { nombre: "03 Catoute", lat: 42.80144, lng: -6.32146, cubierta : false },
-    { nombre: "04 Cornón de Peñarrubia", lat: 43.02848, lng: -6.30648, cubierta : false },
-    { nombre: "05 Peña Orniz", lat: 43.02426, lng: -6.12095, cubierta : false },
-    { nombre: "06 Peña Ubiña", lat: 43.01834, lng: -5.95673, cubierta : false },
-    { nombre: "07 Peña la Cruz", lat: 43.03131, lng: -5.19122, cubierta : false },
-    { nombre: "08 Peña Ten", lat: 43.10349, lng: -5.14182, cubierta : false },
-    { nombre: "09 Peña Santa", lat: 43.20195, lng: -4.96219, cubierta : false },
-    { nombre: "10 Torre Bermeja", lat: 43.17306, lng: -4.95091, cubierta : false },
-    { nombre: "11 Torre del Friero", lat: 43.15727, lng: -4.87524, cubierta : false },
-    { nombre: "12 Llambrión", lat: 43.17327, lng: -4.85700, cubierta : false },
-    { nombre: "13 Torrecerredo", lat: 43.19776, lng: -4.85287, cubierta : false },
-    { nombre: "14 Espigüete", lat: 42.94461, lng: -4.79622, cubierta : false },
-    { nombre: "15 Peña Prieta", lat: 43.02385, lng: -4.73001, cubierta : false },
-    { nombre: "16 Curavacas", lat: 42.97635, lng: -4.67397, cubierta : true },
-    { nombre: "17 San Millán", lat: 42.23190, lng: -3.20630, cubierta : false },
-    { nombre: "18 Urbión", lat: 42.01144, lng: -2.87849, cubierta : false },
-    { nombre: "19 Moncayo", lat: 41.78717, lng: -1.83969, cubierta : false },
-    { nombre: "20 Pico del Lobo", lat: 41.18319, lng: -3.46628, cubierta : false },
-    { nombre: "21 Peñalara", lat: 40.85001, lng: -3.95601, cubierta : false },
-    { nombre: "22 La Pinareja", lat: 40.81005, lng: -4.09429, cubierta : false },
-    { nombre: "23 El Torozo", lat: 40.31771, lng: -4.98664, cubierta : false },
-    { nombre: "24 Torreón de los Galayos", lat: 40.26204, lng: -5.17187, cubierta : false },
-    { nombre: "25 La Mira", lat: 40.25990, lng: -5.18253, cubierta : false },
-    { nombre: "26 Almanzor", lat: 40.24606, lng: -5.29750, cubierta : false },
-    { nombre: "27 La Covacha", lat: 40.21662, lng: -5.59881, cubierta : false },
-    { nombre: "28 La Serrota", lat: 40.49926, lng: -5.07869, cubierta : false },
-    { nombre: "29 El Torreón de Béjar", lat: 40.29217, lng: -5.74084, cubierta : false },
-    { nombre: "30 Castro Valnera", lat: 43.14585, lng: -3.68190, cubierta : false }
-];
+import { rutasSecundarias } from './rutasSecundarias.js?v=20260229';
+import { getRutasByYear, getGPXUrl, getCumbresFDMESCYL } from './firebase.js?v=20260229';
 
 function distanciaKm(lat1, lng1, lat2, lng2) {
     const R = 6371;
@@ -47,7 +12,8 @@ function distanciaKm(lat1, lng1, lat2, lng2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function pintarTodosLosRadars(cumbres) {
+async function pintarTodosLosRadars() {
+    const cumbres = await getCumbresFDMESCYL();
     cumbres.forEach((cumbre, index) => {
         const { lat, lng, nombre } = cumbre;
 
@@ -122,6 +88,8 @@ function cargarRutaSecundaria(meta) {
         const desnivelM = Math.round(e.target.get_elevation_gain());
 
         const esFueraDeReto = cumbrePrincipal === "Fuera de Reto";
+
+        console.log("Cargando propuesta: " + e.nombreRuta);
 
         let popupHtml = `
           <div>
@@ -254,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     map.createPane('pane-rutas');
     map.getPane('pane-rutas').style.zIndex = 600
 
-    pintarTodosLosRadars(cumbresFDMESCYL);
+    pintarTodosLosRadars();
 
     rutasSecundarias.forEach(meta => cargarRutaSecundaria(meta));
 

@@ -66,7 +66,13 @@
     <header class="text-center bg-dark text-white py-5">
         <h1 class="display-4">Reto 2026</h1>
         <p class="lead">Nuevas cumbres, viejos caminos, nuevos puntos de vista</p>
+        <div class="progreso-container">
+            <div class="progreso-barra" id="progresoBarra"></div>
+        </div>
+        <p id="progresoTexto" class="progreso-texto">...Cargando bizcocho...</p>
     </header>
+
+    
 
     <!-- Contenido principal -->
     <section class="container my-5">
@@ -179,8 +185,13 @@
     <script src="./libs/gpx.min.js"></script>
 
     <script type="module">
-        import { renderTablaRutas } from './js/tablaRutas.js';
-        renderTablaRutas();
+        import { renderTablaRutas, actualizarProgreso } from './js/tablaRutas.js?v=20260227';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTablaRutas();
+            actualizarProgreso();
+        });
+
     </script>
 
 </body>

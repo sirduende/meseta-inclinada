@@ -1,6 +1,6 @@
 ﻿import {
     getNextRutaId, saveRuta, uploadGPX, getParticipantesUnicos, getRutas, deleteRuta
-} from './firebase.js?v=20260106';
+} from './firebase.js?v=20260229';
 
 const form = document.getElementById("ruta-form");
 const lista = document.getElementById("rutas-lista");

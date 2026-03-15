@@ -215,6 +215,16 @@ export const rutasSecundarias = [
         propuestoPor: "Dani"
     },
     {
+        nombreRuta: "Cabeza de Hierro Mayor por Arroyo Valhondillo circular. Sierra de Guadarrama",
+        cumbrePrincipal: "21 Peñalara",
+        dificultad: "Moderada",
+        añoRuta: 2019,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/cabeza-de-hierro-mayor-por-arroyo-valhondillo-circular-sierra-de-guadarrama-37975508",
+        aviso: "Tejo 1300 años. Emblemática",
+        archivoGPX: "gpx2026/21_cabeza.gpx",
+        propuestoPor: "Gonzalo"
+    },
+    {
         nombreRuta: "Peña del Oso desde las Dehesas de Cercedilla",
         cumbrePrincipal: "22 La Pinareja",
         dificultad: "Moderada",
