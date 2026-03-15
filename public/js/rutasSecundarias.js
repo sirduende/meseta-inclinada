@@ -234,6 +234,16 @@ export const rutasSecundarias = [
         propuestoPor: "Dani"
     },
     {
+        nombreRuta: "Montón de Trigo desde el Puente de la Cantina",
+        cumbrePrincipal: "22 La Pinareja",
+        dificultad: "Moderada",
+        añoRuta: 2019,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/monton-de-trigo-desde-el-puente-de-la-cantina-34765145",
+        archivoGPX: "gpx2026/22_monton.gpx",
+        propuestoPor: "Gonzalo",
+        aviso: "Gonzalo lo ha subido muchas veces y nunca se cansa"
+    },
+    {
         nombreRuta: "Alto de los Corralillos, Torozo y Collado del Risco desde Puerto de Serranillos",
         cumbrePrincipal: "23 El Torozo",
         dificultad: "Fácil",
@@ -329,4 +339,44 @@ export const rutasSecundarias = [
         archivoGPX: "gpx2026/00_valdorria.gpx",
         propuestoPor: "Juanma"
     },
+    {
+        nombreRuta: "Mirador de la Sierra - Pico del Aguila - Canto Hastial - Silla del Diablo - El Estepar - M.Peñaliendres - Cascada Covacho",
+        cumbrePrincipal: "Fuera de Reto",
+        dificultad: "Moderada",
+        añoRuta: 2015,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/mirador-de-la-sierra-pico-del-aguila-canto-hastial-silla-del-diablo-el-estepar-m-penaliendres-casca-11757016",
+        archivoGPX: "gpx2026/00_aguila.gpx",
+        propuestoPor: "Asun",
+        aviso: "Senderismo puro, para cuando en otras zonas dan lluvia"
+    },
+    {
+        nombreRuta: "Pico Zapatero circular desde Navandrinal (Sierra de la Paramera)",
+        cumbrePrincipal: "Fuera de Reto",
+        dificultad: "Moderada",
+        añoRuta: 2013,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/pico-zapatero-circular-desde-navandrinal-sierra-de-la-paramera-5423186",
+        archivoGPX: "gpx2026/00_zapatero.gpx",
+        propuestoPor: "Gonzalo",
+        aviso: "Realizada previamente, recomendada"
+    },
+    {
+        nombreRuta: "Puente de la Cantina - Refugio de la Camorca (Invernal)",
+        cumbrePrincipal: "Fuera de Reto",
+        dificultad: "Moderada",
+        añoRuta: 2017,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/puente-de-la-cantina-refugio-de-la-camorca-invernal-21401419",
+        archivoGPX: "gpx2026/00_cantina.gpx",
+        propuestoPor: "Gonzalo",
+        aviso: "Realizada previamente, recomendada"
+    },
+    {
+        nombreRuta: "Del Salto del Chorro al Pico Nevero",
+        cumbrePrincipal: "Fuera de Reto",
+        dificultad: "Moderada",
+        añoRuta: 2022,
+        enlaceWikiloc: "https://es.wikiloc.com/rutas-senderismo/del-salto-del-chorro-al-pico-nevero-101021278",
+        archivoGPX: "gpx2026/00_nevero.gpx",
+        propuestoPor: "Gonzalo",
+        aviso: "Recomendación FDMESCYL"
+    } 
 ];

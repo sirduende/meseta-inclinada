@@ -1,6 +1,6 @@
 ﻿// main2026.js
-import { rutasSecundarias } from './rutasSecundarias.js?v=20260229';
-import { getRutasByYear, getGPXUrl, getCumbresFDMESCYL } from './firebase.js?v=20260229';
+import { rutasSecundarias } from './rutasSecundarias.js?v=20260315';
+import { getRutasByYear, getGPXUrl, getCumbresFDMESCYL } from './firebase.js?v=20260315';
 
 function distanciaKm(lat1, lng1, lat2, lng2) {
     const R = 6371;

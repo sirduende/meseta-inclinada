@@ -1,5 +1,5 @@
-﻿import { rutasSecundarias } from './rutasSecundarias.js?v=20260229';
-import { getCumbresFDMESCYL } from './firebase.js?v=20260229'
+﻿import { rutasSecundarias } from './rutasSecundarias.js?v=20260315';
+import { getCumbresFDMESCYL } from './firebase.js?v=20260315'
 
 function getDificultadVisual(dificultad) {
     const niveles = {
