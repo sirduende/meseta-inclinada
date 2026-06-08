@@ -1,0 +1,17 @@
+@if (Visible)
+{
+    <div class="d-flex justify-content-center align-items-center p-3">
+        <div class="spinner-border text-success" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <span class="ms-2">@Message</span>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; } = true;
+    [Parameter] public string Message { get; set; } = string.Empty;
+}

@@ -1,0 +1,45 @@
+<button class="btn btn-sm w-100 text-start mb-2 route-button"
+        style="white-space:normal; background:#ffffff; border-left:4px solid @ColorBorde !important;"
+        @onclick="HandleClick">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="fw-bold text-dark">@Ruta.Fecha — @Ruta.Nombre</div>
+        <span class="badge bg-secondary rounded-pill ms-2">#@Ruta.Index</span>
+    </div>
+    <div style="font-size:12px" class="text-muted">
+        @for (int i = 0; i < Math.Min(Ruta.Participantes.Count, 6); i++)
+        {
+            <i class="bi bi-person-fill" title="@Ruta.Participantes[i]" style="font-size:0.95rem;opacity:0.75"></i>
+        }
+        @if (Ruta.Participantes.Count > 6)
+        {
+            <span style="font-size:11px"> +@(Ruta.Participantes.Count - 6)</span>
+        }
+        <span class="ms-1">@Ruta.Participantes.Count participante@(Ruta.Participantes.Count != 1 ? "s" : "")</span>
+    </div>
+    <div class="mt-1">
+        <span class="badge rounded-pill" style="background-color:@ColorBorde;color:white">
+            Nivel: @Ruta.Nivel
+        </span>
+        @if (Ruta.DistanciaKm > 0)
+        {
+            <span style="font-size:11px" class="text-muted ms-2">
+                @Ruta.DistanciaKm.ToString("F1") km · @((int)Ruta.DesnivelM) m↑
+            </span>
+        }
+    </div>
+</button>
+
+@code {
+    [Parameter, EditorRequired] public RutaEnriquecida Ruta { get; set; } = default!;
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private string ColorBorde => Ruta.Nivel switch
+    {
+        "Alta"    => "#ef4444",
+        "Ferrata" => "#9ca3af",
+        "Media"   => "#f97316",
+        _         => "#22c55e"
+    };
+
+    private async Task HandleClick() => await OnClick.InvokeAsync();
+}

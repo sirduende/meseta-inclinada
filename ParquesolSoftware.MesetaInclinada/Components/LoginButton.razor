@@ -1,0 +1,31 @@
+@inject AuthService AuthService
+
+@if (AuthService.CurrentUser == null)
+{
+    <button class="btn btn-outline-light btn-sm" @onclick="Login">
+        <i class="bi bi-google"></i> Iniciar sesión
+    </button>
+}
+else
+{
+    <div class="d-flex align-items-center gap-2">
+        <span class="text-white small">@AuthService.CurrentUser.DisplayName</span>
+        <button class="btn btn-outline-light btn-sm" @onclick="Logout">Salir</button>
+    </div>
+}
+
+@code {
+    [Parameter] public EventCallback OnAuthChanged { get; set; }
+
+    private async Task Login()
+    {
+        await AuthService.SignInWithGoogleAsync();
+        await OnAuthChanged.InvokeAsync();
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.SignOutAsync();
+        await OnAuthChanged.InvokeAsync();
+    }
+}

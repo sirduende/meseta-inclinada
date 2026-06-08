@@ -1,0 +1,128 @@
+@page "/admin/avatares"
+@inject AuthService AuthService
+@inject FirestoreService FirestoreService
+@inject NavigationManager Nav
+@using ParquesolSoftware.MesetaInclinada.Models
+
+<PageTitle>Avatares – Administración</PageTitle>
+
+<div class="container py-4">
+
+    @if (!AuthService.IsAdmin)
+    {
+        <div class="text-center py-5">
+            <p class="text-muted">Acceso restringido a administradores.</p>
+            <a href="/admin" class="btn btn-dark">Ir al panel</a>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="/admin" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <strong class="fs-5"><i class="bi bi-person-bounding-box me-2"></i>Avatares de miembros</strong>
+            </div>
+            <a href="/admin/avatar-lab" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-flask me-1"></i> Laboratorio
+            </a>
+        </div>
+
+        @if (!string.IsNullOrEmpty(mensajeExito))
+        {
+            <div class="alert alert-success alert-dismissible mb-3">
+                @mensajeExito
+                <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger alert-dismissible mb-3">
+                @mensajeError
+                <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
+            </div>
+        }
+
+        @if (isLoading)
+        {
+            <div class="text-center py-4"><div class="spinner-border text-secondary"></div></div>
+        }
+        else if (configs.Count == 0)
+        {
+            <div class="text-center py-5">
+                <p class="text-muted">No hay participantes todavía.</p>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted small mb-4">
+                Pulsa <strong>Editar</strong> para personalizar el avatar en el laboratorio.
+                Los cambios se guardan desde allí.
+            </p>
+
+            <div class="row g-3">
+                @foreach (var cfg in configs.OrderBy(c => c.Nombre))
+                {
+                    <div class="col-6 col-md-4 col-lg-3" @key="cfg.Nombre">
+                        <div class="card shadow-sm text-center p-3 h-100">
+                            <img src="@cfg.UrlODefault"
+                                 alt="Avatar @cfg.Nombre"
+                                 class="rounded-circle border border-2 mx-auto mb-2"
+                                 style="width:80px;height:80px;background:#f0fdf4;display:block" />
+                            <div class="fw-semibold small mb-1">@cfg.Nombre</div>
+                            <div class="text-muted mb-2" style="font-size:0.65rem">
+                                @(string.IsNullOrEmpty(cfg.Url) ? "Sin avatar personalizado" : "Personalizado ✓")
+                            </div>
+                            <a href="@LabUrl(cfg)" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<AvatarConfig> configs     = new();
+    private bool   isLoading               = true;
+    private string? mensajeExito;
+    private string? mensajeError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!AuthService.IsAdmin) { isLoading = false; return; }
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        isLoading = true;
+        var participantesTask = FirestoreService.GetParticipantesUnicosAsync();
+        var configsTask       = FirestoreService.GetAvatarConfigsAsync();
+        await Task.WhenAll(participantesTask, configsTask);
+
+        var participantes = participantesTask.Result;
+        var guardados     = configsTask.Result.ToDictionary(c => c.Nombre, StringComparer.OrdinalIgnoreCase);
+
+        configs = participantes
+            .OrderBy(p => p)
+            .Select(nombre => guardados.TryGetValue(nombre, out var c)
+                ? c
+                : new AvatarConfig { Nombre = nombre })
+            .ToList();
+
+        isLoading = false;
+    }
+
+    /// <summary>URL al laboratorio para editar el avatar de este miembro.</summary>
+    private static string LabUrl(AvatarConfig cfg)
+    {
+        var url = $"/admin/avatar-lab?nombre={Uri.EscapeDataString(cfg.Nombre)}";
+        if (!string.IsNullOrEmpty(cfg.Url))
+            url += $"&url={Uri.EscapeDataString(cfg.Url)}";
+        return url;
+    }
+}

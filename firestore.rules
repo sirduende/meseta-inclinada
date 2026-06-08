@@ -2,13 +2,98 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Regla por defecto para toda la base
-    match /{document=**} {
-      // Lectura para todos
-      allow read: if true;
+    // ── Helpers ────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
 
-      // Escritura solo si el usuario está autenticado
-      allow write: if request.auth != null;
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.admin == true;
+    }
+
+    function isMember() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.miembro == true;
+    }
+
+    function isAdminOrMember() {
+      return isAdmin() || isMember();
+    }
+
+    // ── Rutas realizadas ───────────────────────────────────────
+    match /rutas/{rutaId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Propuestas de rutas ────────────────────────────────────
+    match /propuestas/{propuestaId} {
+      allow read: if true;
+      allow create: if isAdminOrMember();
+      // Admin puede todo.
+      // Miembro puede editar/borrar si:
+      //   a) es el creador por UID (propuestas nuevas), o
+      //   b) su nombreMostrado coincide con propuestoPor (propuestas migradas del JSON)
+      allow update, delete: if isAdmin() ||
+        (isMember() && resource.data.creadoPor == request.auth.uid) ||
+        (isMember() && resource.data.propuestoPor ==
+          get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.nombreMostrado);
+    }
+
+    // ── Cumbres FDMESCYL ───────────────────────────────────────
+    match /cumbresFDMESCYL/{cumbreId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Roles ──────────────────────────────────────────────────
+    match /roles/{uid} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == uid);
+      // Admin puede hacer cualquier operación (crear, editar, borrar)
+      // Necesario para aprobar solicitudes: set() sobre doc inexistente = create
+      allow write: if isAdmin();
+      // Auto-provisioning: un usuario puede crear su propio rol como miembro
+      // (no admin) al usar una invitación. La verificación de la invitación
+      // se hace en el cliente; aquí garantizamos que no puede auto-asignarse admin.
+      allow create: if isSignedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.miembro == true &&
+        !request.resource.data.keys().hasAny(['admin']);
+    }
+
+    // ── Solicitudes de acceso ──────────────────────────────────
+    match /solicitudes/{uid} {
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow read, delete: if isAdmin();
+    }
+
+    // ── Invitaciones ───────────────────────────────────────────
+    // Admin crea/actualiza/borra invitaciones.
+    // Cualquier usuario autenticado puede leer (para verificar la suya al hacer login)
+    // y borrar la suya propia una vez que se ha auto-aprobado.
+    match /invitaciones/{invId} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin() || isSignedIn();
+    }
+
+    // ── Avatares ───────────────────────────────────────────────
+    // Cualquiera puede leer (las páginas de perfil son públicas).
+    // Solo el admin puede escribir (se gestiona desde el panel admin).
+    match /avatares/{nombre} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Gastro ─────────────────────────────────────────────────
+    // Cualquiera puede leer (los marcadores son públicos en el mapa).
+    // Admin puede todo. Miembro puede crear y editar/borrar sus propios sitios.
+    match /gastro/{docId} {
+      allow read: if true;
+      allow create: if isAdminOrMember();
+      allow update, delete: if isAdmin() ||
+        (isMember() && resource.data.creadoPor == request.auth.uid);
     }
   }
 }

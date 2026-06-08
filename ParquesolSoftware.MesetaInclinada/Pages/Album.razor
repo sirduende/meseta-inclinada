@@ -1,0 +1,193 @@
+@* @page "/album" — Galería desactivada temporalmente. Descomentar para reactivar. *@
+@inject IJSRuntime JS
+@inject HttpClient Http
+
+<PageTitle>@titulo – Meseta Inclinada</PageTitle>
+
+<!-- Barra de navegación del álbum -->
+<div style="background:#111;color:#fff;padding:8px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100">
+    @if (idNum > 1)
+    {
+        <a href="/album?id=@PadId(idNum - 1)" style="color:white;text-decoration:none;font-size:1.3rem">⬅️</a>
+    }
+    else
+    {
+        <span style="opacity:0.3;font-size:1.3rem">⬅️</span>
+    }
+
+    <select class="form-select form-select-sm" style="max-width:420px;background:#222;color:#fff;border-color:#444"
+            @onchange="OnSelectorChange">
+        @foreach (var kv in rutas.OrderBy(x => int.TryParse(x.Key, out var n) ? n : 999))
+        {
+            <option value="@kv.Key" selected="@(kv.Key == AlbumId)">@kv.Value</option>
+        }
+    </select>
+
+    @if (idNum < maxId)
+    {
+        <a href="/album?id=@PadId(idNum + 1)" style="color:white;text-decoration:none;font-size:1.3rem">➡️</a>
+    }
+    else
+    {
+        <span style="opacity:0.3;font-size:1.3rem">➡️</span>
+    }
+</div>
+
+<!-- Título -->
+<div id="titulo-album" style="text-align:center;margin:20px 0 25px;color:#fff;background:#000;padding:16px">
+    <div class="fecha" style="font-size:1rem;color:#888">@fechaFormateada</div>
+    <div class="ruta" style="font-size:1.8rem;font-weight:700;color:#fff;margin-top:5px">@titulo</div>
+</div>
+
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center align-items-center" style="min-height:300px;background:#000">
+        <div class="spinner-border text-light" role="status"></div>
+        <span class="text-light ms-3">Buscando fotos...</span>
+    </div>
+}
+else if (fotos.Count == 0)
+{
+    <div class="text-center text-muted py-5" style="background:#000;min-height:300px">
+        <p>No se encontraron fotos para esta ruta.</p>
+    </div>
+}
+else
+{
+    <!-- Foto grande -->
+    <div id="foto-grande" style="background:#000;text-align:center;cursor:pointer"
+         @onclick="ClickFotoGrande" @ontouchstart="OnTouchStart" @ontouchend="OnTouchEnd">
+        <img src="@fotos[indiceActual]" style="max-height:70vh;max-width:100%;object-fit:contain" alt="Foto @(indiceActual+1)" />
+        <div style="color:#888;font-size:0.85rem;padding:4px">@(indiceActual+1) / @fotos.Count</div>
+    </div>
+
+    <!-- Miniaturas -->
+    <div style="background:#111;overflow-x:auto;white-space:nowrap;padding:8px">
+        @for (int i = 0; i < fotos.Count; i++)
+        {
+            var idx = i;
+            <img src="@fotos[i]"
+                 style="height:70px;width:auto;margin:0 3px;cursor:pointer;opacity:@(idx == indiceActual ? "1" : "0.5");border:@(idx == indiceActual ? "2px solid #38bdf8" : "2px solid transparent")"
+                 @onclick="() => MostrarFoto(idx)" />
+        }
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "id")] public string? AlbumId { get; set; }
+
+    private Dictionary<string, string> rutas = new();
+    private List<string> fotos = new();
+    private int indiceActual = 0;
+    private bool isLoading = true;
+    private string titulo = string.Empty;
+    private string fechaFormateada = string.Empty;
+    private int idNum = 0;
+    private int maxId = 29;
+    private double touchStartX;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            rutas = await Http.GetFromJsonAsync<Dictionary<string, string>>("data/rutas-2025.json") ?? new();
+            maxId = rutas.Keys.Select(k => int.TryParse(k, out var n) ? n : 0).DefaultIfEmpty(29).Max();
+        }
+        catch { }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrEmpty(AlbumId)) return;
+
+        idNum = int.TryParse(AlbumId, out var n) ? n : 0;
+        fotos.Clear();
+        indiceActual = 0;
+        isLoading = true;
+
+        // Título desde el JSON
+        if (rutas.TryGetValue(AlbumId, out var entrada))
+        {
+            var partes = entrada.Split(" - ");
+            if (partes.Length >= 3)
+            {
+                titulo = partes[2];
+                fechaFormateada = FormatFecha(partes[0]);
+            }
+            else
+            {
+                titulo = entrada;
+            }
+        }
+        else
+        {
+            titulo = $"Ruta {AlbumId}";
+        }
+
+        StateHasChanged();
+
+        // Sondear fotos via album-interop.js
+        try
+        {
+            var urls = await JS.InvokeAsync<List<string>>("albumInterop.probePhotos", AlbumId, 200);
+            fotos = urls ?? new();
+        }
+        catch { fotos = new(); }
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private void MostrarFoto(int idx)
+    {
+        if (idx >= 0 && idx < fotos.Count)
+        {
+            indiceActual = idx;
+        }
+    }
+
+    private void ClickFotoGrande(MouseEventArgs e)
+    {
+        // Clic en mitad derecha → siguiente, izquierda → anterior
+        // No podemos medir clientWidth fácilmente, así que usamos clientX respecto a viewport
+        // Como aproximación: x > 300 → siguiente
+        if (e.ClientX > 400) CambiarFoto(1);
+        else CambiarFoto(-1);
+    }
+
+    private void CambiarFoto(int delta)
+    {
+        var nuevo = indiceActual + delta;
+        if (nuevo >= 0 && nuevo < fotos.Count) indiceActual = nuevo;
+    }
+
+    private void OnTouchStart(TouchEventArgs e)
+    {
+        touchStartX = e.Touches[0].ClientX;
+    }
+
+    private void OnTouchEnd(TouchEventArgs e)
+    {
+        var diff = e.ChangedTouches[0].ClientX - touchStartX;
+        if (Math.Abs(diff) < 50) return;
+        CambiarFoto(diff < 0 ? 1 : -1);
+    }
+
+    private void OnSelectorChange(ChangeEventArgs e)
+    {
+        var id = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(id))
+            NavigationManager_Navigate($"/album?id={id}");
+    }
+
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    private void NavigationManager_Navigate(string url) => Nav.NavigateTo(url);
+
+    private static string PadId(int n) => n.ToString("D2");
+
+    private static string FormatFecha(string f)
+    {
+        var parts = f.Split("_");
+        return parts.Length == 3 ? $"{parts[2]}/{parts[1]}/{parts[0]}" : f;
+    }
+}

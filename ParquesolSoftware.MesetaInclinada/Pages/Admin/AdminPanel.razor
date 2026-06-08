@@ -1,0 +1,531 @@
+@page "/admin"
+@inject AuthService AuthService
+@inject FirestoreService FirestoreService
+@inject RutasSecundariasService RutasSecundariasService
+@inject HttpClient Http
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Administración – Meseta Inclinada</PageTitle>
+
+<div class="container py-4">
+
+    @if (AuthService.IsMember && !AuthService.IsAdmin)
+    {
+        <!-- Miembro autenticado: redirigir a su área -->
+        <div class="text-center py-5">
+            <p class="text-muted mb-3">Bienvenido, <strong>@(AuthService.NombreMostrado ?? AuthService.CurrentUser?.DisplayName)</strong>.</p>
+            <p class="text-muted small mb-4">Esta sección es exclusiva para administradores.</p>
+            <a href="/mi-area" class="btn btn-success">
+                <i class="bi bi-person-circle me-2"></i>Ir a Mi área
+            </a>
+        </div>
+    }
+    else if (!AuthService.IsAdmin)
+    {
+        <div class="text-center py-5">
+            <h2 class="mb-4"><i class="bi bi-lock-fill text-secondary"></i> Área de administración</h2>
+            <p class="text-muted mb-4">Acceso restringido a administradores.</p>
+            @if (!string.IsNullOrEmpty(authError))
+            {
+                <div class="alert @(authError.Contains("solicitud") ? "alert-info" : "alert-danger")">@authError</div>
+            }
+            <button class="btn btn-dark" @onclick="Login" disabled="@isAuthLoading">
+                @if (isAuthLoading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                <i class="bi bi-google me-2"></i> Iniciar sesión con Google
+            </button>
+        </div>
+    }
+    else
+    {
+        <!-- Cabecera -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-gear-fill me-2"></i>Administración</h2>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small">@AuthService.CurrentUser?.DisplayName</span>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">Cerrar sesión</button>
+            </div>
+        </div>
+
+        <!-- Mensajes globales -->
+        @if (!string.IsNullOrEmpty(mensajeExito))
+        {
+            <div class="alert alert-success alert-dismissible mb-3">
+                @mensajeExito
+                <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger alert-dismissible mb-3">
+                @mensajeError
+                <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
+            </div>
+        }
+
+        <!-- Pestañas -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <button class="nav-link @(tab == "rutas" ? "active" : "")"
+                        @onclick='() => tab = "rutas"'>
+                    <i class="bi bi-map-fill me-1"></i> Rutas
+                    @if (!isLoadingRutas)
+                    {
+                        <span class="badge bg-secondary ms-1">@rutas.Count</span>
+                    }
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(tab == "usuarios" ? "active" : "")"
+                        @onclick='() => tab = "usuarios"'>
+                    <i class="bi bi-people-fill me-1"></i> Usuarios
+                    @if (solicitudes.Count > 0)
+                    {
+                        <span class="badge bg-warning text-dark ms-1">@solicitudes.Count</span>
+                    }
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(tab == "cumbres" ? "active" : "")"
+                        @onclick='() => tab = "cumbres"'>
+                    <i class="bi bi-flag-fill me-1"></i> Cumbres
+                    @if (cumbres.Count > 0)
+                    {
+                        var cubiertas = cumbres.Count(c => c.Cubierta);
+                        <span class="badge @(cubiertas == cumbres.Count ? "bg-success" : "bg-secondary") ms-1">
+                            @cubiertas/@cumbres.Count
+                        </span>
+                    }
+                </button>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/avatares">
+                    <i class="bi bi-person-bounding-box me-1"></i> Avatares
+                </a>
+            </li>
+            @if (mostrarBotonMigracion)
+            {
+                <li class="nav-item">
+                    <button class="nav-link @(tab == "migracion" ? "active" : "") text-warning"
+                            @onclick='() => tab = "migracion"'>
+                        <i class="bi bi-database-fill-up me-1"></i> Migración
+                    </button>
+                </li>
+            }
+        </ul>
+
+        <!-- ── TAB: RUTAS ───────────────────────────── -->
+        @if (tab == "rutas")
+        {
+            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+                <button class="btn btn-success" @onclick="NuevaRuta">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva ruta
+                </button>
+                <button class="btn btn-outline-warning btn-sm" @onclick="ResetMetricas"
+                        disabled="@resetando"
+                        title="Borra las métricas calculadas (km, desnivel) para que se recalculen la próxima vez que cargues el mapa como admin">
+                    @if (resetando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                    else { <i class="bi bi-arrow-clockwise me-1"></i> }
+                    Recalcular métricas GPX
+                </button>
+            </div>
+
+            @if (mostrarFormulario)
+            {
+                <RutaForm RutaEditar="rutaEditando"
+                          Participantes="participantesExistentes"
+                          OnGuardado="OnRutaGuardada"
+                          OnCancelado="CerrarFormulario" />
+            }
+
+            @if (isLoadingRutas)
+            {
+                <div class="text-center py-3"><div class="spinner-border spinner-border-sm text-secondary"></div></div>
+            }
+            else if (rutas.Count == 0)
+            {
+                <p class="text-muted small">No hay rutas todavía.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th><th>Nombre</th><th>Fecha</th><th>Dificultad</th><th>Participantes</th><th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in rutas.OrderByDescending(x => x.Fecha))
+                            {
+                                <tr>
+                                    <td class="text-muted small">@r.Id</td>
+                                    <td><strong>@r.Nombre</strong></td>
+                                    <td class="small">@r.Fecha</td>
+                                    <td><span class="badge bg-secondary">@r.Dificultad</span></td>
+                                    <td class="small">@string.Join(", ", r.Participantes)</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => EditarRuta(r)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => EliminarRuta(r)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+
+        <!-- ── TAB: USUARIOS ─────────────────────────── -->
+        @if (tab == "usuarios")
+        {
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex gap-3 text-muted small">
+                    <span><i class="bi bi-person-check me-1"></i>@miembros.Count miembro@(miembros.Count != 1 ? "s" : "")</span>
+                    @if (solicitudes.Count > 0)
+                    {
+                        <span class="fw-semibold text-warning">
+                            <i class="bi bi-hourglass-split me-1"></i>@solicitudes.Count solicitud@(solicitudes.Count != 1 ? "es" : "") pendiente@(solicitudes.Count != 1 ? "s" : "")
+                        </span>
+                    }
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/admin/usuarios" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil-square me-1"></i> Gestionar usuarios
+                    </a>
+                </div>
+            </div>
+
+            @if (miembros.Count == 0 && solicitudes.Count == 0)
+            {
+                <p class="text-muted small">No hay miembros ni solicitudes todavía.</p>
+            }
+            else
+            {
+                <!-- Solicitudes pendientes (si hay) -->
+                @if (solicitudes.Count > 0)
+                {
+                    <div class="alert alert-warning py-2 mb-3">
+                        <i class="bi bi-bell-fill me-1"></i>
+                        Hay <strong>@solicitudes.Count solicitud@(solicitudes.Count != 1 ? "es" : "")</strong> pendiente@(solicitudes.Count != 1 ? "s" : "") de aprobación.
+                        <a href="/admin/usuarios" class="alert-link ms-2">Revisar →</a>
+                    </div>
+                }
+
+                <!-- Lista rápida de miembros -->
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead class="table-light">
+                            <tr><th>Email</th><th>Nombre</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in miembros.OrderBy(m => m.Email))
+                            {
+                                <tr>
+                                    <td class="small">@m.Email</td>
+                                    <td class="small">
+                                        @if (!string.IsNullOrEmpty(m.NombreMostrado))
+                                            { @m.NombreMostrado }
+                                        else
+                                            { <span class="text-muted fst-italic">sin nombre</span> }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+
+        <!-- ── TAB: CUMBRES ──────────────────────────── -->
+        @if (tab == "cumbres")
+        {
+            @if (isLoadingCumbres)
+            {
+                <div class="text-center py-4"><div class="spinner-border text-secondary"></div></div>
+            }
+            else if (cumbres.Count == 0)
+            {
+                <p class="text-muted small">No se han encontrado cumbres en Firestore.</p>
+            }
+            else
+            {
+                var cubiertas = cumbres.Count(c => c.Cubierta);
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="progress flex-grow-1" style="height:10px">
+                        <div class="progress-bar bg-success" style="width:@(cubiertas * 100 / cumbres.Count)%"></div>
+                    </div>
+                    <span class="text-muted small fw-semibold">@cubiertas / @cumbres.Count completadas</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:50px">#</th>
+                                <th>Cumbre</th>
+                                <th style="width:110px" class="text-center">Completada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in cumbres.OrderBy(x => x.Orden))
+                            {
+                                <tr class="@(c.Cubierta ? "table-success" : "")">
+                                    <td class="text-muted small">@c.Orden</td>
+                                    <td class="fw-semibold small">@c.Nombre</td>
+                                    <td class="text-center">
+                                        @if (toggleando == c.Id)
+                                        {
+                                            <span class="spinner-border spinner-border-sm text-secondary"></span>
+                                        }
+                                        else
+                                        {
+                                            <div class="form-check d-flex justify-content-center mb-0">
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       checked="@c.Cubierta"
+                                                       @onchange="() => ToggleCumbre(c)"
+                                                       title="@(c.Cubierta ? "Marcar como pendiente" : "Marcar como completada")" />
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-muted small mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Los cambios se guardan al instante en Firestore y se reflejan en el mapa y el listado del Reto 2026.
+                </p>
+            }
+        }
+
+        <!-- ── TAB: MIGRACIÓN ────────────────────────── -->
+        @if (tab == "migracion" && mostrarBotonMigracion)
+        {
+            <p class="text-muted small mb-3">
+                La colección <code>propuestas</code> en Firestore está vacía.
+                Migra el JSON estático con un clic. Esta operación solo es necesaria una vez.
+            </p>
+            <button class="btn btn-warning" @onclick="MigrarPropuestas" disabled="@migrando">
+                @if (migrando)
+                {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    <span>Migrando @migradoCount / @totalMigracion...</span>
+                }
+                else
+                {
+                    <i class="bi bi-arrow-up-circle me-2"></i>
+                    <span>Migrar propuestas JSON → Firestore</span>
+                }
+            </button>
+        }
+    }
+</div>
+
+@code {
+    private string tab = "rutas";
+
+    // Rutas
+    private List<Ruta> rutas = new();
+    private List<string> participantesExistentes = new();
+    private bool isLoadingRutas = true;
+    private bool mostrarFormulario = false;
+    private Ruta? rutaEditando;
+
+    // Auth
+    private bool isAuthLoading = false;
+    private string? authError;
+
+    // Usuarios (resumen)
+    private List<Miembro>   miembros    = new();
+    private List<Solicitud> solicitudes = new();
+
+    // Cumbres
+    private List<CumbreFDMESCYL> cumbres = new();
+    private bool isLoadingCumbres = false;
+    private int toggleando = -1;
+
+    // Migración
+    private bool mostrarBotonMigracion = false;
+    private bool migrando = false;
+    private int migradoCount = 0;
+    private int totalMigracion = 0;
+
+    // Mensajes
+    private string? mensajeExito;
+    private string? mensajeError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthService.AuthStateChanged += OnAuthChanged;
+        if (AuthService.IsAdmin) await CargarTodo();
+        else isLoadingRutas = false;
+    }
+
+    private async void OnAuthChanged(UserInfo? _)
+    {
+        if (AuthService.IsAdmin) await CargarTodo();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CargarTodo()
+    {
+        await Task.WhenAll(CargarRutas(), CargarResumenUsuarios(), CargarCumbres());
+        await VerificarMigracion();
+    }
+
+    private async Task CargarCumbres()
+    {
+        isLoadingCumbres = true;
+        cumbres = await FirestoreService.GetCumbresFDMESCYLAsync();
+        isLoadingCumbres = false;
+    }
+
+    private async Task ToggleCumbre(CumbreFDMESCYL cumbre)
+    {
+        toggleando = cumbre.Id;
+        StateHasChanged();
+        var nuevoValor = !cumbre.Cubierta;
+        var ok = await FirestoreService.ToggleCumbreAsync(cumbre.Id, nuevoValor);
+        if (ok)
+        {
+            cumbre.Cubierta = nuevoValor;
+            mensajeExito = nuevoValor
+                ? $"✅ {cumbre.Nombre} marcada como completada."
+                : $"⬜ {cumbre.Nombre} marcada como pendiente.";
+        }
+        else
+        {
+            mensajeError = $"Error al actualizar {cumbre.Nombre}.";
+        }
+        toggleando = -1;
+        StateHasChanged();
+    }
+
+    private async Task CargarRutas()
+    {
+        isLoadingRutas = true;
+        rutas = await FirestoreService.GetRutasAsync();
+        participantesExistentes = await FirestoreService.GetParticipantesUnicosAsync();
+        isLoadingRutas = false;
+    }
+
+    private async Task CargarResumenUsuarios()
+    {
+        var t1 = FirestoreService.GetMiembrosAsync();
+        var t2 = FirestoreService.GetSolicitudesAsync();
+        await Task.WhenAll(t1, t2);
+        miembros    = t1.Result;
+        solicitudes = t2.Result;
+        StateHasChanged();
+    }
+
+    private async Task VerificarMigracion()
+    {
+        var propuestas = await FirestoreService.GetPropuestasAsync();
+        mostrarBotonMigracion = propuestas.Count == 0;
+        StateHasChanged();
+    }
+
+    // Auth
+    private async Task Login()
+    {
+        isAuthLoading = true; authError = null; StateHasChanged();
+        var result = await AuthService.SignInWithGoogleAsync();
+        if (result.Success && AuthService.IsMember && !AuthService.IsAdmin)
+        {
+            Nav.NavigateTo("/mi-area");
+            return;
+        }
+        if (!result.Success) authError = result.Error;
+        isAuthLoading = false; StateHasChanged();
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.SignOutAsync();
+        rutas.Clear(); miembros.Clear(); solicitudes.Clear();
+        mostrarFormulario = false;
+        StateHasChanged();
+    }
+
+    // Rutas
+    private void NuevaRuta() { rutaEditando = null; mostrarFormulario = true; }
+    private void EditarRuta(Ruta r) { rutaEditando = r; mostrarFormulario = true; }
+    private void CerrarFormulario() { mostrarFormulario = false; rutaEditando = null; }
+
+    private async Task EliminarRuta(Ruta r)
+    {
+        mensajeError = null; mensajeExito = null;
+        var ok = await FirestoreService.DeleteRutaAsync(r.Id);
+        if (ok) { rutas.Remove(r); mensajeExito = $"Ruta '{r.Nombre}' eliminada."; }
+        else mensajeError = "Error al eliminar la ruta.";
+    }
+
+    private async Task OnRutaGuardada(Ruta r)
+    {
+        mostrarFormulario = false;
+        mensajeExito = $"Ruta '{r.Nombre}' guardada.";
+        await CargarRutas();
+    }
+
+    // Recálculo de métricas
+    private bool resetando = false;
+
+    private async Task ResetMetricas()
+    {
+        resetando = true; mensajeExito = null; mensajeError = null; StateHasChanged();
+        int ok = 0, fail = 0;
+        foreach (var r in rutas)
+        {
+            var res = await FirestoreService.ResetRutaMetricasAsync(r.Id);
+            if (res) ok++; else fail++;
+        }
+        resetando = false;
+        mensajeExito = $"Métricas reseteadas en {ok} rutas. Carga el mapa como admin (2025 y 2026) para recalcularlas con el nuevo algoritmo.";
+        if (fail > 0) mensajeError = $"{fail} rutas no pudieron resetearse.";
+        StateHasChanged();
+    }
+
+    // Migración JSON → Firestore
+    private async Task MigrarPropuestas()
+    {
+        migrando = true; migradoCount = 0; mensajeError = null; mensajeExito = null;
+        StateHasChanged();
+        try
+        {
+            var json = await Http.GetFromJsonAsync<List<RutaSecundaria>>("/data/rutas-secundarias.json");
+            if (json == null || json.Count == 0)
+            {
+                mensajeError = "No se encontraron propuestas en el JSON.";
+                migrando = false; return;
+            }
+            totalMigracion = json.Count;
+            foreach (var p in json)
+            {
+                p.FechaCreacion = "2024-01-01";
+                await FirestoreService.SavePropuestaAsync(null, p);
+                migradoCount++;
+                StateHasChanged();
+            }
+            RutasSecundariasService.InvalidarCache();
+            mensajeExito = $"✅ {migradoCount} propuestas migradas correctamente.";
+            mostrarBotonMigracion = false;
+            tab = "rutas";
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error durante la migración: {ex.Message}";
+        }
+        migrando = false;
+        StateHasChanged();
+    }
+
+    public void Dispose() => AuthService.AuthStateChanged -= OnAuthChanged;
+}

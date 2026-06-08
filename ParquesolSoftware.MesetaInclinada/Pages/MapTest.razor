@@ -1,0 +1,77 @@
+@page "/maptest"
+@layout MapLayout
+@inject LeafletService LeafletService
+@implements IAsyncDisposable
+
+<PageTitle>Test Mapa Leaflet</PageTitle>
+
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center bg-light p-2 gap-3">
+        <strong>Test Leaflet + GPX</strong>
+        @if (isLoading)
+        {
+            <span class="text-muted small">Cargando GPX...</span>
+            <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+        }
+        @if (rutaEnriquecida != null)
+        {
+            <span class="badge bg-success">GPX cargado ✓</span>
+            <span class="small">📏 @rutaEnriquecida.DistanciaKm km</span>
+            <span class="small">⬆️ @rutaEnriquecida.DesnivelM m+</span>
+            <span class="small">⏱️ @rutaEnriquecida.DuracionFormateada</span>
+            <span class="small">Nivel: <strong>@rutaEnriquecida.Nivel</strong></span>
+        }
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <span class="text-danger small">@error</span>
+        }
+    </div>
+    <div id="map" style="height: calc(100vh - 100px); width: 100%;"></div>
+</div>
+
+@code {
+    private RutaEnriquecida? rutaEnriquecida;
+    private bool isLoading = false;
+    private string? error;
+    private DotNetObjectReference<MapTest>? dotNetRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            // Inicializar mapa centrado en España
+            await LeafletService.InitializeMapAsync("map", 40.4, -3.7, 6);
+
+            // Cargar primer GPX local disponible
+            var testGpxUrl = "gpx/Alto_de_la_Pirulera-_Cima_Castro_Valnera_y_Cubada_.gpx";
+            isLoading = true;
+            StateHasChanged();
+
+            dotNetRef = DotNetObjectReference.Create(this);
+            var meta = new { nombre = "Castro Valnera (test)", dificultad = "Alta" };
+            await LeafletService.LoadGpxAsync("map", "test-route", testGpxUrl, 0, meta, dotNetRef);
+        }
+        catch (Exception ex)
+        {
+            error = $"Error: {ex.Message}";
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable("OnGpxLoaded")]
+    public void OnGpxLoaded(RutaEnriquecida enriched)
+    {
+        rutaEnriquecida = enriched;
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        dotNetRef?.Dispose();
+        try { await LeafletService.DestroyMapAsync("map"); } catch { }
+    }
+}

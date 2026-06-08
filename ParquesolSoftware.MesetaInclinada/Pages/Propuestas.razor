@@ -1,0 +1,261 @@
+@page "/propuestas"
+@layout MapLayout
+@inject LeafletService LeafletService
+@inject RutasSecundariasService RutasSecundariasService
+@inject FirestoreService FirestoreService
+@inject StorageService StorageService
+@inject NavigationManager Nav
+@using ParquesolSoftware.MesetaInclinada.Models
+@implements IAsyncDisposable
+
+<PageTitle>Propuestas de Rutas – Meseta Inclinada</PageTitle>
+
+<!-- Sidebar persistente -->
+<div class="m-sidebar @(collapsed ? "collapsed" : "") @(mobileOpen ? "open" : "")">
+
+    <button class="m-sidebar-toggle" @onclick="ToggleSidebar">
+        @if (collapsed)
+        {
+            <i class="bi bi-chevron-right" title="Mostrar filtros"></i>
+        }
+        else
+        {
+            <i class="bi bi-chevron-left"></i>
+            <span>Ocultar filtros</span>
+        }
+    </button>
+
+    <div class="m-sidebar-content">
+
+        @if (isLoading)
+        {
+            <div class="text-center text-muted py-3">
+                <div class="spinner-border spinner-border-sm text-success"></div>
+                <span class="ms-2 small">Cargando...</span>
+            </div>
+        }
+        else
+        {
+            <div class="small text-muted mb-3">
+                @rutasMostradas propuesta@(rutasMostradas != 1 ? "s" : "") visible@(rutasMostradas != 1 ? "s" : "")
+            </div>
+        }
+
+        <!-- Capas (checklist) -->
+        <div class="fw-semibold small mb-2" style="color:var(--m-verde-oscuro)">Capas</div>
+
+        <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="checkLibre"
+                   @bind="mostrarLibre" @bind:after="OnLibreChanged" />
+            <label class="form-check-label small" for="checkLibre">
+                🗺️ Fuera de reto
+                <span class="badge bg-secondary ms-1" style="font-size:0.6rem">@totalLibre</span>
+            </label>
+        </div>
+
+        <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="checkReto"
+                   @bind="mostrarReto" @bind:after="OnRetoChanged" />
+            <label class="form-check-label small" for="checkReto">
+                🏔️ Propuestas reto
+                <span class="badge bg-secondary ms-1" style="font-size:0.6rem">@totalReto</span>
+            </label>
+        </div>
+
+        <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="checkVerde"
+                   @bind="mostrarVerde" @bind:after="OnVerdeChanged" />
+            <label class="form-check-label small" for="checkVerde">
+                🟢 Rutas realizadas 2026
+            </label>
+        </div>
+
+        <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="checkCumbres"
+                   @bind="mostrarCumbres" @bind:after="OnCumbresChanged" />
+            <label class="form-check-label small" for="checkCumbres">
+                🔵 Cumbres FDMESCYL
+            </label>
+        </div>
+
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="checkGastro"
+                   @bind="mostrarGastro" @bind:after="OnGastroChanged" />
+            <label class="form-check-label small" for="checkGastro">
+                🍽️ Gastro
+                @if (sitiosGastro.Count > 0)
+                { <span class="badge bg-secondary ms-1" style="font-size:0.6rem">@sitiosGastro.Count</span> }
+            </label>
+        </div>
+
+        <button class="btn btn-outline-secondary btn-sm w-100 mb-3"
+                @onclick="TodasLasCapas" disabled="@isLoading">
+            <i class="bi bi-layers me-1"></i> Todas
+        </button>
+
+        <hr class="my-2" />
+
+        <!-- Leyenda -->
+        <div class="small">
+            <div class="fw-semibold mb-1" style="color:var(--m-verde-oscuro)">Leyenda</div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span style="display:inline-block;width:20px;height:4px;background:#6b7280;border-radius:2px"></span>
+                <span class="text-muted">Propuesta</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span style="display:inline-block;width:20px;height:4px;background:#22c55e;border-radius:2px"></span>
+                <span class="text-muted">Ruta realizada 2026</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f97316;border:2px solid #fff"></span>
+                <span class="text-muted">Cumbre FDMESCYL</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#16a34a;border:2px solid #fff;font-size:10px;text-align:center;line-height:14px">🍽️</span>
+                <span class="text-muted">Sitio gastronómico</span>
+            </div>
+            <div class="fw-semibold mb-1" style="color:var(--m-verde-oscuro)">Dificultad</div>
+            <div class="small"><span style="color:#22c55e">●</span> Fácil</div>
+            <div class="small"><span style="color:#f97316">●</span> Moderada</div>
+            <div class="small"><span style="color:#ef4444">●</span> Difícil</div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Botón flotante móvil -->
+<button class="m-sidebar-open-btn @(mobileOpen ? "d-none" : "")" @onclick="ToggleMobile" title="Mostrar filtros">
+    <i class="bi bi-funnel-fill"></i>
+</button>
+
+<!-- Zona del mapa -->
+<div class="m-map-area">
+    <div id="map"></div>
+</div>
+
+@code {
+    private bool isLoading  = true;
+    private bool collapsed  = false;
+    private bool mobileOpen = false;
+
+    // ── Estado de capas — defaults para acceso directo ──────────────────────
+    private bool mostrarLibre   = true;   // Fuera de reto — ON
+    private bool mostrarReto    = false;  // Propuestas reto — OFF
+    private bool mostrarVerde   = false;  // Rutas realizadas — OFF
+    private bool mostrarCumbres = false;  // Radar FDMESCYL — OFF
+    private bool mostrarGastro  = false;  // Gastro — OFF
+
+    private List<SitioGastro>    sitiosGastro     = new();
+    private List<RutaSecundaria> todasSecundarias = new();
+    private bool _verdeLoaded;
+
+    private int totalReto   => todasSecundarias.Count(r => !EsLibre(r));
+    private int totalLibre  => todasSecundarias.Count(r => EsLibre(r));
+    private int rutasMostradas =>
+        todasSecundarias.Count(r => (EsLibre(r) && mostrarLibre) || (!EsLibre(r) && mostrarReto));
+
+    // ── Ciclo de vida ────────────────────────────────────────────────────────
+
+    protected override void OnInitialized()
+    {
+        // Si venimos desde /secundarios, activar las capas de reto
+        if (Nav.Uri.Contains("desde=reto"))
+        {
+            mostrarLibre   = false;
+            mostrarReto    = true;
+            mostrarVerde   = true;
+            mostrarCumbres = true;
+            mostrarGastro  = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        await LeafletService.InitializeMapAsync("map", 41.5, -4.0, 6);
+
+        // Cumbres FDMESCYL (radar)
+        var cumbres = await FirestoreService.GetCumbresFDMESCYLAsync();
+        await LeafletService.LoadRadarsAsync("map", cumbres);
+        await LeafletService.SetRadarVisibilityAsync("map", mostrarCumbres);
+
+        // Todas las propuestas secundarias — cada una cargada con su visibilidad inicial
+        todasSecundarias = await RutasSecundariasService.GetAllAsync();
+        await Task.WhenAll(todasSecundarias.Select(r =>
+            LeafletService.LoadRutaSecundariaAsync("map", r, EsLibre(r) ? mostrarLibre : mostrarReto)));
+
+        // Rutas realizadas 2026 — carga diferida: solo si el checkbox está activo en este momento
+        if (mostrarVerde)
+            await CargarRutasVerdeAsync();
+
+        // Gastro
+        sitiosGastro = await FirestoreService.GetGastroSitiosAsync();
+        if (sitiosGastro.Count > 0)
+            await LeafletService.LoadGastroMarkersAsync("map", sitiosGastro);
+        await LeafletService.SetGastroVisibilityAsync("map", mostrarGastro);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private static bool EsLibre(RutaSecundaria r) => r.CumbrePrincipal == "Fuera de Reto";
+
+    // ── Handlers de capas ────────────────────────────────────────────────────
+
+    private async Task OnRetoChanged()
+        => await LeafletService.SetSecRetoVisibilityAsync("map", mostrarReto);
+
+    private async Task OnLibreChanged()
+        => await LeafletService.SetSecLibreVisibilityAsync("map", mostrarLibre);
+
+    private async Task CargarRutasVerdeAsync()
+    {
+        if (_verdeLoaded) return;
+        _verdeLoaded = true;
+        var rutas2026 = await FirestoreService.GetRutasAsync(2026);
+        foreach (var ruta in rutas2026)
+        {
+            var gpxUrl = await StorageService.GetGpxUrlAsync(ruta.Archivo);
+            if (gpxUrl != null)
+                await LeafletService.LoadGpxVerdeAsync("map", ruta.Id, gpxUrl,
+                    new { nombre = ruta.Nombre, fecha = ruta.Fecha, participantes = ruta.Participantes });
+        }
+    }
+
+    private async Task OnVerdeChanged()
+    {
+        if (mostrarVerde && !_verdeLoaded)
+            await CargarRutasVerdeAsync();
+        await LeafletService.SetVerdeVisibilityAsync("map", mostrarVerde);
+    }
+
+    private async Task OnCumbresChanged()
+        => await LeafletService.SetRadarVisibilityAsync("map", mostrarCumbres);
+
+    private async Task OnGastroChanged()
+        => await LeafletService.SetGastroVisibilityAsync("map", mostrarGastro);
+
+    private async Task TodasLasCapas()
+    {
+        mostrarLibre = mostrarReto = mostrarVerde = mostrarCumbres = mostrarGastro = true;
+        await Task.WhenAll(
+            OnRetoChanged(), OnLibreChanged(), OnVerdeChanged(),
+            OnCumbresChanged(), OnGastroChanged());
+    }
+
+    // ── Sidebar ──────────────────────────────────────────────────────────────
+
+    private void ToggleSidebar()
+    {
+        if (mobileOpen) mobileOpen = false;
+        else collapsed = !collapsed;
+    }
+
+    private void ToggleMobile() => mobileOpen = !mobileOpen;
+
+    public async ValueTask DisposeAsync()
+    {
+        try { await LeafletService.DestroyMapAsync("map"); } catch { }
+    }
+}

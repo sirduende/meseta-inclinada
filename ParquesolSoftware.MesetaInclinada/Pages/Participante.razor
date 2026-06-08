@@ -1,0 +1,215 @@
+@page "/participante/{nombre}"
+@inject FirestoreService FirestoreService
+@inject NavigationManager Nav
+
+<PageTitle>@Nombre – Meseta Inclinada</PageTitle>
+
+<header class="m-page-header text-center">
+    <img src="@avatarUrl"
+         alt="Avatar de @Nombre"
+         class="rounded-circle border border-3 mb-3"
+         style="width:110px;height:110px;background:#f0fdf4;border-color:var(--m-verde-claro) !important" />
+    <h1>@Nombre</h1>
+    <p>Historial de rutas y estadísticas</p>
+</header>
+
+<div class="container my-4">
+
+    <button class="btn btn-outline-secondary btn-sm mb-4" @onclick='() => Nav.NavigateTo("/estadisticas")'>
+        <i class="bi bi-arrow-left me-1"></i> Volver a estadísticas
+    </button>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-success"></div>
+            <p class="text-muted mt-2">Cargando rutas...</p>
+        </div>
+    }
+    else if (misRutas.Count == 0)
+    {
+        <div class="alert alert-secondary">No se han encontrado rutas para <strong>@Nombre</strong>.</div>
+    }
+    else
+    {
+        <!-- Tarjetas resumen -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@misRutas.Count</div>
+                        <div class="text-muted small">rutas totales</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@misRutas.Count(r => r.Fecha.StartsWith("2025"))</div>
+                        <div class="text-muted small">en 2025</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@misRutas.Count(r => r.Fecha.StartsWith("2026"))</div>
+                        <div class="text-muted small">en 2026</div>
+                    </div>
+                </div>
+            </div>
+            @if (totalKm > 0)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card text-center border-0 shadow-sm h-100">
+                        <div class="card-body py-3">
+                            <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@totalKm.ToString("F0") km</div>
+                            <div class="text-muted small">distancia acumulada</div>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (totalDesnivel > 0)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card text-center border-0 shadow-sm h-100">
+                        <div class="card-body py-3">
+                            <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@((totalDesnivel / 1000).ToString("F1"))k m+</div>
+                            <div class="text-muted small">desnivel acumulado</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Desglose mensual -->
+        @if (statsMensuales.Any(m => m.Km > 0))
+        {
+            <h4 class="mb-3" style="color:var(--m-verde-oscuro)">📅 Actividad mensual</h4>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mes</th>
+                            <th class="text-center">Rutas</th>
+                            <th class="text-center">Distancia</th>
+                            <th class="text-center">Desnivel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var mes in statsMensuales)
+                        {
+                            <tr>
+                                <td class="small fw-semibold">@mes.MesLargo</td>
+                                <td class="text-center small">@mes.Count</td>
+                                <td class="text-center small">@(mes.Km > 0 ? mes.Km.ToString("F1") + " km" : "—")</td>
+                                <td class="text-center small">@(mes.Desnivel > 0 ? ((int)mes.Desnivel) + " m+" : "—")</td>
+                            </tr>
+                        }
+                        <tr class="table-light fw-bold">
+                            <td class="small">Total</td>
+                            <td class="text-center small">@misRutas.Count</td>
+                            <td class="text-center small">@(totalKm > 0 ? totalKm.ToString("F1") + " km" : "—")</td>
+                            <td class="text-center small">@(totalDesnivel > 0 ? ((int)totalDesnivel) + " m+" : "—")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <!-- Listado de rutas -->
+        <h4 class="mb-3" style="color:var(--m-verde-oscuro)">🗺️ Rutas</h4>
+        <div class="list-group">
+            @foreach (var r in misRutas)
+            {
+                <div class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">@r.Nombre</div>
+                        <div class="text-muted small">@r.Fecha</div>
+                        @if (r.Participantes.Any(p => !p.Equals(Nombre, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            <div class="text-muted" style="font-size:0.75rem">
+                                Con: @string.Join(", ", r.Participantes.Where(p => !p.Equals(Nombre, StringComparison.OrdinalIgnoreCase)))
+                            </div>
+                        }
+                    </div>
+                    @if (r.DistanciaKm > 0)
+                    {
+                        <div class="text-end text-muted small flex-shrink-0">
+                            <div class="fw-semibold">@r.DistanciaKm.ToString("F1") km</div>
+                            <div>@((int)r.DesnivelM) m+</div>
+                            @if (!string.IsNullOrEmpty(r.DuracionFormateada))
+                            { <div>@r.DuracionFormateada</div> }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-4">
+    <small>&copy; 2025–2026 Meseta Inclinada</small>
+</footer>
+
+@code {
+    [Parameter] public string Nombre { get; set; } = "";
+
+    private List<Ruta> misRutas = new();
+    private List<MesStat> statsMensuales = new();
+    private bool isLoading = true;
+    private double totalKm;
+    private double totalDesnivel;
+    private string avatarUrl = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Nombre = Uri.UnescapeDataString(Nombre);
+
+        var t25    = FirestoreService.GetRutasAsync(2025);
+        var t26    = FirestoreService.GetRutasAsync(2026);
+        var tAvtar = FirestoreService.GetAvatarConfigAsync(Nombre);
+        await Task.WhenAll(t25, t26, tAvtar);
+
+        avatarUrl = BuildAvatarUrl(tAvtar.Result);
+
+        misRutas = t25.Result
+            .Concat(t26.Result)
+            .Where(r => r.Participantes.Contains(Nombre, StringComparer.OrdinalIgnoreCase))
+            .OrderByDescending(r => r.Fecha)
+            .ToList();
+
+        totalKm       = misRutas.Where(r => r.DistanciaKm > 0).Sum(r => r.DistanciaKm);
+        totalDesnivel = misRutas.Where(r => r.DesnivelM   > 0).Sum(r => r.DesnivelM);
+
+        // Estadísticas por mes (orden cronológico)
+        statsMensuales = misRutas
+            .Where(r => !string.IsNullOrEmpty(r.Fecha) && r.Fecha.Length >= 7)
+            .GroupBy(r => r.Fecha[..7])
+            .OrderBy(g => g.Key)
+            .Select(g => new MesStat(
+                g.Key,
+                g.Count(),
+                g.Where(r => r.DistanciaKm > 0).Sum(r => r.DistanciaKm),
+                g.Where(r => r.DesnivelM   > 0).Sum(r => r.DesnivelM)
+            ))
+            .ToList();
+
+        isLoading = false;
+    }
+
+    private static string BuildAvatarUrl(AvatarConfig? cfg) =>
+        cfg?.UrlODefault ?? "https://api.dicebear.com/9.x/adventurer/svg?seed=";
+
+    private record MesStat(string Clave, int Count, double Km, double Desnivel)
+    {
+        public string MesLargo
+        {
+            get
+            {
+                if (!DateTime.TryParse(Clave + "-01", out var d)) return Clave;
+                return d.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"));
+            }
+        }
+    }
+}

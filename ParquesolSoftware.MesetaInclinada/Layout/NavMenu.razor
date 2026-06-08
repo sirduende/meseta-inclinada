@@ -1,0 +1,82 @@
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<nav class="m-navbar">
+    <div class="m-navbar-container">
+
+        <!-- Logo y marca -->
+        <a class="m-brand" href="/">
+            <img src="image/meseta_inclinada.png" alt="Logo" width="32" height="32" />
+            Meseta Inclinada
+        </a>
+
+        <!-- Hamburguesa (solo móvil) -->
+        <button class="m-toggler" @onclick="Toggle" title="Menú">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- Links de navegación -->
+        <div class="@NavClass m-nav-links">
+            <NavLink class="m-nav-link" href="/" Match="NavLinkMatch.All" @onclick="Close">
+                <i class="bi bi-house-door"></i> Inicio
+            </NavLink>
+            <NavLink class="m-nav-link" href="/rutas" @onclick="Close">
+                <i class="bi bi-map-fill"></i> Rutas
+            </NavLink>
+            <NavLink class="m-nav-link" href="/propuestas" @onclick="Close">
+                <i class="bi bi-lightbulb"></i> Propuestas
+            </NavLink>
+            <NavLink class="m-nav-link" href="/secundarios" @onclick="Close">
+                <i class="bi bi-binoculars"></i> Reto 2026
+            </NavLink>
+            @* Galería oculta temporalmente — código en Album.razor *@
+            <NavLink class="m-nav-link" href="/estadisticas" @onclick="Close">
+                <i class="bi bi-bar-chart-fill"></i> Estadísticas
+            </NavLink>
+
+            <div class="m-nav-sep"></div>
+
+            <NavLink class="m-nav-link" href="/acerca-de" @onclick="Close">
+                <i class="bi bi-info-circle"></i> Acerca de
+            </NavLink>
+            <NavLink class="m-nav-link" href="/hall-of-fame" @onclick="Close" title="Hall of Fame">
+                <i class="bi bi-trophy-fill" style="color:#ffc107"></i>
+                <span class="d-inline d-md-none">Hall of Fame</span>
+            </NavLink>
+            <div class="m-nav-sep"></div>
+
+            @if (AuthService.IsAuthenticated)
+            {
+                <NavLink class="m-nav-link" href="/mi-area" @onclick="Close">
+                    <i class="bi bi-person-circle"></i> Mi área
+                </NavLink>
+                @if (AuthService.IsAdmin)
+                {
+                    <NavLink class="m-nav-link" href="/admin" @onclick="Close">
+                        <i class="bi bi-gear-fill"></i> Admin
+                    </NavLink>
+                }
+            }
+            else
+            {
+                <NavLink class="m-nav-link" href="/admin" @onclick="Close">
+                    <i class="bi bi-box-arrow-in-right"></i> Acceder
+                </NavLink>
+            }
+        </div>
+    </div>
+</nav>
+
+@code {
+    private bool open = false;
+    private string NavClass => open ? "show" : "";
+
+    private void Toggle() => open = !open;
+    private void Close() => open = false;
+
+    protected override void OnInitialized()
+    {
+        AuthService.AuthStateChanged += _ => InvokeAsync(StateHasChanged);
+        Nav.LocationChanged += (_, _) => { open = false; InvokeAsync(StateHasChanged); };
+    }
+}

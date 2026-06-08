@@ -1,0 +1,461 @@
+@page "/admin/avatar-lab"
+@inject FirestoreService FirestoreService
+@inject AuthService AuthService
+@inject NavigationManager Nav
+@using ParquesolSoftware.MesetaInclinada.Models
+@using ParquesolSoftware.MesetaInclinada.Services
+@using System.Text
+
+<PageTitle>Laboratorio Avatares – Meseta Inclinada</PageTitle>
+
+<div class="container py-4">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/admin/avatares" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h4 class="mb-0">🧪 Laboratorio de Avatares</h4>
+            <small class="text-muted">Preview en tiempo real · DiceBear Adventurer</small>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ── Preview + Guardar ────────────────────────────────── -->
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-3 mb-3">
+                <img src="@AvatarUrl"
+                     alt="Preview avatar"
+                     id="avatar-preview"
+                     class="rounded-circle border border-2 mx-auto mb-3"
+                     style="width:180px;height:180px;background:#f0fdf4;display:block" />
+                <details class="text-start">
+                    <summary class="text-muted small" style="cursor:pointer">Ver URL</summary>
+                    <div class="font-monospace mt-1 p-2 rounded"
+                         style="font-size:0.6rem;word-break:break-all;background:#f8f9fa;border:1px solid #e9ecef">
+                        @AvatarUrl
+                    </div>
+                </details>
+            </div>
+
+            <!-- Guardar para un miembro -->
+            @if (AuthService.IsAdmin)
+            {
+                <div class="card shadow-sm p-3">
+                    <div class="fw-semibold small mb-2">💾 Guardar avatar</div>
+                    <label class="form-label small mb-1">Miembro</label>
+                    <select class="form-select form-select-sm mb-2" @bind="nombreGuardar">
+                        <option value="">— Selecciona —</option>
+                        @foreach (var p in participantes)
+                        { <option value="@p">@p</option> }
+                    </select>
+                    @if (!string.IsNullOrEmpty(mensajeGuardar))
+                    {
+                        <div class="alert @(mensajeGuardar.StartsWith("✅") ? "alert-success" : "alert-danger") py-1 small mb-2">
+                            @mensajeGuardar
+                        </div>
+                    }
+                    <button class="btn btn-success btn-sm w-100"
+                            @onclick="Guardar"
+                            disabled="@(guardando || string.IsNullOrEmpty(nombreGuardar))">
+                        @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                        Guardar
+                    </button>
+                </div>
+            }
+        </div>
+
+        <!-- ── Controles ───────────────────────────────────────── -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <!-- Seed (nombre) -->
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold mb-1">
+                                Seed <span class="text-muted fw-normal">(nombre para el generador)</span>
+                            </label>
+                            <input class="form-control form-control-sm" id="input-seed"
+                                   @bind="seed" @bind:event="oninput"
+                                   placeholder="Escribe un nombre..." />
+                        </div>
+
+                        <div class="col-12"><hr class="my-0" /></div>
+
+                        <!-- Pelo -->
+                        <div class="col-6 col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Pelo</label>
+                            <select class="form-select form-select-sm" id="select-hair" @bind="hair">
+                                <option value="">Aleatorio</option>
+                                @foreach (var (val, lbl) in HairOptions)
+                                { <option value="@val">@lbl</option> }
+                            </select>
+                        </div>
+
+                        <!-- Ojos -->
+                        <div class="col-6 col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Ojos</label>
+                            <select class="form-select form-select-sm" id="select-eyes" @bind="eyes">
+                                <option value="">Aleatorio</option>
+                                @foreach (var (val, lbl) in EyesOptions)
+                                { <option value="@val">@lbl</option> }
+                            </select>
+                        </div>
+
+                        <!-- Cejas -->
+                        <div class="col-6 col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Cejas</label>
+                            <select class="form-select form-select-sm" id="select-eyebrows" @bind="eyebrows">
+                                <option value="">Aleatorio</option>
+                                @foreach (var (val, lbl) in EyebrowsOptions)
+                                { <option value="@val">@lbl</option> }
+                            </select>
+                        </div>
+
+                        <!-- Boca -->
+                        <div class="col-6 col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Boca</label>
+                            <select class="form-select form-select-sm" id="select-mouth" @bind="mouth">
+                                <option value="">Aleatorio</option>
+                                @foreach (var (val, lbl) in MouthOptions)
+                                { <option value="@val">@lbl</option> }
+                            </select>
+                        </div>
+
+                        <!-- Gafas -->
+                        <div class="col-6 col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Gafas</label>
+                            <select class="form-select form-select-sm" id="select-glasses" @bind="glasses">
+                                <option value="">Sin gafas</option>
+                                @foreach (var (val, lbl) in GlassesOptions)
+                                { <option value="@val">@lbl</option> }
+                            </select>
+                        </div>
+
+                        <!-- Pendientes -->
+                        <div class="col-6 col-md-4">
+                            <label class="form-label small fw-semibold mb-1">Pendientes</label>
+                            <select class="form-select form-select-sm" id="select-earrings" @bind="earrings">
+                                <option value="">Sin pendientes</option>
+                                @foreach (var (val, lbl) in EarringsOptions)
+                                { <option value="@val">@lbl</option> }
+                            </select>
+                        </div>
+
+                        <!-- Rasgos -->
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold mb-1">Rasgos faciales</label>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chk-mustache" @bind="mustache" />
+                                    <label class="form-check-label small" for="chk-mustache">Bigote</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chk-blush" @bind="blush" />
+                                    <label class="form-check-label small" for="chk-blush">Rubor</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chk-freckles" @bind="freckles" />
+                                    <label class="form-check-label small" for="chk-freckles">Pecas</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12"><hr class="my-0" /></div>
+
+                        <!-- Color pelo -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold mb-1">Color pelo</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var (hex, lbl) in HairColors)
+                                {
+                                    <button class="btn btn-sm p-0 rounded-circle border @(hairColor == hex ? "border-3 border-dark" : "border-1")"
+                                            style="width:26px;height:26px;background:#@hex;min-width:26px"
+                                            title="@lbl" @onclick="() => hairColor = hex" type="button"></button>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Color piel -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold mb-1">Color piel</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var (hex, lbl) in SkinColors)
+                                {
+                                    <button class="btn btn-sm p-0 rounded-circle border @(skinColor == hex ? "border-3 border-dark" : "border-1")"
+                                            style="width:26px;height:26px;background:#@hex;min-width:26px"
+                                            title="@lbl" @onclick="() => skinColor = hex" type="button"></button>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Color fondo -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold mb-1">Color fondo</label>
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var (hex, lbl) in BgColors)
+                                {
+                                    <button class="btn btn-sm p-0 rounded-circle border @(backgroundColor == hex ? "border-3 border-dark" : "border-1")"
+                                            style="width:26px;height:26px;background:@(hex == "transparent" ? "repeating-conic-gradient(#ccc 0% 25%,#fff 0% 50%) 0 0/10px 10px" : "#" + hex);min-width:26px"
+                                            title="@lbl" @onclick="() => backgroundColor = hex" type="button"></button>
+                                }
+                            </div>
+                        </div>
+
+                    </div><!-- /row -->
+
+                    <div class="mt-3 pt-2 border-top">
+                        <button id="btn-resetear" class="btn btn-outline-secondary btn-sm"
+                                @onclick="Resetear" type="button">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Resetear
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    // ── Parámetros de query (edición desde Avatares.razor) ───────────────────
+    [SupplyParameterFromQuery(Name = "nombre")]
+    private string? QueryNombre { get; set; }
+
+    [SupplyParameterFromQuery(Name = "url")]
+    private string? QueryUrl { get; set; }
+
+    // ── Estado del editor ─────────────────────────────────────────────────────
+    private string seed            = "test";
+    private string hair            = string.Empty;
+    private string eyes            = string.Empty;
+    private string eyebrows        = string.Empty;
+    private string mouth           = string.Empty;
+    private string glasses         = string.Empty;   // vacío = sin gafas
+    private string earrings        = string.Empty;   // vacío = sin pendientes
+    private bool   mustache        = false;
+    private bool   blush           = false;
+    private bool   freckles        = false;
+    private string hairColor       = "562306";
+    private string skinColor       = "ecad80";
+    private string backgroundColor = "d1f0c2";
+
+    // ── Estado para guardar ────────────────────────────────────────────────────
+    private List<string> participantes  = new();
+    private string nombreGuardar        = string.Empty;
+    private bool   guardando            = false;
+    private string? mensajeGuardar;
+
+    // ── URL generada ──────────────────────────────────────────────────────────
+    private string AvatarUrl => BuildAvatarUrl();
+
+    /// <summary>Construye la URL de DiceBear desde el estado actual del editor.</summary>
+    private string BuildAvatarUrl()
+    {
+        var sb = new StringBuilder($"https://api.dicebear.com/9.x/adventurer/svg?seed={Uri.EscapeDataString(seed)}");
+        if (!string.IsNullOrEmpty(hair))     sb.Append($"&hair={hair}");
+        if (!string.IsNullOrEmpty(eyes))     sb.Append($"&eyes={eyes}");
+        if (!string.IsNullOrEmpty(eyebrows)) sb.Append($"&eyebrows={eyebrows}");
+        if (!string.IsNullOrEmpty(mouth))    sb.Append($"&mouth={mouth}");
+        if (!string.IsNullOrEmpty(hairColor))   sb.Append($"&hairColor={hairColor}");
+        if (!string.IsNullOrEmpty(skinColor))   sb.Append($"&skinColor={skinColor}");
+        if (!string.IsNullOrEmpty(backgroundColor) && backgroundColor != "transparent")
+            sb.Append($"&backgroundColor={backgroundColor}");
+        if (!string.IsNullOrEmpty(glasses))
+            sb.Append($"&glasses={glasses}&glassesProbability=100");
+        if (!string.IsNullOrEmpty(earrings))
+            sb.Append($"&earrings={earrings}&earringsProbability=100");
+        var feats = new List<string>();
+        if (mustache) feats.Add("mustache");
+        if (blush)    feats.Add("blush");
+        if (freckles) feats.Add("freckles");
+        if (feats.Count > 0)
+            sb.Append($"&features={string.Join(",", feats)}&featuresProbability=100");
+        return sb.ToString();
+    }
+
+    /// <summary>Versión estática para tests.</summary>
+    public static string BuildAvatarUrl(string seed, string hair, string eyes, string eyebrows,
+        string mouth, string glasses, string earrings,
+        bool mustache, bool blush, bool freckles,
+        string hairColor, string skinColor, string backgroundColor)
+    {
+        var sb = new StringBuilder($"https://api.dicebear.com/9.x/adventurer/svg?seed={Uri.EscapeDataString(seed)}");
+        if (!string.IsNullOrEmpty(hair))     sb.Append($"&hair={hair}");
+        if (!string.IsNullOrEmpty(eyes))     sb.Append($"&eyes={eyes}");
+        if (!string.IsNullOrEmpty(eyebrows)) sb.Append($"&eyebrows={eyebrows}");
+        if (!string.IsNullOrEmpty(mouth))    sb.Append($"&mouth={mouth}");
+        if (!string.IsNullOrEmpty(hairColor))   sb.Append($"&hairColor={hairColor}");
+        if (!string.IsNullOrEmpty(skinColor))   sb.Append($"&skinColor={skinColor}");
+        if (!string.IsNullOrEmpty(backgroundColor) && backgroundColor != "transparent")
+            sb.Append($"&backgroundColor={backgroundColor}");
+        if (!string.IsNullOrEmpty(glasses))
+            sb.Append($"&glasses={glasses}&glassesProbability=100");
+        if (!string.IsNullOrEmpty(earrings))
+            sb.Append($"&earrings={earrings}&earringsProbability=100");
+        var feats = new List<string>();
+        if (mustache) feats.Add("mustache");
+        if (blush)    feats.Add("blush");
+        if (freckles) feats.Add("freckles");
+        if (feats.Count > 0)
+            sb.Append($"&features={string.Join(",", feats)}&featuresProbability=100");
+        return sb.ToString();
+    }
+
+    // ── Parseo de URL existente ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Popula el editor a partir de una URL DiceBear adventurer (para edición desde Avatares.razor).
+    /// </summary>
+    public void CargarDesdeUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return;
+        try
+        {
+            var query = url.Contains('?') ? url.Split('?', 2)[1] : string.Empty;
+            var qs = query.Split('&')
+                .Select(p => p.Split('=', 2))
+                .Where(p => p.Length == 2)
+                .ToDictionary(p => p[0], p => Uri.UnescapeDataString(p[1]),
+                    StringComparer.OrdinalIgnoreCase);
+
+            if (qs.TryGetValue("seed",            out var v)) seed            = v;
+            if (qs.TryGetValue("hair",            out v))     hair            = v;
+            if (qs.TryGetValue("eyes",            out v))     eyes            = v;
+            if (qs.TryGetValue("eyebrows",        out v))     eyebrows        = v;
+            if (qs.TryGetValue("mouth",           out v))     mouth           = v;
+            if (qs.TryGetValue("hairColor",       out v))     hairColor       = v;
+            if (qs.TryGetValue("skinColor",       out v))     skinColor       = v;
+            if (qs.TryGetValue("backgroundColor", out v))     backgroundColor = v;
+            if (qs.TryGetValue("glasses",         out v))     glasses  = v;
+            if (qs.TryGetValue("earrings",        out v))     earrings = v;
+            if (qs.TryGetValue("features",        out v))
+            {
+                mustache = v.Contains("mustache");
+                blush    = v.Contains("blush");
+                freckles = v.Contains("freckles");
+            }
+        }
+        catch { /* si la URL es inválida, dejamos los valores por defecto */ }
+    }
+
+    // ── Ciclo de vida ─────────────────────────────────────────────────────────
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.IsAdmin)
+            participantes = await FirestoreService.GetParticipantesUnicosAsync();
+
+        if (!string.IsNullOrEmpty(QueryUrl))
+            CargarDesdeUrl(QueryUrl);
+
+        if (!string.IsNullOrEmpty(QueryNombre))
+        {
+            nombreGuardar = QueryNombre;
+            seed          = QueryNombre;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (string.IsNullOrEmpty(nombreGuardar)) return;
+        guardando = true;
+        mensajeGuardar = null;
+        var config = new AvatarConfig { Nombre = nombreGuardar, Url = AvatarUrl };
+        var ok = await FirestoreService.SaveAvatarConfigAsync(config);
+        mensajeGuardar = ok ? $"✅ Avatar de {nombreGuardar} guardado." : "❌ Error al guardar.";
+        guardando = false;
+    }
+
+    private void Resetear()
+    {
+        seed = "test"; hair = string.Empty; eyes = string.Empty;
+        eyebrows = string.Empty; mouth = string.Empty;
+        glasses = string.Empty;
+        earrings = string.Empty;
+        mustache = false; blush = false; freckles = false;
+        hairColor = "562306"; skinColor = "ecad80";
+        backgroundColor = "d1f0c2";
+    }
+
+    // ── Opciones ──────────────────────────────────────────────────────────────
+
+    internal static readonly (string val, string lbl)[] HairOptions =
+    [
+        // Corto
+        ("short01","Corto 1"),  ("short02","Corto 2"),  ("short03","Corto 3"),
+        ("short04","Corto 4"),  ("short05","Corto 5"),  ("short06","Corto 6"),
+        ("short07","Corto 7"),  ("short08","Corto 8"),  ("short09","Corto 9"),
+        ("short10","Corto 10"), ("short11","Corto 11"), ("short12","Corto 12"),
+        ("short13","Corto 13"), ("short14","Corto 14"), ("short15","Corto 15"),
+        ("short16","Corto 16"), ("short17","Corto 17"), ("short18","Corto 18"),
+        ("short19","Corto 19"),
+        // Largo
+        ("long01","Largo 1"),  ("long02","Largo 2"),  ("long03","Largo 3"),
+        ("long04","Largo 4"),  ("long05","Largo 5"),  ("long06","Largo 6"),
+        ("long07","Largo 7"),  ("long08","Largo 8"),  ("long09","Largo 9"),
+        ("long10","Largo 10"), ("long11","Largo 11"), ("long12","Largo 12"),
+        ("long13","Largo 13"), ("long14","Largo 14"), ("long15","Largo 15"),
+        ("long16","Largo 16"), ("long17","Largo 17"), ("long18","Largo 18"),
+        ("long19","Largo 19"), ("long20","Largo 20"), ("long21","Largo 21"),
+        ("long22","Largo 22"), ("long23","Largo 23"), ("long24","Largo 24"),
+        ("long25","Largo 25"), ("long26","Largo 26"),
+    ];
+
+    internal static readonly (string val, string lbl)[] EyesOptions =
+        Enumerable.Range(1, 26).Select(i => ($"variant{i:D2}", $"Variante {i}")).ToArray();
+
+    internal static readonly (string val, string lbl)[] EyebrowsOptions =
+        Enumerable.Range(1, 15).Select(i => ($"variant{i:D2}", $"Variante {i}")).ToArray();
+
+    internal static readonly (string val, string lbl)[] MouthOptions =
+        Enumerable.Range(1, 30).Select(i => ($"variant{i:D2}", $"Variante {i}")).ToArray();
+
+    internal static readonly (string val, string lbl)[] GlassesOptions =
+    [
+        ("variant01","Gafas 1"), ("variant02","Gafas 2"), ("variant03","Gafas 3"),
+        ("variant04","Gafas 4"), ("variant05","Gafas 5"),
+    ];
+
+    internal static readonly (string val, string lbl)[] EarringsOptions =
+        Enumerable.Range(1, 6).Select(i => ($"variant{i:D2}", $"Pendiente {i}")).ToArray();
+
+    internal static readonly (string hex, string lbl)[] HairColors =
+    [
+        ("0e0e0e","Negro"),         ("562306","Marrón oscuro"), ("6a4e35","Marrón"),
+        ("796a45","Marrón cálido"), ("ac6511","Castaño"),       ("cb6820","Castaño claro"),
+        ("ab2a18","Rojizo"),        ("e5d7a1","Rubio"),         ("b9a05f","Miel"),
+        ("afafaf","Gris"),          ("3eac2c","Verde"),         ("85c2c6","Azul claro"),
+        ("dba3be","Rosa"),          ("592454","Morado"),
+    ];
+
+    internal static readonly (string hex, string lbl)[] SkinColors =
+    [
+        ("f2d3b1","Muy clara"), ("ecad80","Clara"),
+        ("d4956a","Media clara"), ("c07642","Morena clara"),
+        ("9e5622","Media"),     ("8b5535","Morena"),
+        ("763900","Oscura"),
+    ];
+
+    internal static readonly (string hex, string lbl)[] BgColors =
+    [
+        ("d1f0c2", "Verde claro"),
+        ("b7e4c7", "Verde menta"),
+        ("d6e4f0", "Azul claro"),
+        ("c8e6fa", "Azul cielo"),
+        ("bfdbfe", "Azul lavanda"),
+        ("fde8d8", "Melocotón"),
+        ("fce4ec", "Rosa suave"),
+        ("f3e5f5", "Lavanda"),
+        ("fff9c4", "Amarillo suave"),
+        ("fef9c3", "Mantequilla"),
+        ("f5f5f5", "Gris claro"),
+        ("ffffff", "Blanco"),
+        ("1e293b", "Noche"),
+        ("transparent", "Sin fondo"),
+    ];
+}

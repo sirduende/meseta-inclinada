@@ -1,0 +1,234 @@
+@page "/rutas"
+@layout MapLayout
+@inject LeafletService LeafletService
+@inject FirestoreService FirestoreService
+@inject StorageService StorageService
+@inject AuthService AuthService
+@implements IAsyncDisposable
+
+<PageTitle>Rutas – Meseta Inclinada</PageTitle>
+
+<!-- Sidebar persistente -->
+<div class="m-sidebar @(collapsed ? "collapsed" : "") @(mobileOpen ? "open" : "")">
+
+    <!-- Botón toggle -->
+    <button class="m-sidebar-toggle" @onclick="ToggleSidebar">
+        @if (collapsed)
+        {
+            <i class="bi bi-chevron-right" title="Mostrar listado"></i>
+        }
+        else
+        {
+            <i class="bi bi-chevron-left"></i>
+            <span>Ocultar listado</span>
+        }
+    </button>
+
+    <!-- Contenido (invisible cuando collapsed) -->
+    <div class="m-sidebar-content">
+
+        <!-- Selector de año -->
+        <div>
+            <label class="form-label fw-bold small text-muted">Filtrar por año</label>
+            <select class="form-select form-select-sm" @onchange="OnYearChanged">
+                <option value="">Todas</option>
+                <option value="2025" selected="@(selectedYear == 2025)">2025</option>
+                <option value="2026" selected="@(selectedYear == 2026)">2026</option>
+            </select>
+        </div>
+
+        <!-- Estado de carga -->
+        @if (isLoading)
+        {
+            <div class="text-center text-muted py-3">
+                <div class="spinner-border spinner-border-sm text-success"></div>
+                <span class="ms-2 small">Cargando rutas...</span>
+            </div>
+        }
+        else if (rutasEnriquecidas.Count == 0)
+        {
+            <p class="text-muted small">No hay rutas para este año.</p>
+        }
+        else
+        {
+            <div class="small text-muted mb-1">@rutasEnriquecidas.Count rutas</div>
+            @foreach (var r in rutasEnriquecidas.OrderByDescending(x => x.Fecha))
+            {
+                <RouteCard Ruta="r" OnClick="() => ZoomAndClose(r.Id)" />
+            }
+        }
+
+    </div>
+</div>
+
+<!-- Botón flotante para abrir sidebar en móvil (se oculta cuando el sidebar está abierto) -->
+<button class="m-sidebar-open-btn @(mobileOpen ? "d-none" : "")" @onclick="ToggleMobile" title="Mostrar rutas">
+    <i class="bi bi-list"></i>
+</button>
+
+<!-- Zona del mapa -->
+<div class="m-map-area">
+    <div id="map"></div>
+</div>
+
+@code {
+    private List<Ruta> rutas = new();
+    private List<RutaEnriquecida> rutasEnriquecidas = new();
+    private int? selectedYear = DateTime.Now.Year;
+    private bool isLoading = true;
+    private int gpxPendientes = 0;
+    private DotNetObjectReference<Rutas>? dotNetRef;
+    private bool _disposed;
+
+    // Estado sidebar
+    private bool collapsed = false;   // desktop: colapsado o no
+    private bool mobileOpen = false;  // móvil: abierto o no
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await LeafletService.InitializeMapAsync("map", 40.4, -3.7, 6);
+        await LoadRutas();
+    }
+
+    private async Task LoadRutas()
+    {
+        isLoading = true;
+        rutasEnriquecidas.Clear();
+        await LeafletService.ClearMapAsync("map");
+        StateHasChanged();
+
+        rutas = await FirestoreService.GetRutasAsync(selectedYear);
+
+        if (rutas.Count == 0)
+        {
+            isLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+        // ── Poblar sidebar inmediatamente desde datos cacheados en Firestore ────
+        // No hay que esperar a los GPX para mostrar nombre, km, desnivel y participantes.
+        for (int i = 0; i < rutas.Count; i++)
+        {
+            var ruta = rutas[i];
+            int displayIndex = rutas.Count - 1 - i;
+            rutasEnriquecidas.Add(new RutaEnriquecida
+            {
+                Id           = ruta.Id,
+                Nombre       = ruta.Nombre,
+                Fecha        = ruta.Fecha,
+                Participantes = ruta.Participantes,
+                DistanciaKm  = ruta.DistanciaKm,
+                DesnivelM    = ruta.DesnivelM,
+                DuracionS    = ruta.DuracionS,
+                DuracionFormateada = ruta.DuracionFormateada,
+                Nivel        = !string.IsNullOrEmpty(ruta.Nivel) ? ruta.Nivel : ruta.Dificultad,
+                Color        = "#888",     // se actualiza cuando llega el callback GPX
+                ColorIndex   = "#888",
+                Index        = displayIndex + 1,
+            });
+        }
+        isLoading = false;
+        StateHasChanged();   // ← sidebar visible al instante
+
+        // ── Cargar URLs de Storage en paralelo y luego iniciar GPX en el mapa ──
+        gpxPendientes = rutas.Count;
+        dotNetRef ??= DotNetObjectReference.Create(this);
+
+        // Todas las peticiones a Firebase Storage de golpe
+        var urlTasks = rutas.Select(r => StorageService.GetGpxUrlAsync(r.Archivo)).ToList();
+        var gpxUrls  = await Task.WhenAll(urlTasks);
+
+        for (int i = 0; i < rutas.Count; i++)
+        {
+            var ruta       = rutas[i];
+            int displayIndex = rutas.Count - 1 - i;
+            var gpxUrl     = gpxUrls[i];
+
+            if (gpxUrl == null)
+            {
+                // Sin archivo GPX: decrementar contador y continuar
+                gpxPendientes--;
+                if (gpxPendientes <= 0)
+                    _ = LeafletService.FitAllBoundsAsync("map");
+                continue;
+            }
+
+            var meta = new
+            {
+                nombre       = ruta.Nombre,
+                dificultad   = ruta.Dificultad,
+                fecha        = ruta.Fecha,
+                descripcion  = ruta.Descripcion,
+                relive       = ruta.Relive,
+                participantes = ruta.Participantes
+            };
+            await LeafletService.LoadGpxAsync("map", ruta.Id, gpxUrl, displayIndex, meta, dotNetRef);
+        }
+    }
+
+    [JSInvokable("OnGpxLoaded")]
+    public void OnGpxLoaded(RutaEnriquecida enriched)
+    {
+        if (_disposed) return;
+
+        // Actualizar color del trazado en el item ya visible en el sidebar
+        var existing = rutasEnriquecidas.FirstOrDefault(r => r.Id == enriched.Id);
+        if (existing != null)
+        {
+            existing.Color      = enriched.Color;
+            existing.ColorIndex = enriched.ColorIndex;
+            // Si Firestore no tenía métricas aún, actualizar con los datos reales del GPX
+            if (existing.DistanciaKm == 0 && enriched.DistanciaKm > 0)
+            {
+                existing.DistanciaKm = enriched.DistanciaKm;
+                existing.DesnivelM   = enriched.DesnivelM;
+            }
+        }
+
+        gpxPendientes--;
+
+        // Persistir métricas en Firestore si el admin cargó una ruta que aún no las tenía
+        var rutaOriginal = rutas.FirstOrDefault(r => r.Id == enriched.Id);
+        if (AuthService.IsAdmin && rutaOriginal is not null
+            && rutaOriginal.DistanciaKm == 0 && enriched.DistanciaKm > 0)
+        {
+            _ = FirestoreService.PatchRutaMetricasAsync(enriched.Id, enriched);
+        }
+
+        if (gpxPendientes <= 0)
+            _ = LeafletService.FitAllBoundsAsync("map");
+
+        StateHasChanged();
+    }
+
+    private async Task OnYearChanged(ChangeEventArgs e)
+    {
+        selectedYear = string.IsNullOrEmpty(e.Value?.ToString()) ? null : int.Parse(e.Value.ToString()!);
+        await LoadRutas();
+    }
+
+    private async Task ZoomAndClose(string routeId)
+    {
+        await LeafletService.ZoomToRouteAsync("map", routeId);
+        mobileOpen = false; // cierra sidebar en móvil al seleccionar ruta
+    }
+
+    private void ToggleSidebar()
+    {
+        if (mobileOpen)
+            mobileOpen = false;   // en móvil, cierra
+        else
+            collapsed = !collapsed; // en desktop, colapsa/expande
+    }
+
+    private void ToggleMobile() => mobileOpen = !mobileOpen;
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        dotNetRef?.Dispose();
+        try { await LeafletService.DestroyMapAsync("map"); } catch { }
+    }
+}

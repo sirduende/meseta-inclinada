@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(*)",
+      "Bash(firebase *)",
+      "Bash(dotnet *)",
+      "mcp__ccd_directory__request_directory",
+      "Write(**.md)",
+      "Edit(**.md)",
+      "Write(**.json)",
+      "Edit(**.json)"
+    ]
+  }
+}

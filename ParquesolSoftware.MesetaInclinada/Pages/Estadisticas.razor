@@ -1,0 +1,380 @@
+@page "/estadisticas"
+@inject FirestoreService FirestoreService
+@inject NavigationManager Nav
+
+<PageTitle>Estadísticas – Meseta Inclinada</PageTitle>
+
+<header class="m-page-header text-center">
+    <h1>📊 Estadísticas del grupo</h1>
+    <p>Actividad acumulada 2025 y 2026</p>
+</header>
+
+<div class="container my-4">
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-success"></div>
+            <p class="text-muted mt-2">Cargando datos...</p>
+        </div>
+    }
+    else
+    {
+        <!-- Tarjetas resumen -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@todasLasRutas.Count</div>
+                        <div class="text-muted small">rutas totales</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body py-3">
+                        <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@rankingTotal.Count</div>
+                        <div class="text-muted small">participantes únicos</div>
+                    </div>
+                </div>
+            </div>
+            @if (totalKm > 0)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card text-center border-0 shadow-sm h-100">
+                        <div class="card-body py-3">
+                            <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@totalKm.ToString("F0") km</div>
+                            <div class="text-muted small">distancia acumulada</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card text-center border-0 shadow-sm h-100">
+                        <div class="card-body py-3">
+                            <div class="fs-2 fw-bold" style="color:var(--m-verde-oscuro)">@((totalDesnivel / 1000).ToString("F1"))k m+</div>
+                            <div class="text-muted small">desnivel acumulado</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Sub-resumen por año -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-6">
+                <div class="p-3 rounded" style="background:#f0fff4;border:1px solid #bbf7d0">
+                    <div class="fw-semibold mb-1" style="color:var(--m-verde-oscuro)">2025</div>
+                    <span class="fs-5 fw-bold">@rutas2025.Count</span>
+                    <span class="text-muted small ms-1">rutas · @participantes2025 participantes únicos</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 rounded" style="background:#fff8f0;border:1px solid #fed7aa">
+                    <div class="fw-semibold mb-1" style="color:#7c2d12">2026</div>
+                    <span class="fs-5 fw-bold">@rutas2026.Count</span>
+                    <span class="text-muted small ms-1">rutas · @participantes2026 participantes únicos</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ranking de participantes -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-1">
+            <h2 class="mb-0" style="color:var(--m-verde-oscuro)">🏆 Ranking de participantes</h2>
+            <!-- Selector de año -->
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn @(filtroAnio == "total" ? "btn-success" : "btn-outline-success")"
+                        @onclick='() => SetFiltro("total")'>Total</button>
+                <button type="button" class="btn @(filtroAnio == "2025" ? "btn-success" : "btn-outline-success")"
+                        @onclick='() => SetFiltro("2025")'>2025</button>
+                <button type="button" class="btn @(filtroAnio == "2026" ? "btn-success" : "btn-outline-success")"
+                        @onclick='() => SetFiltro("2026")'>2026</button>
+            </div>
+        </div>
+        <p class="text-muted small mb-3">
+            Pulsa en el nombre para ver las rutas de cada persona.
+            La tendencia (↑↓→) compara la media mensual de 2025 (año completo, ÷12)
+            con el ritmo actual de 2026 (rutas acumuladas ÷ meses transcurridos).
+        </p>
+
+        <div class="table-responsive mb-5">
+            <table class="table table-hover align-middle table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:2.5rem">#</th>
+                        <th>Participante</th>
+                        <th class="text-center">@(filtroAnio == "total" ? "Total" : filtroAnio)</th>
+                        @if (filtroAnio == "total")
+                        {
+                            <th class="text-center d-none d-sm-table-cell">2025</th>
+                            <th class="text-center d-none d-sm-table-cell">2026</th>
+                        }
+                        <th class="text-center">Tendencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int pos = 1; }
+                    @foreach (var p in RankingFiltrado)
+                    {
+                        var fondoFila = pos <= 3 ? "background:#f0fdf4" : "";
+                        var medallon  = pos switch { 1 => "🥇", 2 => "🥈", 3 => "🥉", _ => pos.ToString() };
+                        var colorTend = p.Tendencia == "↑" ? "#16a34a"
+                                      : p.Tendencia == "↓" ? "#dc2626"
+                                      : "#6b7280";
+                        var rutasCol  = filtroAnio == "2025" ? p.Rutas2025
+                                      : filtroAnio == "2026" ? p.Rutas2026
+                                      : p.Total;
+                        <tr style="@fondoFila">
+                            <td class="text-muted text-center fw-bold">@medallon</td>
+                            <td>
+                                <button class="btn btn-link p-0 fw-semibold"
+                                        style="color:var(--m-verde-oscuro);text-decoration:underline dotted;text-underline-offset:3px"
+                                        @onclick="() => VerParticipante(p.Nombre)">
+                                    @p.Nombre <i class="bi bi-chevron-right" style="font-size:0.7rem;opacity:0.6"></i>
+                                </button>
+                            </td>
+                            <td class="text-center fw-bold">@rutasCol</td>
+                            @if (filtroAnio == "total")
+                            {
+                                <td class="text-center text-muted d-none d-sm-table-cell">@p.Rutas2025</td>
+                                <td class="text-center text-muted d-none d-sm-table-cell">@p.Rutas2026</td>
+                            }
+                            <td class="text-center fw-bold" style="color:@colorTend;font-size:1.1rem"
+                                title="Media 2025: @p.Media2025.ToString("F1") r/mes (año completo) · Ritmo 2026: @p.Ritmo2026.ToString("F1") r/mes (@p.MesesTranscurridos meses)">
+                                @p.Tendencia
+                            </td>
+                        </tr>
+                        pos++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Actividad por mes -->
+        <h2 class="mb-3" style="color:var(--m-verde-oscuro)">📅 Actividad por mes</h2>
+
+        <!-- Gráfico de barras -->
+        <div class="d-flex gap-1 align-items-end mb-1 flex-wrap">
+            @{ var maxMes = actividadMes.Count > 0 ? actividadMes.Max(m => m.Count) : 1; }
+            @foreach (var mes in actividadMes)
+            {
+                var esMasActivo = mes.Count == maxMes;
+                var fondo = esMasActivo ? "var(--m-verde-oscuro)" : "var(--m-verde-claro)";
+                var alto  = Math.Max(16, (int)(64.0 * mes.Count / maxMes));
+                <div class="text-center" style="min-width:36px">
+                    <div class="rounded mx-auto mb-1" style="width:30px;height:@(alto)px;background:@fondo"></div>
+                    <div class="small fw-semibold">@mes.Count</div>
+                    <div class="text-muted" style="font-size:0.6rem;white-space:nowrap">@mes.MesCorto</div>
+                </div>
+            }
+        </div>
+        <p class="text-muted small mt-3 mb-3">Mes más activo: <strong>@mesMasActivo</strong> (@maxMes rutas)</p>
+
+        <!-- Tabla de sumatorios mensuales (solo si hay métricas) -->
+        @if (actividadMes.Any(m => m.Km > 0))
+        {
+            <div class="table-responsive mb-5">
+                <table class="table table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mes</th>
+                            <th class="text-center">Rutas</th>
+                            <th class="text-center">Distancia</th>
+                            <th class="text-center">Desnivel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var mes in actividadMes)
+                        {
+                            <tr>
+                                <td class="small fw-semibold">@mes.MesLargo</td>
+                                <td class="text-center small">@mes.Count</td>
+                                <td class="text-center small">@(mes.Km > 0 ? mes.Km.ToString("F1") + " km" : "—")</td>
+                                <td class="text-center small">@(mes.Desnivel > 0 ? ((int)mes.Desnivel).ToString() + " m+" : "—")</td>
+                            </tr>
+                        }
+                        <tr class="table-light fw-bold">
+                            <td class="small">Total</td>
+                            <td class="text-center small">@todasLasRutas.Count</td>
+                            <td class="text-center small">@(totalKm > 0 ? totalKm.ToString("F1") + " km" : "—")</td>
+                            <td class="text-center small">@(totalDesnivel > 0 ? ((int)totalDesnivel).ToString() + " m+" : "—")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted small mb-5">Los datos de distancia y desnivel se irán completando conforme se carguen los mapas.</p>
+        }
+
+        <!-- Últimas rutas -->
+        <h2 class="mb-3" style="color:var(--m-verde-oscuro)">🗺️ Últimas rutas</h2>
+        <div class="list-group mb-4">
+            @foreach (var r in todasLasRutas.OrderByDescending(r => r.Fecha).Take(8))
+            {
+                <div class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                    <div class="flex-grow-1 min-width-0">
+                        <div class="fw-semibold">@r.Nombre</div>
+                        <div class="text-muted small">@r.Fecha</div>
+                        <div class="text-muted small" style="font-size:0.75rem">
+                            @string.Join(", ", r.Participantes)
+                        </div>
+                    </div>
+                    @if (r.DistanciaKm > 0)
+                    {
+                        <div class="text-end text-muted small flex-shrink-0">
+                            <div>@r.DistanciaKm.ToString("F1") km</div>
+                            <div>@((int)r.DesnivelM) m+</div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-4">
+    <small>&copy; 2025–2026 Meseta Inclinada</small>
+</footer>
+
+@code {
+    private List<Ruta> todasLasRutas = new();
+    private List<Ruta> rutas2025     = new();
+    private List<Ruta> rutas2026     = new();
+    private List<ParticipanteStats> rankingTotal = new();
+    private List<MesStats> actividadMes = new();
+    private bool isLoading = true;
+    private double totalKm;
+    private double totalDesnivel;
+    private int participantes2025;
+    private int participantes2026;
+    private string mesMasActivo = "";
+    private string filtroAnio   = "total";
+
+    // Ranking visible según el filtro activo
+    private IEnumerable<ParticipanteStats> RankingFiltrado => filtroAnio switch
+    {
+        "2025" => rankingTotal.Where(p => p.Rutas2025 > 0).OrderByDescending(p => p.Rutas2025),
+        "2026" => rankingTotal.Where(p => p.Rutas2026 > 0).OrderByDescending(p => p.Rutas2026),
+        _      => rankingTotal.OrderByDescending(p => p.Total)
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var t25 = FirestoreService.GetRutasAsync(2025);
+        var t26 = FirestoreService.GetRutasAsync(2026);
+        await Task.WhenAll(t25, t26);
+
+        rutas2025 = t25.Result;
+        rutas2026 = t26.Result;
+        todasLasRutas = rutas2025.Concat(rutas2026).ToList();
+
+        participantes2025 = rutas2025.SelectMany(r => r.Participantes).Distinct().Count();
+        participantes2026 = rutas2026.SelectMany(r => r.Participantes).Distinct().Count();
+
+        // Métricas (solo rutas que ya tengan datos enriquecidos en Firestore)
+        var conMetricas = todasLasRutas.Where(r => r.DistanciaKm > 0).ToList();
+        totalKm       = conMetricas.Sum(r => r.DistanciaKm);
+        totalDesnivel = conMetricas.Sum(r => r.DesnivelM);
+
+        // Ranking de participantes con tendencia mensual
+        // Media 2025 = rutas ÷ 12 (año completo cerrado)
+        // Ritmo 2026 = rutas ÷ meses transcurridos del año en curso
+        var hoy = DateTime.Now;
+        int mesesTranscurridos = hoy.Year == 2026 ? Math.Max(1, hoy.Month)
+                               : hoy.Year >  2026 ? 12
+                               : 1; // por si acaso
+
+        rankingTotal = todasLasRutas
+            .SelectMany(r => r.Participantes.Select(p => new { Nombre = p, Ruta = r }))
+            .GroupBy(x => x.Nombre)
+            .Select(g =>
+            {
+                var rutas25 = g.Count(x => x.Ruta.Fecha.StartsWith("2025"));
+                var rutas26 = g.Count(x => x.Ruta.Fecha.StartsWith("2026"));
+
+                return new ParticipanteStats(
+                    g.Key,
+                    g.Count(),
+                    rutas25,
+                    rutas26,
+                    mesesTranscurridos
+                );
+            })
+            .OrderByDescending(x => x.Total)
+            .ToList();
+
+        // Actividad mensual con sumatorios
+        actividadMes = todasLasRutas
+            .Where(r => !string.IsNullOrEmpty(r.Fecha) && r.Fecha.Length >= 7)
+            .GroupBy(r => r.Fecha[..7])
+            .OrderBy(g => g.Key)
+            .Select(g => new MesStats(
+                g.Key,
+                g.Count(),
+                g.Where(r => r.DistanciaKm > 0).Sum(r => r.DistanciaKm),
+                g.Where(r => r.DesnivelM  > 0).Sum(r => r.DesnivelM)
+            ))
+            .ToList();
+
+        if (actividadMes.Count > 0)
+            mesMasActivo = actividadMes.MaxBy(m => m.Count)!.MesLargo;
+
+        isLoading = false;
+    }
+
+    private void SetFiltro(string anio)
+    {
+        filtroAnio = anio;
+    }
+
+    private void VerParticipante(string nombre)
+    {
+        Nav.NavigateTo($"/participante/{Uri.EscapeDataString(nombre)}");
+    }
+
+    // ── Modelos internos ───────────────────────────────────────
+
+    private record ParticipanteStats(
+        string Nombre, int Total, int Rutas2025, int Rutas2026,
+        int MesesTranscurridos)
+    {
+        /// <summary>Media mensual de 2025 sobre el año completo (÷12).</summary>
+        public double Media2025 => Rutas2025 / 12.0;
+
+        /// <summary>Ritmo actual de 2026: rutas acumuladas ÷ meses transcurridos del año.</summary>
+        public double Ritmo2026 => Rutas2026 / (double)MesesTranscurridos;
+
+        /// <summary>
+        /// Tendencia: ¿supera el ritmo mensual de 2026 la media mensual de 2025?
+        /// Tolerancia del 5% para evitar fluctuaciones mínimas.
+        /// </summary>
+        public string Tendencia =>
+            Rutas2026 == 0 && Rutas2025 == 0 ? "→" :
+            Rutas2026 == 0                    ? "↓" :
+            Rutas2025 == 0                    ? "↑" :
+            Ritmo2026 > Media2025 * 1.05      ? "↑" :
+            Ritmo2026 < Media2025 * 0.95      ? "↓" :
+                                                "→";
+    }
+
+    private record MesStats(string Clave, int Count, double Km, double Desnivel)
+    {
+        public string MesCorto
+        {
+            get
+            {
+                if (!DateTime.TryParse(Clave + "-01", out var d)) return Clave;
+                return d.ToString("MMM yy", new System.Globalization.CultureInfo("es-ES"));
+            }
+        }
+        public string MesLargo
+        {
+            get
+            {
+                if (!DateTime.TryParse(Clave + "-01", out var d)) return Clave;
+                return d.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"));
+            }
+        }
+    }
+}

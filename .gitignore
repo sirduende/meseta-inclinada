@@ -1,3 +1,22 @@
+# .NET / Blazor
+bin/
+obj/
+.vs/
+ParquesolSoftware.MesetaInclinada/bin/
+ParquesolSoftware.MesetaInclinada/obj/
+
+# Assets copiados de public/ — se sincronizan en build/deploy, no en git
+ParquesolSoftware.MesetaInclinada/wwwroot/libs/
+ParquesolSoftware.MesetaInclinada/wwwroot/gpx/
+ParquesolSoftware.MesetaInclinada/wwwroot/gpx2026/
+ParquesolSoftware.MesetaInclinada/wwwroot/fotos/
+ParquesolSoftware.MesetaInclinada/wwwroot/image/
+ParquesolSoftware.MesetaInclinada/wwwroot/audio/
+ParquesolSoftware.MesetaInclinada/wwwroot/lib/
+
+# Firebase config sensible
+ParquesolSoftware.MesetaInclinada/wwwroot/firebase-config.json
+
 #Junk Files
 *.DS_Store
 [Tt]humbs.db

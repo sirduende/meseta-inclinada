@@ -1,0 +1,138 @@
+@page "/acerca-de"
+@inject HttpClient Http
+@inject IJSRuntime JS
+@using System.Net.Http.Json
+
+<PageTitle>Acerca de – Meseta Inclinada</PageTitle>
+
+<div class="container py-5" style="max-width:780px">
+
+    <div class="text-center mb-5">
+        <img src="image/meseta_inclinada.png" alt="Logo" width="64" height="64" class="mb-3" />
+        <h1 class="h2 fw-bold">Meseta Inclinada</h1>
+        <p class="text-muted">Versión y actualizaciones</p>
+    </div>
+
+    <!-- Versión actual -->
+    <div class="card border-success mb-4">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-info-circle-fill text-success me-2"></i>Versión actual</h5>
+            @if (versionInfo != null)
+            {
+                <div class="row g-2 mt-1">
+                    <div class="col-sm-3 text-muted small">Versión</div>
+                    <div class="col-sm-9"><strong>@versionInfo.Version</strong></div>
+                    <div class="col-sm-3 text-muted small">Aplicación</div>
+                    <div class="col-sm-9">@versionInfo.AppName</div>
+                    <div class="col-sm-3 text-muted small">Descripción</div>
+                    <div class="col-sm-9 text-muted small">@versionInfo.Description</div>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted small">Cargando...</p>
+            }
+            <hr />
+            <button class="btn btn-outline-secondary btn-sm" @onclick="ForzarRecarga">
+                <i class="bi bi-arrow-clockwise me-1"></i> Forzar recarga
+            </button>
+            <p class="text-muted small mt-1 mb-0">Usa este botón si experimentas problemas o necesitas cargar la última versión.</p>
+        </div>
+    </div>
+
+    <!-- Changelog -->
+    <h4 class="mb-4"><i class="bi bi-clock-history me-2"></i>Historial de versiones</h4>
+
+    <!-- v2.0 — Blazor -->
+    <div class="card border-success mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <h5 class="mb-0">Versión 2.0</h5>
+                <span class="badge bg-success">Actual</span>
+                <span class="text-muted small">Junio 2026</span>
+            </div>
+            <p class="text-muted small mb-3">
+                Actualización técnica de la aplicación. Se ha realizado la migración completa a
+                <strong>Blazor WebAssembly</strong>, lo que mejora la experiencia de navegación y
+                sienta las bases para evoluciones futuras.
+            </p>
+            <ul class="small mb-0">
+                <li>🗺️ <strong>Mapa de rutas con panel lateral</strong> — listado siempre visible y colapsable, con filtro por año</li>
+                <li>🏔️ <strong>Reto 2026 mejorado</strong> — tabla de propuestas con indicador visual de cumbres superadas</li>
+                <li>🎨 <strong>Nuevo diseño</strong> — paleta de colores verde bosque, navbar horizontal fija en escritorio</li>
+                <li>⚙️ <strong>Panel de administración</strong> — gestión de rutas con login por roles (sin lista de emails hardcodeada)</li>
+                <li>📊 <strong>Página "Acerca de"</strong> — versión, historial y créditos</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- v1.0 — HTML original -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <h5 class="mb-0">Versión 1.0</h5>
+                <span class="badge bg-secondary">Inicial</span>
+                <span class="text-muted small">Mayo 2025</span>
+            </div>
+            <p class="text-muted small mb-3">
+                Primera versión de la aplicación web del grupo.
+            </p>
+            <ul class="small mb-0">
+                <li>🗺️ <strong>Mapa interactivo</strong> — visualización de rutas GPX con marcadores numerados y estadísticas</li>
+                <li>🔥 <strong>Base de datos en la nube</strong> — rutas, participantes y cumbres en Firebase Firestore</li>
+                <li>🏔️ <strong>Reto 2026</strong> — 30 radares FDMESCYL con propuestas de rutas secundarias</li>
+                <li>📊 <strong>Wrapped 2025</strong> — estadísticas y resumen de la primera temporada del grupo</li>
+                <li>⚙️ <strong>Administración</strong> — panel para gestionar rutas y subir ficheros GPX</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tech stack -->
+    <div class="card bg-light mt-4">
+        <div class="card-body">
+            <h6 class="card-title"><i class="bi bi-stack me-2"></i>Tecnologías</h6>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                @foreach (var tech in new[] { "Blazor WASM .NET 10", "Firebase Firestore", "Firebase Storage", "Firebase Auth", "Leaflet.js", "Leaflet.GPX", "Bootstrap 5", "Bootstrap Icons", "bUnit + xUnit" })
+                {
+                    <span class="badge bg-dark text-white">@tech</span>
+                }
+            </div>
+            <p class="text-muted small mt-3 mb-0">
+                <i class="bi bi-person-fill me-1"></i>
+                Desarrollado por <strong><a href="https://es.linkedin.com/in/danielfernandezcasado" target="_blank" class="text-decoration-none">Daniel Fernández</a></strong>
+                &nbsp;·&nbsp;
+                <a href="mailto:mesetainclinada@gmail.com">mesetainclinada@gmail.com</a>
+            </p>
+            <p class="text-muted small mt-1 mb-0">&copy; 2025–2026 Meseta Inclinada</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private VersionInfo? versionInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { versionInfo = await Http.GetFromJsonAsync<VersionInfo>("/data/version.json"); }
+        catch (Exception ex) { Console.WriteLine($"Error cargando versión: {ex.Message}"); }
+    }
+
+    private async Task ForzarRecarga()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", "if('caches' in window){caches.keys().then(n=>n.forEach(k=>caches.delete(k)))}");
+            await Task.Delay(300);
+            await JS.InvokeVoidAsync("location.reload");
+        }
+        catch { await JS.InvokeVoidAsync("location.reload"); }
+    }
+
+    private class VersionInfo
+    {
+        public string Version { get; set; } = string.Empty;
+        public string BuildDate { get; set; } = string.Empty;
+        public string AppName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+}

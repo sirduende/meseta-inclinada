@@ -1,0 +1,171 @@
+@page "/"
+@inject FirestoreService FirestoreService
+@using ParquesolSoftware.MesetaInclinada.Services
+
+<PageTitle>Meseta Inclinada – Grupo de Montaña Valladolid</PageTitle>
+
+<header class="m-page-header">
+    <h1>⛰️ Autogestión, respeto y pasión por el camino</h1>
+    <p>Grupo de Montaña "Meseta Inclinada" · Valladolid</p>
+</header>
+
+<div class="container my-5">
+
+    <!-- ── ¿Quiénes somos? ─────────────────────────────────────────────── -->
+    <section class="mb-5">
+        <h2 class="mb-4" style="color:var(--m-verde-oscuro)">¿Quiénes somos?</h2>
+        <div class="row g-4 align-items-center mb-4">
+            <div class="col-md-7">
+                <p class="lead">
+                    Somos un grupo <strong>autogestionado</strong> de montaña.
+                    Viajamos en coches privados y cada uno es responsable de sí mismo.
+                </p>
+                <p>
+                    De origen vallisoletano, somos gente corriente que le encanta salir cada semana
+                    recorriendo diferentes puntos de Castilla y León.
+                </p>
+                <p>
+                    No hay jerarquías ni estamos registrados en ningún sitio,
+                    solo ganas de caminar, compartir y respetar.
+                    @if (mediaParticipantes > 0)
+                    {
+                        <span class="text-muted small d-block mt-1">
+                            Media de <strong>@mediaParticipantes.ToString("0.#") personas</strong> por salida en @DateTime.Now.Year.
+                        </span>
+                    }
+                </p>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="/rutas" class="btn btn-outline-primary">
+                        <i class="bi bi-map-fill me-1"></i> Rutas realizadas
+                    </a>
+                    <a href="/propuestas" class="btn btn-outline-success">
+                        <i class="bi bi-lightbulb me-1"></i> Propuestas de rutas
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <img src="image/03.jpg" class="img-fluid rounded shadow-sm" alt="Grupo en la montaña" />
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Decálogo ────────────────────────────────────────────────────── -->
+    <section class="mb-5">
+        <h2 class="mb-2 text-center" style="font-family:Georgia,serif;letter-spacing:2px;color:#2d4a1e">⛰ NUESTRO DECÁLOGO ⛰</h2>
+        <p class="text-center text-muted mb-4" style="font-style:italic;font-size:0.9rem">Las diez normas que guían cada salida</p>
+
+        <div class="decalogo-container">
+            <div class="decalogo-item">
+                <span class="decalogo-num">I</span>
+                <span class="decalogo-text">Tratar de <strong>salir todas las semanas</strong>, aunque seamos pocos.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">II</span>
+                <span class="decalogo-text">Viajar en coches privados, con <strong>autogestión de gastos</strong>.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">III</span>
+                <span class="decalogo-text"><strong>Responsabilidad individual</strong> en localización y ritmo.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">IV</span>
+                <span class="decalogo-text"><strong>Madrugar</strong> para evitar el calor y disfrutar del <strong>café final</strong>.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">V</span>
+                <span class="decalogo-text"><strong>Pocas paradas, muchas zancadas</strong>: el camino es el objetivo.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">VI</span>
+                <span class="decalogo-text"><strong>Respeto absoluto</strong> al entorno y a sus habitantes.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">VII</span>
+                <span class="decalogo-text"><strong>Conversar</strong> con los conductores, <strong>ayudar</strong> a los compañeros.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">VIII</span>
+                <span class="decalogo-text"><strong>Proponer rutas</strong> y <strong>construir el grupo</strong> entre todos.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">IX</span>
+                <span class="decalogo-text"><strong>Adaptarse</strong> a las necesidades y ambiciones de cada uno.</span>
+            </div>
+            <hr class="decalogo-sep" />
+            <div class="decalogo-item">
+                <span class="decalogo-num">X</span>
+                <span class="decalogo-text"><strong>Nadie por encima de nadie.</strong> Sin jerarquías ni obligaciones de asistencia.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA Contacto ───────────────────────────────────────────────── -->
+    <section class="mb-5">
+        <div class="cta-contacto text-center py-5 px-4 rounded-4">
+            <p class="mb-1 text-muted small text-uppercase fw-semibold" style="letter-spacing:1px">
+                ¿Te ves reflejado en todo esto?
+            </p>
+            <h3 class="fw-bold mb-3" style="color:var(--m-verde-oscuro)">
+                Escríbenos sin compromiso
+            </h3>
+            <p class="text-muted mb-4" style="max-width:480px;margin:0 auto">
+                No hace falta experiencia previa ni equipación cara. Solo ganas de salir.
+            </p>
+            <a href="mailto:mesetainclinada@gmail.com"
+               class="btn btn-success btn-lg px-5 shadow-sm">
+                <i class="bi bi-envelope-heart-fill me-2"></i>mesetainclinada@gmail.com
+            </a>
+        </div>
+    </section>
+
+    <!-- ── Reto 2026 (resumen) ─────────────────────────────────────────── -->
+    <section class="mb-4">
+        <div class="d-flex align-items-center gap-3 p-4 rounded-3"
+             style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1px solid #ffe082">
+            <div class="fs-1 lh-1">🏔️</div>
+            <div class="flex-grow-1">
+                <h5 class="fw-bold mb-1" style="color:#5a3e00">Reto 2026 – La hora de los secundarios</h5>
+                <p class="mb-0 text-muted small">
+                    Este año afrontamos cumbres menos conocidas de Castilla y León.
+                    Mapa interactivo, propuestas y seguimiento en tiempo real.
+                </p>
+            </div>
+            <a href="/secundarios" class="btn btn-warning btn-sm text-dark fw-semibold flex-shrink-0">
+                <i class="bi bi-binoculars me-1"></i> Ver reto
+            </a>
+        </div>
+    </section>
+
+    <!-- ── Pie de página discreto ─────────────────────────────────────────── -->
+    <div class="text-center py-4 mt-2">
+        <a href="/2025" class="text-muted small text-decoration-none"
+           style="opacity:0.55;transition:opacity .2s"
+           onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.55'">
+            🏆 Wrapped 2025 — el año que lo empezó todo
+        </a>
+    </div>
+
+</div>
+
+@code {
+    private double mediaParticipantes = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var rutas = await FirestoreService.GetRutasAsync(DateTime.Now.Year);
+            if (rutas.Count > 0)
+                mediaParticipantes = rutas.Average(r => r.Participantes?.Count ?? 0);
+        }
+        catch { /* silencioso — no es crítico */ }
+    }
+}

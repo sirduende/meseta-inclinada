@@ -1,0 +1,1035 @@
+@page "/mi-area"
+@inject AuthService AuthService
+@inject FirestoreService FirestoreService
+@inject StorageService StorageService
+@inject NavigationManager Nav
+@inject MapsService MapsService
+@using ParquesolSoftware.MesetaInclinada.Models
+
+<PageTitle>Mi área – Meseta Inclinada</PageTitle>
+
+<header class="m-page-header text-center">
+    <h1>👤 Mi área</h1>
+    <p>@(AuthService.NombreMostrado ?? AuthService.CurrentUser?.DisplayName ?? "Bienvenido")</p>
+</header>
+
+<div class="container my-4">
+
+    @if (!AuthService.IsAuthenticated)
+    {
+        <div class="text-center py-5">
+            <p class="text-muted mb-3">Necesitas iniciar sesión para acceder a esta área.</p>
+            <button class="btn btn-dark" @onclick="Login" disabled="@isAuthLoading">
+                @if (isAuthLoading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                <i class="bi bi-google me-2"></i> Iniciar sesión con Google
+            </button>
+            @if (!string.IsNullOrEmpty(authError))
+            {
+                <div class="alert @(authError.Contains("solicitud") ? "alert-info" : "alert-danger") mt-3">@authError</div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted small">Conectado como <strong>@AuthService.CurrentUser?.Email</strong></span>
+            <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">Cerrar sesión</button>
+        </div>
+
+        <!-- Pestañas: Propuestas / Gastro -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <button class="nav-link @(tabActiva == "propuestas" ? "active fw-semibold" : "")"
+                        @onclick='() => tabActiva = "propuestas"'>
+                    📋 Propuestas
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(tabActiva == "gastro" ? "active fw-semibold" : "")"
+                        @onclick='() => tabActiva = "gastro"'>
+                    🍽️ Gastro
+                </button>
+            </li>
+        </ul>
+
+        @if (tabActiva == "propuestas")
+        {
+
+        <!-- Título + botón nueva -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="mb-0" style="color:var(--m-verde-oscuro)">📋 Propuestas de rutas</h4>
+            @if (!mostrarFormulario)
+            {
+                <button class="btn btn-success btn-sm" @onclick="NuevaPropuesta">
+                    <i class="bi bi-plus-circle me-1"></i> Nueva propuesta
+                </button>
+            }
+        </div>
+
+        <!-- ── FORMULARIO ─────────────────────────────────────── -->
+        @if (mostrarFormulario)
+        {
+            var esEdicion = !string.IsNullOrEmpty(form.FirestoreId);
+            <div class="card mb-4 @(esEdicion ? "border-warning" : "border-success")">
+                <div class="card-header @(esEdicion ? "bg-warning text-dark" : "bg-success text-white") d-flex justify-content-between align-items-center">
+                    <strong>@(esEdicion ? "✏️ Editar propuesta" : "➕ Nueva propuesta")</strong>
+                    <button type="button" class="btn-close @(esEdicion ? "" : "btn-close-white")"
+                            @onclick="CancelarFormulario"></button>
+                </div>
+                <div class="card-body">
+
+                    <!-- PASO 1: Tipo de propuesta -->
+                    @if (!esEdicion)
+                    {
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold mb-2">¿Qué tipo de propuesta es? <span class="text-danger">*</span></label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <button type="button"
+                                            class="btn w-100 py-3 @(form.TipoPropuesta == "secundario" ? "btn-success" : "btn-outline-secondary")"
+                                            @onclick='() => form.TipoPropuesta = "secundario"'>
+                                        <div class="fs-4 mb-1">🏔️</div>
+                                        <div class="fw-semibold small">Reto secundarios</div>
+                                        <div class="text-muted" style="font-size:0.7rem">Con cumbre de referencia</div>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button"
+                                            class="btn w-100 py-3 @(form.TipoPropuesta == "libre" ? "btn-success" : "btn-outline-secondary")"
+                                            @onclick='() => { form.TipoPropuesta = "libre"; form.CumbrePrincipal = "Fuera de Reto"; }'>
+                                        <div class="fs-4 mb-1">🗺️</div>
+                                        <div class="fw-semibold small">Propuesta libre</div>
+                                        <div class="text-muted" style="font-size:0.7rem">Sin cumbre asignada</div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-3" />
+                    }
+
+                    <div class="row g-3">
+
+                        <!-- Nombre -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Nombre de la ruta <span class="text-danger">*</span></label>
+                            <input class="form-control @(ValidarCampo(form.NombreRuta))"
+                                   @bind="form.NombreRuta" placeholder="Ej: Pico Picón desde Sanabria" />
+                        </div>
+
+                        <!-- Cumbre (solo reto secundarios) -->
+                        @if (form.TipoPropuesta == "secundario")
+                        {
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Cumbre de referencia <span class="text-danger">*</span></label>
+                                @if (cumbres.Count > 0)
+                                {
+                                    <select class="form-select @(ValidarCampo(form.CumbrePrincipal))" @bind="form.CumbrePrincipal">
+                                        <option value="">-- Selecciona la cumbre --</option>
+                                        @foreach (var c in cumbres)
+                                        {
+                                            <option value="@c.Nombre">@c.Nombre</option>
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    <input class="form-control" @bind="form.CumbrePrincipal" placeholder="Ej: 01 Peña Trevinca" />
+                                }
+                            </div>
+                        }
+
+                        <!-- Dificultad + Propuesto por -->
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold">Dificultad <span class="text-danger">*</span></label>
+                            <select class="form-select @(ValidarCampo(form.Dificultad))" @bind="form.Dificultad">
+                                <option value="">-- Selecciona --</option>
+                                <option value="Fácil">🟢 Fácil</option>
+                                <option value="Moderada">🟠 Moderada</option>
+                                <option value="Difícil">🔴 Difícil</option>
+                                <option value="Muy difícil">⚫ Muy difícil</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold">Propuesto por</label>
+                            <input class="form-control" @bind="form.PropuestoPor"
+                                   placeholder="@(AuthService.NombreMostrado ?? AuthService.CurrentUser?.DisplayName ?? "")" />
+                        </div>
+
+                        <!-- Enlace Wikiloc -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Enlace Wikiloc</label>
+                            <input class="form-control" @bind="form.EnlaceWikiloc"
+                                   type="url" placeholder="https://www.wikiloc.com/..." />
+                        </div>
+
+                        <!-- Archivo GPX — subida a Firebase -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                Archivo GPX
+                                <span class="text-muted fw-normal small">(se subirá a Firebase)</span>
+                            </label>
+
+                            @if (!string.IsNullOrEmpty(form.ArchivoGPX) && !subiendoGpx)
+                            {
+                                <!-- Archivo ya subido o existente -->
+                                <div class="d-flex align-items-center gap-2 p-2 rounded mb-2"
+                                     style="background:#f0fdf4;border:1px solid #bbf7d0">
+                                    <i class="bi bi-file-earmark-check-fill text-success"></i>
+                                    <span class="small fw-semibold">@System.IO.Path.GetFileName(form.ArchivoGPX)</span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-auto py-0"
+                                            @onclick="() => { form.ArchivoGPX = string.Empty; gpxFileName = null; }">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            }
+
+                            @if (subiendoGpx)
+                            {
+                                <div class="d-flex align-items-center gap-2 p-2 rounded mb-2"
+                                     style="background:#fff8f0;border:1px solid #fed7aa">
+                                    <div class="spinner-border spinner-border-sm text-warning"></div>
+                                    <span class="small">Subiendo @gpxFileName...</span>
+                                </div>
+                            }
+
+                            @if (string.IsNullOrEmpty(form.ArchivoGPX))
+                            {
+                                <label class="d-block w-100">
+                                    <div class="btn btn-outline-secondary w-100 py-3"
+                                         style="cursor:pointer;border-style:dashed">
+                                        <i class="bi bi-cloud-upload fs-4 d-block mb-1"></i>
+                                        <span class="small">Toca para seleccionar un archivo .gpx</span>
+                                    </div>
+                                    <InputFile OnChange="OnGpxSelected" accept=".gpx"
+                                               style="display:none" />
+                                </label>
+                            }
+
+                            @if (!string.IsNullOrEmpty(gpxError))
+                            {
+                                <div class="text-danger small mt-1"><i class="bi bi-exclamation-triangle me-1"></i>@gpxError</div>
+                            }
+                        </div>
+
+                        <!-- Aviso (solo admin) -->
+                        @if (AuthService.IsAdmin)
+                        {
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Aviso <span class="text-muted fw-normal small">(solo admin)</span></label>
+                                <input class="form-control" @bind="form.Aviso"
+                                       placeholder="Ej: Ruta muy larga, llevar agua" />
+                            </div>
+                        }
+                    </div>
+
+                    @if (intentoGuardar && !string.IsNullOrEmpty(formError))
+                    {
+                        <div class="alert alert-danger py-2 mt-3">@formError</div>
+                    }
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button class="btn @(esEdicion ? "btn-warning" : "btn-success") flex-fill"
+                                @onclick="GuardarPropuesta" disabled="@(guardando || subiendoGpx)">
+                            @if (guardando) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                            <i class="bi bi-floppy me-1"></i> @(esEdicion ? "Guardar cambios" : "Crear propuesta")
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="CancelarFormulario">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Mensajes -->
+        @if (!string.IsNullOrEmpty(mensajeExito))
+        {
+            <div class="alert alert-success alert-dismissible">
+                @mensajeExito
+                <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
+            </div>
+        }
+
+        <!-- ── LISTADO ─────────────────────────────────────────── -->
+        @if (isLoading)
+        {
+            <div class="text-center py-4"><div class="spinner-border text-success"></div></div>
+        }
+        else if (propuestas.Count == 0)
+        {
+            <p class="text-muted">No hay propuestas todavía. ¡Sé el primero en proponer una ruta!</p>
+        }
+        else
+        {
+            <!-- Desktop -->
+            <div class="d-none d-md-block table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ruta</th>
+                            <th>Tipo</th>
+                            <th>Cumbre</th>
+                            <th>Dificultad</th>
+                            <th>Propuesto por</th>
+                            <th style="width:90px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in propuestas.OrderBy(p => p.CumbrePrincipal))
+                        {
+                            var colorDif    = ColorDificultad(p.Dificultad);
+                            var puedeEditar = PuedeEditar(p);
+                            var esEditando  = form.FirestoreId == p.FirestoreId && mostrarFormulario;
+                            <tr class="@(esEditando ? "table-warning" : "")">
+                                <td class="fw-semibold small">
+                                    @p.NombreRuta
+                                    @if (!string.IsNullOrEmpty(p.Aviso))
+                                    { <span class="badge bg-danger ms-1" style="font-size:0.6rem" title="@p.Aviso">⚠</span> }
+                                </td>
+                                <td>
+                                    <span class="badge @(p.TipoPropuesta == "libre" ? "bg-secondary" : "bg-success")" style="font-size:0.65rem">
+                                        @(p.TipoPropuesta == "libre" ? "🗺️ Libre" : "🏔️ Reto")
+                                    </span>
+                                </td>
+                                <td class="small text-muted">@(p.TipoPropuesta == "libre" ? "—" : p.CumbrePrincipal)</td>
+                                <td><span style="color:@colorDif;font-weight:600;font-size:0.85rem">@p.Dificultad</span></td>
+                                <td class="small">@p.PropuestoPor</td>
+                                <td class="text-nowrap">
+                                    @if (puedeEditar)
+                                    {
+                                        <button class="btn btn-sm btn-outline-primary me-1 py-0"
+                                                @onclick="() => EditarPropuesta(p)" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger py-0"
+                                                @onclick="() => ConfirmarEliminar(p)" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Móvil — tarjetas -->
+            <div class="d-md-none">
+                @foreach (var p in propuestas.OrderBy(p => p.CumbrePrincipal))
+                {
+                    var colorDif    = ColorDificultad(p.Dificultad);
+                    var puedeEditar = AuthService.IsAdmin || p.CreadoPor == AuthService.CurrentUser?.Uid;
+                    var esEditando  = form.FirestoreId == p.FirestoreId && mostrarFormulario;
+                    <div class="mb-3 p-3 rounded" style="background:#fff;border:@(esEditando ? "2px solid #f59e0b" : "1px solid #e5e7eb")">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                            <span class="fw-semibold">@p.NombreRuta</span>
+                            <span class="badge @(p.TipoPropuesta == "libre" ? "bg-secondary" : "bg-success") flex-shrink-0" style="font-size:0.65rem">
+                                @(p.TipoPropuesta == "libre" ? "🗺️ Libre" : "🏔️ Reto")
+                            </span>
+                        </div>
+                        @if (p.TipoPropuesta != "libre")
+                        {
+                            <div class="text-muted small mb-1">@p.CumbrePrincipal</div>
+                        }
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="color:@colorDif;font-weight:600;font-size:0.85rem">@p.Dificultad</span>
+                            <span class="text-muted small">@p.PropuestoPor</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(p.Aviso))
+                        { <div class="text-danger small mb-2"><i class="bi bi-exclamation-triangle me-1"></i>@p.Aviso</div> }
+                        @if (puedeEditar)
+                        {
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary btn-sm flex-fill"
+                                        @onclick="() => EditarPropuesta(p)">
+                                    <i class="bi bi-pencil me-1"></i>Editar
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm flex-fill"
+                                        @onclick="() => ConfirmarEliminar(p)">
+                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Modal confirmación borrado propuesta -->
+        @if (propuestaAEliminar is not null)
+        {
+            <div class="modal fade show d-block" style="background:rgba(0,0,0,0.5)">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar eliminación</h5>
+                        </div>
+                        <div class="modal-body">
+                            ¿Eliminar la propuesta <strong>«@propuestaAEliminar.NombreRuta»</strong>? Esta acción no se puede deshacer.
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @onclick="() => propuestaAEliminar = null">Cancelar</button>
+                            <button class="btn btn-danger" @onclick="EliminarConfirmado" disabled="@eliminando">
+                                @if (eliminando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        } @* ── fin tab propuestas ── *@
+
+        @* ═══════════════════════════════════════════════════════════════════
+           TAB GASTRO
+           ════════════════════════════════════════════════════════════════════ *@
+        @if (tabActiva == "gastro")
+        {
+
+        <!-- Título + botón nuevo -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="mb-0" style="color:var(--m-verde-oscuro)">🍽️ Sitios gastronómicos</h4>
+            @if (!mostrarFormGastro)
+            {
+                <button class="btn btn-success btn-sm" @onclick="NuevoGastro">
+                    <i class="bi bi-plus-circle me-1"></i> Añadir sitio
+                </button>
+            }
+        </div>
+
+        <!-- ── FORMULARIO GASTRO ─────────────────────────────────── -->
+        @if (mostrarFormGastro)
+        {
+            var esEdicionG = !string.IsNullOrEmpty(formGastro.FirestoreId);
+            <div class="card mb-4 @(esEdicionG ? "border-warning" : "border-success")">
+                <div class="card-header @(esEdicionG ? "bg-warning text-dark" : "bg-success text-white") d-flex justify-content-between align-items-center">
+                    <strong>@(esEdicionG ? "✏️ Editar sitio gastronómico" : "➕ Nuevo sitio gastronómico")</strong>
+                    <button type="button" class="btn-close @(esEdicionG ? "" : "btn-close-white")"
+                            @onclick="CancelarGastro"></button>
+                </div>
+                <div class="card-body">
+
+                    <!-- Búsqueda Google Places -->
+                    <div class="mb-3 position-relative">
+                        <label class="form-label fw-semibold">
+                            Buscar lugar
+                            <span class="text-muted fw-normal small">(nombre del restaurante, bar, cafetería…)</span>
+                        </label>
+                        <input class="form-control"
+                               value="@gastroSearch"
+                               @oninput="OnGastroSearchChanged"
+                               placeholder="Ej: Restaurante La Tasca"
+                               autocomplete="off" />
+
+                        @if (gastroPredictions.Any())
+                        {
+                            <div class="border rounded shadow-sm position-absolute w-100 bg-white"
+                                 style="z-index:1000;top:100%;max-height:220px;overflow-y:auto">
+                                @foreach (var p in gastroPredictions)
+                                {
+                                    <div class="p-2 border-bottom" style="cursor:pointer"
+                                         @onclick="() => SeleccionarLugar(p.PlaceId)"
+                                         @onmouseover="e => {}" >
+                                        <div class="fw-semibold small">@p.StructuredFormatting?.MainText</div>
+                                        <div class="text-muted" style="font-size:0.75rem">@p.StructuredFormatting?.SecondaryText</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        @if (buscandoLugar)
+                        {
+                            <div class="position-absolute" style="right:10px;top:38px">
+                                <span class="spinner-border spinner-border-sm text-success"></span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Nombre + Dirección auto-rellenados -->
+                    @if (!string.IsNullOrEmpty(formGastro.Nombre))
+                    {
+                        <div class="p-3 rounded mb-3" style="background:#f0fdf4;border:1px solid #bbf7d0">
+                            <div class="fw-semibold"><i class="bi bi-geo-alt-fill text-success me-1"></i>@formGastro.Nombre</div>
+                            @if (!string.IsNullOrEmpty(formGastro.Direccion))
+                            {
+                                <div class="text-muted small mt-1">@formGastro.Direccion</div>
+                            }
+                            <a href="@formGastro.GoogleMapsUrl" target="_blank" class="small text-success">
+                                📍 Ver en Google Maps
+                            </a>
+                        </div>
+                    }
+
+                    <!-- Comentario -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Comentario personal</label>
+                        <textarea class="form-control" rows="3"
+                                  @bind="formGastro.Comentario"
+                                  placeholder="¿Qué recomiendas? ¿Cuál es el plato estrella? ¿Cuándo fuisteis?"></textarea>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(gastroError))
+                    {
+                        <div class="alert alert-danger py-2">@gastroError</div>
+                    }
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn @(esEdicionG ? "btn-warning" : "btn-success") flex-fill"
+                                @onclick="GuardarGastro"
+                                disabled="@(guardandoGastro || string.IsNullOrEmpty(formGastro.Nombre))">
+                            @if (guardandoGastro) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                            <i class="bi bi-floppy me-1"></i> @(esEdicionG ? "Guardar cambios" : "Añadir sitio")
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="CancelarGastro">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Mensaje éxito gastro -->
+        @if (!string.IsNullOrEmpty(mensajeExitoGastro))
+        {
+            <div class="alert alert-success alert-dismissible">
+                @mensajeExitoGastro
+                <button type="button" class="btn-close" @onclick="() => mensajeExitoGastro = null"></button>
+            </div>
+        }
+
+        <!-- ── LISTADO GASTRO ─────────────────────────────────────── -->
+        @if (isLoadingGastro)
+        {
+            <div class="text-center py-4"><div class="spinner-border text-success"></div></div>
+        }
+        else if (sitiosGastro.Count == 0)
+        {
+            <div class="text-center py-5">
+                <div class="fs-1 mb-2">🍽️</div>
+                <p class="text-muted">Todavía no hay sitios gastronómicos. ¡Sé el primero en añadir uno!</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var s in sitiosGastro.OrderBy(x => x.Nombre))
+                {
+                    var puedeEditar = PuedeEditarGastro(s);
+                    <div class="col-12 col-md-6" @key="s.FirestoreId">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                                    <h6 class="mb-0 fw-bold">🍽️ @s.Nombre</h6>
+                                    @if (puedeEditar)
+                                    {
+                                        <div class="d-flex gap-1 flex-shrink-0">
+                                            <button class="btn btn-sm btn-outline-primary py-0"
+                                                    @onclick="() => EditarGastro(s)" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger py-0"
+                                                    @onclick="() => ConfirmarEliminarGastro(s)" title="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(s.Direccion))
+                                {
+                                    <div class="text-muted small mb-1">
+                                        <i class="bi bi-geo-alt me-1"></i>@s.Direccion
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(s.Comentario))
+                                {
+                                    <p class="small mb-2" style="font-style:italic;color:#444">"@s.Comentario"</p>
+                                }
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="@s.GoogleMapsUrl" target="_blank" class="btn btn-sm btn-outline-success py-0">
+                                        <i class="bi bi-map me-1"></i>Google Maps
+                                    </a>
+                                    <span class="text-muted" style="font-size:0.7rem">por @s.NombreCreador</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Modal confirmación borrado gastro -->
+        @if (gastroAEliminar is not null)
+        {
+            <div class="modal fade show d-block" style="background:rgba(0,0,0,0.5)">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar eliminación</h5>
+                        </div>
+                        <div class="modal-body">
+                            ¿Eliminar <strong>«@gastroAEliminar.Nombre»</strong> de los sitios gastronómicos?
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @onclick="() => gastroAEliminar = null">Cancelar</button>
+                            <button class="btn btn-danger" @onclick="EliminarGastroConfirmado" disabled="@eliminandoGastro">
+                                @if (eliminandoGastro) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        } @* ── fin tab gastro ── *@
+    }
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-4">
+    <small>&copy; 2025–2026 Meseta Inclinada</small>
+</footer>
+
+@code {
+    // ── Estado general / tabs ────────────────────────────────────
+    private string tabActiva = "propuestas";
+
+    // ── Propuestas ───────────────────────────────────────────────
+    private List<RutaSecundaria> propuestas = new();
+    private List<CumbreFDMESCYL> cumbres   = new();
+
+    private RutaSecundaria form = new();
+    private bool mostrarFormulario = false;
+    private bool guardando    = false;
+    private bool subiendoGpx  = false;
+    private bool intentoGuardar = false;
+    private string? formError;
+    private string? gpxError;
+    private string? gpxFileName;
+
+    private RutaSecundaria? propuestaAEliminar;
+    private bool eliminando = false;
+
+    private bool isLoading     = true;
+    private bool isAuthLoading = false;
+    private string? authError;
+    private string? mensajeExito;
+
+    // ── Gastro ───────────────────────────────────────────────────
+    private List<SitioGastro> sitiosGastro = new();
+    private SitioGastro formGastro = new();
+    private bool mostrarFormGastro = false;
+    private bool guardandoGastro   = false;
+    private bool isLoadingGastro   = true;
+    private bool eliminandoGastro  = false;
+    private string? gastroError;
+    private string? mensajeExitoGastro;
+    private SitioGastro? gastroAEliminar;
+
+    // Búsqueda de lugares
+    private string gastroSearch = string.Empty;
+    private List<Prediction> gastroPredictions = new();
+    private bool buscandoLugar = false;
+    private System.Timers.Timer? _gastroDebounce;
+
+    // ── Ciclo de vida ────────────────────────────────────────────
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Leer ?tab=gastro para seleccionar tab directamente desde el nav
+        if (Nav.Uri.Contains("tab=gastro"))
+            tabActiva = "gastro";
+
+        AuthService.AuthStateChanged += OnAuthChanged;
+        if (AuthService.IsAuthenticated) await Cargar();
+        else { isLoading = false; isLoadingGastro = false; }
+    }
+
+    private async void OnAuthChanged(UserInfo? _)
+    {
+        if (AuthService.IsAuthenticated) await Cargar();
+        else { isLoading = false; isLoadingGastro = false; }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Cargar()
+    {
+        isLoading = true;
+        isLoadingGastro = true;
+        var t1 = FirestoreService.GetPropuestasAsync();
+        var t2 = FirestoreService.GetCumbresFDMESCYLAsync();
+        var t3 = FirestoreService.GetGastroSitiosAsync();
+        await Task.WhenAll(t1, t2, t3);
+        propuestas   = t1.Result;
+        cumbres      = t2.Result;
+        sitiosGastro = t3.Result;
+        isLoading       = false;
+        isLoadingGastro = false;
+        StateHasChanged();
+    }
+
+    // ── Auth ─────────────────────────────────────────────────────
+
+    private async Task Login()
+    {
+        isAuthLoading = true; authError = null; StateHasChanged();
+        var result = await AuthService.SignInWithGoogleAsync();
+        if (!result.Success) authError = result.Error;
+        else await Cargar();
+        isAuthLoading = false; StateHasChanged();
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.SignOutAsync();
+        propuestas.Clear(); isLoading = false;
+        StateHasChanged();
+    }
+
+    // ── Formulario ───────────────────────────────────────────────
+
+    private void NuevaPropuesta()
+    {
+        form = new RutaSecundaria
+        {
+            TipoPropuesta = "secundario",
+            PropuestoPor  = AuthService.NombreMostrado ?? AuthService.CurrentUser?.DisplayName ?? ""
+        };
+        gpxFileName    = null;
+        gpxError       = null;
+        intentoGuardar = false;
+        formError      = null;
+        mostrarFormulario = true;
+        mensajeExito   = null;
+    }
+
+    private void EditarPropuesta(RutaSecundaria p)
+    {
+        form = new RutaSecundaria
+        {
+            FirestoreId     = p.FirestoreId,
+            TipoPropuesta   = p.TipoPropuesta,
+            NombreRuta      = p.NombreRuta,
+            CumbrePrincipal = p.CumbrePrincipal,
+            Dificultad      = p.Dificultad,
+            PropuestoPor    = p.PropuestoPor,
+            EnlaceWikiloc   = p.EnlaceWikiloc,
+            ArchivoGPX      = p.ArchivoGPX,
+            Aviso           = p.Aviso,
+            AnoRuta         = p.AnoRuta,
+            CreadoPor       = p.CreadoPor,
+            FechaCreacion   = p.FechaCreacion
+        };
+        gpxFileName    = null;
+        gpxError       = null;
+        intentoGuardar = false;
+        formError      = null;
+        mostrarFormulario = true;
+        mensajeExito   = null;
+    }
+
+    private void CancelarFormulario()
+    {
+        form = new();
+        mostrarFormulario = false;
+        formError  = null;
+        gpxError   = null;
+        gpxFileName = null;
+        intentoGuardar = false;
+    }
+
+    // ── Subida de GPX ────────────────────────────────────────────
+
+    private async Task OnGpxSelected(InputFileChangeEventArgs e)
+    {
+        gpxError = null;
+        var file = e.File;
+
+        if (!file.Name.EndsWith(".gpx", StringComparison.OrdinalIgnoreCase))
+        {
+            gpxError = "El archivo debe tener extensión .gpx";
+            return;
+        }
+
+        if (file.Size > 10 * 1024 * 1024) // 10 MB máximo
+        {
+            gpxError = "El archivo no puede superar 10 MB";
+            return;
+        }
+
+        subiendoGpx = true;
+        gpxFileName = file.Name;
+        StateHasChanged();
+
+        try
+        {
+            using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var ms = new System.IO.MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+
+            var ok = await StorageService.UploadGpxAsync(file.Name, bytes);
+            if (ok)
+            {
+                form.ArchivoGPX = "gpx/" + file.Name;
+                gpxError = null;
+            }
+            else
+            {
+                gpxError = "Error al subir el archivo. Inténtalo de nuevo.";
+                gpxFileName = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            gpxError = $"Error: {ex.Message}";
+            gpxFileName = null;
+        }
+        finally
+        {
+            subiendoGpx = false;
+            StateHasChanged();
+        }
+    }
+
+    // ── Guardar ──────────────────────────────────────────────────
+
+    private async Task GuardarPropuesta()
+    {
+        intentoGuardar = true;
+        formError = null;
+
+        if (string.IsNullOrWhiteSpace(form.NombreRuta))
+            { formError = "El nombre es obligatorio."; return; }
+        if (form.TipoPropuesta == "secundario" && string.IsNullOrWhiteSpace(form.CumbrePrincipal))
+            { formError = "Selecciona una cumbre de referencia."; return; }
+        if (string.IsNullOrWhiteSpace(form.Dificultad))
+            { formError = "Selecciona la dificultad."; return; }
+
+        guardando = true;
+
+        var esEdicion = !string.IsNullOrEmpty(form.FirestoreId);
+        if (!esEdicion)
+        {
+            form.CreadoPor     = AuthService.CurrentUser?.Uid;
+            form.FechaCreacion = DateTime.Today.ToString("yyyy-MM-dd");
+            form.AnoRuta       = DateTime.Today.Year;
+        }
+        if (string.IsNullOrWhiteSpace(form.PropuestoPor))
+            form.PropuestoPor = AuthService.NombreMostrado ?? AuthService.CurrentUser?.DisplayName ?? "";
+        if (form.TipoPropuesta == "libre")
+            form.CumbrePrincipal = "Fuera de Reto";
+
+        var ok = await FirestoreService.SavePropuestaAsync(form.FirestoreId, form);
+        guardando = false;
+
+        if (ok)
+        {
+            mensajeExito = esEdicion
+                ? $"Propuesta «{form.NombreRuta}» actualizada."
+                : $"Propuesta «{form.NombreRuta}» creada.";
+            CancelarFormulario();
+            await Cargar();
+        }
+        else formError = "Error al guardar. Inténtalo de nuevo.";
+    }
+
+    // ── Borrado con confirmación ──────────────────────────────────
+
+    private void ConfirmarEliminar(RutaSecundaria p) { propuestaAEliminar = p; mensajeExito = null; }
+
+    private async Task EliminarConfirmado()
+    {
+        if (propuestaAEliminar is null) return;
+        eliminando = true;
+        var ok = await FirestoreService.DeletePropuestaAsync(propuestaAEliminar.FirestoreId!);
+        eliminando = false;
+        if (ok) { mensajeExito = $"Propuesta «{propuestaAEliminar.NombreRuta}» eliminada."; propuestas.Remove(propuestaAEliminar); }
+        propuestaAEliminar = null;
+        StateHasChanged();
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────
+
+    /// Determina si el usuario actual puede editar/borrar una propuesta.
+    /// - Admin: siempre puede
+    /// - Miembro: solo si su nombre coincide con PropuestoPor
+    private bool PuedeEditar(RutaSecundaria p)
+    {
+        if (AuthService.IsAdmin) return true;
+        var nombre = AuthService.NombreMostrado ?? AuthService.CurrentUser?.DisplayName ?? "";
+        return !string.IsNullOrEmpty(nombre) &&
+               p.PropuestoPor.Equals(nombre, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string ColorDificultad(string d) => d switch
+    {
+        "Fácil"       => "#22c55e",
+        "Moderada"    => "#f97316",
+        "Difícil"     => "#ef4444",
+        "Muy difícil" => "#1f2937",
+        _             => "#6b7280"
+    };
+
+    private string ValidarCampo(string? val) =>
+        intentoGuardar && string.IsNullOrWhiteSpace(val) ? "is-invalid" : "";
+
+    // ── Gastro — CRUD ────────────────────────────────────────────
+
+    private void NuevoGastro()
+    {
+        formGastro      = new SitioGastro();
+        gastroSearch    = string.Empty;
+        gastroPredictions.Clear();
+        gastroError     = null;
+        mensajeExitoGastro = null;
+        mostrarFormGastro  = true;
+    }
+
+    private void EditarGastro(SitioGastro s)
+    {
+        formGastro = new SitioGastro
+        {
+            FirestoreId   = s.FirestoreId,
+            Nombre        = s.Nombre,
+            PlaceId       = s.PlaceId,
+            Lat           = s.Lat,
+            Lng           = s.Lng,
+            Direccion     = s.Direccion,
+            Comentario    = s.Comentario,
+            CreadoPor     = s.CreadoPor,
+            NombreCreador = s.NombreCreador,
+            FechaCreacion = s.FechaCreacion
+        };
+        gastroSearch    = s.Nombre;
+        gastroPredictions.Clear();
+        gastroError     = null;
+        mensajeExitoGastro = null;
+        mostrarFormGastro  = true;
+    }
+
+    private void CancelarGastro()
+    {
+        formGastro = new();
+        gastroSearch = string.Empty;
+        gastroPredictions.Clear();
+        gastroError = null;
+        mostrarFormGastro = false;
+    }
+
+    private async Task GuardarGastro()
+    {
+        if (string.IsNullOrEmpty(formGastro.Nombre))
+        {
+            gastroError = "Busca y selecciona un lugar antes de guardar.";
+            return;
+        }
+
+        guardandoGastro = true;
+        gastroError     = null;
+
+        var esEdicion = !string.IsNullOrEmpty(formGastro.FirestoreId);
+        if (!esEdicion)
+        {
+            formGastro.CreadoPor     = AuthService.CurrentUser?.Uid;
+            formGastro.NombreCreador = AuthService.NombreMostrado ?? AuthService.CurrentUser?.DisplayName ?? "";
+            formGastro.FechaCreacion = DateTime.Today.ToString("yyyy-MM-dd");
+        }
+
+        var ok = await FirestoreService.SaveGastroSitioAsync(formGastro.FirestoreId, formGastro);
+        guardandoGastro = false;
+
+        if (ok)
+        {
+            mensajeExitoGastro = esEdicion
+                ? $"«{formGastro.Nombre}» actualizado."
+                : $"«{formGastro.Nombre}» añadido a Gastro.";
+            CancelarGastro();
+            // Recargar lista
+            sitiosGastro = await FirestoreService.GetGastroSitiosAsync();
+        }
+        else
+        {
+            gastroError = "Error al guardar. Inténtalo de nuevo.";
+        }
+        StateHasChanged();
+    }
+
+    private void ConfirmarEliminarGastro(SitioGastro s)
+    {
+        gastroAEliminar    = s;
+        mensajeExitoGastro = null;
+    }
+
+    private async Task EliminarGastroConfirmado()
+    {
+        if (gastroAEliminar is null) return;
+        eliminandoGastro = true;
+        var ok = await FirestoreService.DeleteGastroSitioAsync(gastroAEliminar.FirestoreId!);
+        eliminandoGastro = false;
+        if (ok)
+        {
+            mensajeExitoGastro = $"«{gastroAEliminar.Nombre}» eliminado.";
+            sitiosGastro.Remove(gastroAEliminar);
+        }
+        gastroAEliminar = null;
+        StateHasChanged();
+    }
+
+    private bool PuedeEditarGastro(SitioGastro s) =>
+        AuthService.IsAdmin || s.CreadoPor == AuthService.CurrentUser?.Uid;
+
+    // ── Búsqueda de lugares (Google Places autocomplete) ─────────
+
+    private void OnGastroSearchChanged(ChangeEventArgs e)
+    {
+        gastroSearch = e.Value?.ToString() ?? string.Empty;
+        gastroPredictions.Clear();
+        formGastro.Nombre = string.Empty; // limpiar selección anterior
+
+        _gastroDebounce?.Stop();
+        _gastroDebounce?.Dispose();
+        _gastroDebounce = new System.Timers.Timer(450) { AutoReset = false };
+        _gastroDebounce.Elapsed += async (_, _) =>
+        {
+            if (gastroSearch.Length < 3) { await InvokeAsync(StateHasChanged); return; }
+            buscandoLugar = true;
+            await InvokeAsync(StateHasChanged);
+            var resp = await MapsService.SearchPlacesAsync(gastroSearch);
+            gastroPredictions = resp?.Predictions.Take(5).ToList() ?? new();
+            buscandoLugar = false;
+            await InvokeAsync(StateHasChanged);
+        };
+        _gastroDebounce.Start();
+    }
+
+    private async Task SeleccionarLugar(string placeId)
+    {
+        gastroPredictions.Clear();
+        buscandoLugar = true;
+        StateHasChanged();
+
+        var resp  = await MapsService.GetPlaceDetailsAsync(placeId);
+        var place = resp?.Result;
+
+        if (place != null)
+        {
+            formGastro.Nombre    = place.Name;
+            formGastro.PlaceId   = placeId;
+            formGastro.Lat       = place.Geometry?.Location?.Lat ?? 0;
+            formGastro.Lng       = place.Geometry?.Location?.Lng ?? 0;
+            formGastro.Direccion = place.FormattedAddress;
+            gastroSearch         = place.Name;
+        }
+        else
+        {
+            gastroError = "No se pudieron obtener los detalles del lugar. Inténtalo de nuevo.";
+        }
+
+        buscandoLugar = false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthStateChanged -= OnAuthChanged;
+        _gastroDebounce?.Dispose();
+    }
+}

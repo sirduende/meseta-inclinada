@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>ParquesolSoftware.MesetaInclinada.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Galería desactivada: las fotos y el interop no se incluyen en publish -->
+  <ItemGroup>
+    <Content Update="wwwroot\image\**" CopyToPublishDirectory="Never" />
+    <Content Update="wwwroot\js\album-interop.js" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+</Project>

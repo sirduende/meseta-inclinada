@@ -1,0 +1,317 @@
+@page "/secundarios"
+@inject FirestoreService FirestoreService
+
+<PageTitle>Reto 2026 – Picos Secundarios</PageTitle>
+
+<!-- Header con barra de progreso -->
+<header class="m-page-header text-center">
+    <h1>⛰️ Reto 2026</h1>
+    <p>Nuevas cumbres, viejos caminos, nuevos puntos de vista</p>
+    @if (cumbres.Count > 0)
+    {
+        var cubiertas = cumbres.Count(c => c.Cubierta);
+        var pct = (int)Math.Round(100.0 * cubiertas / cumbres.Count);
+        <div class="progreso-container mt-3">
+            <div class="progreso-barra" style="width:@pct%"></div>
+        </div>
+        <p class="progreso-texto">@cubiertas de @cumbres.Count completadas (@pct%)</p>
+    }
+    else
+    {
+        <div class="progreso-container mt-3"><div class="progreso-barra" style="width:0%"></div></div>
+        <p class="progreso-texto small">Cargando...</p>
+    }
+</header>
+
+<!-- Pestañas -->
+<div class="container my-4">
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(tabActiva == "info" ? "active" : "")"
+                    @onclick='() => tabActiva = "info"' type="button">
+                <i class="bi bi-info-circle me-1"></i> El reto
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(tabActiva == "propuestas" ? "active" : "")"
+                    @onclick='() => tabActiva = "propuestas"' type="button">
+                <i class="bi bi-list-ul me-1"></i> Propuestas
+                @if (rutasSecundarias.Count > 0)
+                {
+                    <span class="badge bg-secondary ms-1 small">@rutasSecundarias.Count</span>
+                }
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab: El reto -->
+    @if (tabActiva == "info")
+    {
+        <h2 class="text-success mb-4">¿En qué consiste el reto?</h2>
+        <p>A lo largo del año <strong>2026</strong>, el grupo se propone realizar <strong>30 recorridos</strong> en zonas cercanas, marcadas con un radar, con el objetivo de alcanzar <strong>picos secundarios</strong> respecto al reto realizado en 2025 por nuestro compañero Pedro.</p>
+        <p>Gracias a su inspiración, el grupo continúa. Motivados, seguiremos buscando nuevas cumbres partiendo de terrenos ya conocidos, tratando de ver y disfrutar desde nuevos puntos de vista.</p>
+
+        <div class="text-center my-4">
+            <img src="image/secundarios.jpg" class="img-fluid rounded shadow-sm" alt="Portada del reto"
+                 onerror="this.style.display='none'" />
+        </div>
+
+        <div class="d-flex flex-wrap gap-3 my-4">
+            <a href="/propuestas?desde=reto" class="btn btn-outline-success">
+                <i class="bi bi-map"></i> Ver mapa de propuestas
+            </a>
+            <a href="/rutas" class="btn btn-outline-secondary">
+                <i class="bi bi-map-fill"></i> Ver rutas realizadas
+            </a>
+        </div>
+
+        <h3 class="mt-4 text-secondary">¿Qué se considera un "pico secundario"?</h3>
+        <p>Un pico secundario es una cumbre cercana a una principal ya visitada, que no forma parte del reto original de la FDMESCYL. El objetivo es descubrir nuevas perspectivas partiendo de una zona ya transitada.</p>
+
+        <h3 class="mt-4 text-secondary">¿Cómo se visualiza una ruta?</h3>
+        <p>En el mapa interactivo, cada ruta se representa con una línea de color según su dificultad. Se muestra un círculo de referencia alrededor de la cumbre principal.</p>
+        <div class="text-center my-3">
+            <img src="image/reto_ejemplo.png" class="img-fluid rounded shadow-sm" alt="Ejemplo"
+                 onerror="this.style.display='none'" />
+            <p class="text-muted mt-2 small">🟢 Fácil &nbsp;·&nbsp; 🟠 Moderada &nbsp;·&nbsp; 🔴 Difícil</p>
+        </div>
+
+        <h3 class="mt-4 text-secondary">¿Cómo puedo participar o proponer?</h3>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item">Envía tu recorrido a <a href="mailto:mesetainclinada@gmail.com">mesetainclinada@gmail.com</a></li>
+            <li class="list-group-item">Incluye un fichero <strong>.gpx</strong> o un <strong>enlace de Wikiloc</strong></li>
+            <li class="list-group-item">Indica la dificultad y verifica que el pico esté <strong>dentro del radar</strong> de la cumbre de referencia</li>
+            <li class="list-group-item">La elección se hace de forma colaborativa en el grupo de <strong>WhatsApp</strong></li>
+        </ul>
+    }
+
+    <!-- Tab: Propuestas -->
+    @if (tabActiva == "propuestas")
+    {
+        <p class="text-muted small mb-3">Este listado no marca las rutas a realizar. Son posibles rutas y se actualizan con nuevas ideas.</p>
+
+        <!-- Filtros -->
+        <div class="row g-2 mb-3 align-items-end">
+            <div class="col-12 col-sm-auto">
+                <div class="btn-group btn-group-sm w-100" role="group">
+                    <button type="button" class="btn @(filtroTipo == "secundario" ? "btn-success" : "btn-outline-secondary")"
+                            @onclick='() => CambiarTipo("secundario")'>
+                        🏔️ Reto
+                    </button>
+                    <button type="button" class="btn @(filtroTipo == "libre" ? "btn-success" : "btn-outline-secondary")"
+                            @onclick='() => CambiarTipo("libre")'>
+                        🗺️ Libre
+                    </button>
+                    <button type="button" class="btn @(filtroTipo == "todos" ? "btn-success" : "btn-outline-secondary")"
+                            @onclick='() => CambiarTipo("todos")'>
+                        Todos
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 col-sm-auto">
+                <select class="form-select form-select-sm" @bind="filtroPropuestoPor">
+                    <option value="">Todos los autores</option>
+                    @foreach (var nombre in autoresPropuestas)
+                    {
+                        <option value="@nombre">@nombre</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <span class="text-muted small">@PropuestasFiltradas.Count() resultado@(PropuestasFiltradas.Count() != 1 ? "s" : "")</span>
+            </div>
+        </div>
+
+        @if (isLoadingTabla)
+        {
+            <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-secondary"></div>
+                <span class="ms-2 text-muted small">Cargando propuestas...</span>
+            </div>
+        }
+        else
+        {
+            <!-- Tabla desktop -->
+            <div class="d-none d-md-block table-responsive">
+                <table class="table table-bordered table-striped align-middle table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Ruta</th>
+                            <th>Tipo</th>
+                            <th>Cumbre</th>
+                            <th>Dificultad</th>
+                            <th>Propuesto</th>
+                            <th>Enlace</th>
+                            <th>GPX</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = 1; }
+                        @foreach (var r in PropuestasFiltradas)
+                        {
+                            var completada = cumbresCompletadas.Contains(r.CumbrePrincipal);
+                            var colorDif   = DificultadColor(r.Dificultad);
+                            var esLibre    = r.TipoPropuesta == "libre" || r.CumbrePrincipal == "Fuera de Reto";
+                            <tr class="@(completada ? "table-success" : "")">
+                                <td class="text-muted">@(i++)</td>
+                                <td>
+                                    <div>
+                                        @r.NombreRuta
+                                        @if (completada) { <span class="badge ms-1" style="background:#1b4332;color:#fff;font-size:0.65rem">✓</span> }
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(r.Aviso)) { <div class="text-danger small">@r.Aviso</div> }
+                                </td>
+                                <td>
+                                    <span class="badge @(esLibre ? "bg-secondary" : "bg-success")" style="font-size:0.65rem">
+                                        @(esLibre ? "🗺️" : "🏔️")
+                                    </span>
+                                </td>
+                                <td class="small">@(esLibre ? "—" : r.CumbrePrincipal)</td>
+                                <td><span style="color:@colorDif;font-weight:600">@r.Dificultad</span></td>
+                                <td class="small">@r.PropuestoPor</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(r.EnlaceWikiloc))
+                                    { <a href="@r.EnlaceWikiloc" target="_blank" class="btn btn-outline-secondary btn-sm py-0"><i class="bi bi-globe"></i></a> }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(r.ArchivoGPX))
+                                    { <a href="@r.ArchivoGPX" download class="btn btn-outline-primary btn-sm py-0"><i class="bi bi-download"></i></a> }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tarjetas móvil -->
+            <div class="d-md-none">
+                @{ int j = 1; }
+                @foreach (var r in PropuestasFiltradas)
+                {
+                    var completada = cumbresCompletadas.Contains(r.CumbrePrincipal);
+                    var colorDif   = DificultadColor(r.Dificultad);
+                    var esLibre    = r.TipoPropuesta == "libre" || r.CumbrePrincipal == "Fuera de Reto";
+                    var fondoCard  = completada ? "#f0fdf4" : "#fff";
+                    var bordeProp  = completada ? "2px solid #22c55e" : "1px solid #e5e7eb";
+                    <div class="mb-3 p-3 rounded" style="background:@fondoCard;border:@bordeProp">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                            <span class="fw-semibold" style="font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">
+                                @(j++). @r.NombreRuta
+                            </span>
+                            <span class="badge @(esLibre ? "bg-secondary" : "bg-success") flex-shrink-0" style="font-size:0.65rem">
+                                @(esLibre ? "🗺️ Libre" : "🏔️ Reto")
+                            </span>
+                        </div>
+                        @if (!esLibre) { <div class="text-muted small mb-1">@r.CumbrePrincipal</div> }
+                        <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                            <span style="color:@colorDif;font-weight:600;font-size:0.85rem">@r.Dificultad</span>
+                            <span class="text-muted small">· @r.PropuestoPor</span>
+                            @if (completada) { <span class="badge" style="background:#1b4332;color:#fff;font-size:0.65rem">✓</span> }
+                        </div>
+                        @if (!string.IsNullOrEmpty(r.Aviso)) { <div class="text-danger small mb-2">@r.Aviso</div> }
+                        <div class="d-flex gap-2">
+                            @if (!string.IsNullOrEmpty(r.EnlaceWikiloc))
+                            {
+                                <a href="@r.EnlaceWikiloc" target="_blank" class="btn btn-outline-secondary btn-sm flex-fill py-1">
+                                    <i class="bi bi-globe me-1"></i>Wikiloc
+                                </a>
+                            }
+                            @if (!string.IsNullOrEmpty(r.ArchivoGPX))
+                            {
+                                <a href="@r.ArchivoGPX" download class="btn btn-outline-primary btn-sm flex-fill py-1">
+                                    <i class="bi bi-download me-1"></i>GPX
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-4">
+    <small>&copy; 2025–2026 Meseta Inclinada</small>
+</footer>
+
+@code {
+    private List<CumbreFDMESCYL> cumbres = new();
+    private List<RutaSecundaria> rutasSecundarias = new();
+    private HashSet<string> cumbresCompletadas = new();
+    private bool isLoadingTabla = true;
+    private string tabActiva = "info";
+
+    // Filtros — por defecto solo reto secundarios
+    private string filtroTipo          = "secundario";
+    private string filtroPropuestoPor  = "";
+
+    private static bool EsLibre(RutaSecundaria r) => r.CumbrePrincipal == "Fuera de Reto";
+
+    private IEnumerable<RutaSecundaria> PropuestasFiltradas
+    {
+        get
+        {
+            var q = rutasSecundarias.AsEnumerable();
+
+            q = filtroTipo switch
+            {
+                "secundario" => q.Where(r => !EsLibre(r)),
+                "libre"      => q.Where(r =>  EsLibre(r)),
+                _            => q
+            };
+
+            if (!string.IsNullOrEmpty(filtroPropuestoPor))
+                q = q.Where(r => r.PropuestoPor.Equals(filtroPropuestoPor, StringComparison.OrdinalIgnoreCase));
+
+            return q.OrderBy(r => ExtraerNumero(r.CumbrePrincipal));
+        }
+    }
+
+    private IEnumerable<string> autoresPropuestas =>
+        rutasSecundarias
+            .Where(r => filtroTipo switch {
+                "secundario" => !EsLibre(r),
+                "libre"      =>  EsLibre(r),
+                _            => true
+            })
+            .Select(r => r.PropuestoPor).Where(n => !string.IsNullOrEmpty(n))
+            .Distinct().OrderBy(n => n);
+
+    [Inject] private RutasSecundariasService RutasSecundariasService { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var t1 = FirestoreService.GetCumbresFDMESCYLAsync();
+        var t2 = RutasSecundariasService.GetAllAsync();
+        await Task.WhenAll(t1, t2);
+
+        cumbres = t1.Result;
+        rutasSecundarias = t2.Result;
+        cumbresCompletadas = cumbres.Where(c => c.Cubierta).Select(c => c.Nombre).ToHashSet();
+        isLoadingTabla = false;
+    }
+
+    private void CambiarTipo(string tipo)
+    {
+        filtroTipo = tipo;
+        // Si el autor seleccionado ya no aparece en el nuevo tipo, lo reseteamos
+        if (!string.IsNullOrEmpty(filtroPropuestoPor) && !autoresPropuestas.Contains(filtroPropuestoPor))
+            filtroPropuestoPor = "";
+    }
+
+    private static string DificultadColor(string d) => d switch
+    {
+        "Fácil"      => "#22c55e",
+        "Moderada"   => "#f97316",
+        "Difícil"    => "#ef4444",
+        "Muy difícil"=> "#1f2937",
+        _            => "#6b7280"
+    };
+
+    private static int ExtraerNumero(string cumbre)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(cumbre, @"^(\d+)");
+        return match.Success ? int.Parse(match.Groups[1].Value) : 999;
+    }
+}

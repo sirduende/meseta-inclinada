@@ -1,0 +1,8 @@
+.route-card {
+    background: #fff;
+    transition: background 0.15s;
+}
+
+.route-card:hover {
+    background: #f0f7ff;
+}

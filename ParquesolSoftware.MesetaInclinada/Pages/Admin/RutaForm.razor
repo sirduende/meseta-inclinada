@@ -1,0 +1,189 @@
+@inject FirestoreService FirestoreService
+@inject StorageService StorageService
+
+<div class="card p-4 mb-4 border-success">
+    <h5 class="mb-3">@(RutaEditar == null ? "Nueva ruta" : $"Editar: {RutaEditar.Nombre}")</h5>
+
+    <EditForm Model="modelo" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Nombre *</label>
+                <InputText class="form-control" @bind-Value="modelo.Nombre" placeholder="Ej: Mulhacén desde Trevélez" />
+                <ValidationMessage For="() => modelo.Nombre" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Fecha *</label>
+                <InputDate class="form-control" @bind-Value="fechaDate" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Dificultad</label>
+                <InputSelect class="form-select" @bind-Value="modelo.Dificultad">
+                    <option value="">— Seleccionar —</option>
+                    <option>Baja</option>
+                    <option>Media</option>
+                    <option>Alta</option>
+                    <option>Ferrata</option>
+                </InputSelect>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Descripción</label>
+                <InputTextArea class="form-control" @bind-Value="modelo.Descripcion" rows="2" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Enlace Relive (opcional)</label>
+                <InputText class="form-control" @bind-Value="modelo.Relive" placeholder="https://relive.cc/..." />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Archivo GPX @(RutaEditar != null ? $"(actual: {RutaEditar.Archivo})" : "")</label>
+                <InputFile class="form-control" OnChange="OnGpxSelected" accept=".gpx" />
+                @if (!string.IsNullOrEmpty(gpxNombre))
+                {
+                    <small class="text-muted">Seleccionado: @gpxNombre</small>
+                }
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-bold">Participantes</label>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    @foreach (var p in todosLosParticipantes)
+                    {
+                        var nombre = p;
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="chk-@nombre"
+                                   checked="@modelo.Participantes.Contains(nombre)"
+                                   @onchange="e => ToggleParticipante(nombre, (bool)(e.Value ?? false))" />
+                            <label class="form-check-label" for="chk-@nombre">@nombre</label>
+                        </div>
+                    }
+                </div>
+                <div class="input-group" style="max-width:300px">
+                    <input class="form-control form-control-sm" placeholder="Añadir nuevo..." @bind="nuevoParticipante" @bind:event="oninput" />
+                    <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="AgregarParticipante">Añadir</button>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMsg))
+        {
+            <div class="alert alert-danger mt-3">@errorMsg</div>
+        }
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-success" disabled="@isSaving">
+                @if (isSaving) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                <i class="bi bi-check-circle me-1"></i> Guardar
+            </button>
+            <button type="button" class="btn btn-outline-secondary" @onclick="OnCancelado">Cancelar</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public Ruta? RutaEditar { get; set; }
+    [Parameter] public List<string> Participantes { get; set; } = new();
+    [Parameter] public EventCallback<Ruta> OnGuardado { get; set; }
+    [Parameter] public EventCallback OnCancelado { get; set; }
+
+    private Ruta modelo = new();
+    private DateTime fechaDate = DateTime.Today;
+    private List<string> todosLosParticipantes = new();
+    private string nuevoParticipante = string.Empty;
+    private IBrowserFile? gpxFile;
+    private string? gpxNombre;
+    private bool isSaving = false;
+    private string? errorMsg;
+
+    protected override void OnParametersSet()
+    {
+        todosLosParticipantes = new List<string>(Participantes);
+
+        if (RutaEditar != null)
+        {
+            modelo = new Ruta
+            {
+                Id = RutaEditar.Id,
+                Nombre = RutaEditar.Nombre,
+                Fecha = RutaEditar.Fecha,
+                Descripcion = RutaEditar.Descripcion,
+                Dificultad = RutaEditar.Dificultad,
+                Relive = RutaEditar.Relive,
+                Archivo = RutaEditar.Archivo,
+                Participantes = new List<string>(RutaEditar.Participantes)
+            };
+            if (DateTime.TryParse(RutaEditar.Fecha, out var d)) fechaDate = d;
+
+            // Añadir participantes de esta ruta que no estén en la lista global
+            foreach (var p in modelo.Participantes.Where(p => !todosLosParticipantes.Contains(p)))
+                todosLosParticipantes.Add(p);
+        }
+        else
+        {
+            modelo = new Ruta { Participantes = new List<string>() };
+            fechaDate = DateTime.Today;
+        }
+    }
+
+    private void OnGpxSelected(InputFileChangeEventArgs e)
+    {
+        gpxFile = e.File;
+        gpxNombre = e.File.Name;
+    }
+
+    private void ToggleParticipante(string nombre, bool checked_)
+    {
+        if (checked_) { if (!modelo.Participantes.Contains(nombre)) modelo.Participantes.Add(nombre); }
+        else modelo.Participantes.Remove(nombre);
+    }
+
+    private void AgregarParticipante()
+    {
+        var n = nuevoParticipante.Trim();
+        if (string.IsNullOrEmpty(n)) return;
+        if (!todosLosParticipantes.Contains(n)) todosLosParticipantes.Add(n);
+        if (!modelo.Participantes.Contains(n)) modelo.Participantes.Add(n);
+        nuevoParticipante = string.Empty;
+    }
+
+    private async Task Guardar()
+    {
+        isSaving = true; errorMsg = null; StateHasChanged();
+
+        try
+        {
+            modelo.Fecha = fechaDate.ToString("yyyy-MM-dd");
+
+            // ID: usar el existente o generar uno nuevo
+            if (string.IsNullOrEmpty(modelo.Id))
+                modelo.Id = await FirestoreService.GetNextRutaIdAsync();
+
+            // Subir GPX si hay uno nuevo
+            if (gpxFile != null)
+            {
+                using var stream = gpxFile.OpenReadStream(10 * 1024 * 1024);
+                var bytes = new byte[gpxFile.Size];
+                await stream.ReadAsync(bytes);
+                await StorageService.UploadGpxAsync(gpxFile.Name, bytes);
+                modelo.Archivo = gpxFile.Name;
+            }
+
+            var ok = await FirestoreService.SaveRutaAsync(modelo.Id, modelo);
+            if (ok) await OnGuardado.InvokeAsync(modelo);
+            else errorMsg = "Error al guardar en Firestore.";
+        }
+        catch (Exception ex)
+        {
+            errorMsg = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false; StateHasChanged();
+        }
+    }
+}

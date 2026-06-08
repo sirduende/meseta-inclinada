@@ -1,0 +1,524 @@
+/* ============================================================
+   Meseta Inclinada — Tema visual verde bosque
+   ============================================================ */
+
+:root {
+    --m-verde:        #2d6a4f;   /* verde principal */
+    --m-verde-oscuro: #1b4332;   /* navbar, cabeceras */
+    --m-verde-claro:  #52b788;   /* hover, acentos suaves */
+    --m-verde-light:  #d8f3dc;   /* fondos suaves */
+    --m-acento:       #e07b39;   /* ámbar/naranja para CTA y activo */
+    --m-acento-light: #fdf0e6;   /* fondo ámbar suave */
+    --m-fondo:        #f8f9f2;   /* fondo página */
+    --m-blanco:       #ffffff;
+    --m-texto:        #1c2b1e;   /* texto principal */
+    --m-muted:        #5a6b5e;   /* texto secundario */
+    --m-borde:        #c8d8cc;   /* bordes */
+    --m-sombra:       0 2px 8px rgba(27, 67, 50, 0.12);
+    --m-sombra-hover: 0 6px 20px rgba(27, 67, 50, 0.18);
+    --m-radius:       10px;
+}
+
+/* ============================================================
+   Fuente y fondo base
+   ============================================================ */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: var(--m-fondo);
+    color: var(--m-texto);
+}
+
+/* ============================================================
+   NAVBAR HORIZONTAL (siempre visible en desktop)
+   ============================================================ */
+
+.m-navbar {
+    background: var(--m-verde-oscuro);
+    border-bottom: 3px solid var(--m-acento);
+    position: sticky;
+    top: 0;
+    z-index: 1100;   /* por encima de Leaflet (1000) y sus controles */
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+
+.m-navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 60px;
+}
+
+/* Marca / Logo */
+.m-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--m-blanco);
+    font-weight: 700;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.m-brand:hover { color: var(--m-verde-claro); text-decoration: none; }
+
+.m-brand img { border-radius: 50%; }
+
+/* Loading status (centro) */
+.m-loading-status {
+    flex: 1;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Links de navegación */
+.m-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.m-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: rgba(255,255,255,0.82);
+    text-decoration: none;
+    padding: 0.45rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.m-nav-link:hover {
+    background: rgba(255,255,255,0.12);
+    color: var(--m-blanco);
+    text-decoration: none;
+}
+
+.m-nav-link.active {
+    background: var(--m-acento);
+    color: var(--m-blanco);
+    font-weight: 600;
+}
+
+/* Separador visual */
+.m-nav-sep {
+    width: 1px;
+    height: 24px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 0.25rem;
+}
+
+/* Botón hamburguesa (sólo móvil) */
+.m-toggler {
+    display: none;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    color: var(--m-blanco);
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.m-toggler:hover { background: rgba(255,255,255,0.1); }
+
+/* ============================================================
+   RESPONSIVE: móvil
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .m-toggler { display: flex; align-items: center; }
+
+    .m-nav-links {
+        display: none;
+        position: absolute;
+        top: 63px;
+        left: 0; right: 0;
+        background: var(--m-verde-oscuro);
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.75rem 1rem 1rem;
+        gap: 0.25rem;
+        border-bottom: 3px solid var(--m-acento);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 1099;   /* por debajo del navbar pero por encima de todo lo demás */
+    }
+
+    .m-nav-links.show { display: flex; }
+
+    .m-nav-link {
+        padding: 0.65rem 0.75rem;
+        font-size: 1rem;
+    }
+
+    .m-nav-sep { display: none; }
+
+    .m-loading-status { display: none; }
+}
+
+/* ============================================================
+   LAYOUT PRINCIPAL
+   ============================================================ */
+
+.m-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.m-main {
+    flex: 1;
+}
+
+.m-footer {
+    background: var(--m-verde-oscuro);
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 1.25rem 1rem;
+    font-size: 0.875rem;
+    margin-top: auto;
+}
+
+/* ============================================================
+   TARJETAS Y COMPONENTES GLOBALES
+   ============================================================ */
+
+/* Sobreescribir Bootstrap cards para el tema montaña */
+.card {
+    border-color: var(--m-borde);
+    border-radius: var(--m-radius);
+    box-shadow: var(--m-sombra);
+}
+
+.card-header {
+    background: var(--m-verde-light);
+    border-bottom-color: var(--m-borde);
+    font-weight: 600;
+    color: var(--m-verde-oscuro);
+}
+
+/* Botones primarios → verde */
+.btn-primary {
+    background: var(--m-verde);
+    border-color: var(--m-verde);
+    color: #fff;
+}
+.btn-primary:hover, .btn-primary:focus {
+    background: var(--m-verde-oscuro);
+    border-color: var(--m-verde-oscuro);
+    color: #fff;
+}
+
+/* Botones outline → verde */
+.btn-outline-primary {
+    color: var(--m-verde);
+    border-color: var(--m-verde);
+}
+.btn-outline-primary:hover {
+    background: var(--m-verde);
+    border-color: var(--m-verde);
+    color: #fff;
+}
+
+/* Badge success → verde montaña */
+.badge.bg-success, .badge.text-bg-success {
+    background-color: var(--m-verde) !important;
+}
+
+/* Spinner colores */
+.spinner-border.text-success { color: var(--m-verde) !important; }
+
+/* ============================================================
+   ROUTE CARD (sidebar rutas)
+   ============================================================ */
+
+.route-button {
+    border-radius: 8px !important;
+    border: 1px solid var(--m-borde) !important;
+    transition: all 0.15s ease;
+}
+
+.route-button:hover {
+    background: var(--m-verde-light) !important;
+    border-color: var(--m-verde-claro) !important;
+    transform: translateX(2px);
+}
+
+/* ============================================================
+   HEADER DE PÁGINAS INFORMATIVAS
+   ============================================================ */
+
+.m-page-header {
+    background: linear-gradient(135deg, var(--m-verde-oscuro), var(--m-verde));
+    color: var(--m-blanco);
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+}
+
+.m-page-header h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); margin-bottom: 0.5rem; }
+.m-page-header p { color: rgba(255,255,255,0.8); font-size: 1.1rem; margin: 0; }
+
+/* ============================================================
+   NAVBAR MINI para páginas de mapa (sin layout principal)
+   ============================================================ */
+
+.m-map-navbar {
+    background: var(--m-verde-oscuro);
+    border-bottom: 2px solid var(--m-acento);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.m-map-navbar .m-brand { font-size: 1rem; }
+
+.m-map-status {
+    flex: 1;
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.m-map-navbar .btn-outline-secondary {
+    border-color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.85);
+}
+.m-map-navbar .btn-outline-secondary:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.6);
+    color: #fff;
+}
+
+/* ============================================================
+   PÁGINA INICIO — header oscuro → ahora verde
+   ============================================================ */
+
+.bg-dark { background: var(--m-verde-oscuro) !important; }
+
+/* ============================================================
+   HALL OF FAME — mantener dorado pero con fondo verde suave
+   ============================================================ */
+
+.hall-of-fame {
+    border-color: #c8a84b !important;
+    background: linear-gradient(to right, #fffbe6, var(--m-fondo)) !important;
+}
+
+/* ============================================================
+   TABLA DE PROPUESTAS
+   ============================================================ */
+
+.table thead.table-light th {
+    background: var(--m-verde-light);
+    color: var(--m-verde-oscuro);
+    border-color: var(--m-borde);
+}
+
+/* ============================================================
+   PROGRESO CUMBRES
+   ============================================================ */
+
+.progreso-barra {
+    background-color: var(--m-verde-claro) !important;
+}
+
+/* ============================================================
+   ACERCA DE
+   ============================================================ */
+
+.card.border-success {
+    border-color: var(--m-verde) !important;
+}
+
+/* ============================================================
+   SIDEBAR PERSISTENTE (páginas de mapa)
+   ============================================================ */
+
+/* El wrapper ocupa todo el espacio bajo el navbar */
+.m-map-wrapper {
+    display: flex;
+    /* position: fixed ancla al viewport real — la técnica más robusta en móvil:
+       evita el corte que causa 100vh cuando la barra del navegador está visible */
+    position: fixed;
+    top: 60px;     /* altura del navbar */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* Sidebar */
+.m-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--m-blanco);
+    border-right: 1px solid var(--m-borde);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.25s ease;
+    overflow: hidden;
+    z-index: 10;
+}
+
+/* Estado colapsado: sólo la franja del botón toggle (44px) */
+.m-sidebar.collapsed { width: 44px; }
+
+/* Botón toggle */
+.m-sidebar-toggle {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    background: var(--m-verde-light);
+    border-bottom: 1px solid var(--m-borde);
+    border: none;
+    border-bottom: 1px solid var(--m-borde);
+    cursor: pointer;
+    color: var(--m-verde-oscuro);
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
+    transition: background 0.15s;
+}
+.m-sidebar-toggle:hover { background: var(--m-borde); }
+.m-sidebar-toggle i { font-size: 1rem; flex-shrink: 0; }
+
+/* Contenido scrollable del sidebar */
+.m-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 280px;   /* evita compresión durante la transición */
+}
+
+/* Zona del mapa — ocupa el resto */
+.m-map-area {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 0;   /* crea stacking context propio → aísla z-index internos de Leaflet (hasta 1000) */
+                  /* así el navbar (1100) siempre queda por encima */
+}
+
+/* ── MÓVIL (<769px) ───────────────────────── */
+@media (max-width: 768px) {
+    .m-sidebar {
+        position: absolute;
+        top: 0; left: 0;
+        height: 100%;
+        width: 280px !important;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 12px rgba(0,0,0,0.25);
+        transition: transform 0.25s ease;
+        z-index: 20;   /* por encima del mapa (z-index:0) dentro del mismo wrapper */
+    }
+    /* Clase .open añadida por Blazor en móvil */
+    .m-sidebar.open { transform: translateX(0); }
+
+    /* Botón flotante para abrir sidebar en móvil */
+    .m-sidebar-open-btn {
+        display: flex !important;
+        position: absolute;
+        top: 8px; left: 8px;
+        z-index: 10;   /* dentro del wrapper, por encima del mapa (z-index:0) */
+        background: var(--m-verde-oscuro);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 0.4rem 0.65rem;
+        cursor: pointer;
+        font-size: 1.1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+}
+
+@media (min-width: 769px) {
+    .m-sidebar-open-btn { display: none !important; }
+}
+
+/* ============================================================
+   Decálogo — Estilo tablas de la ley
+   ============================================================ */
+.decalogo-container {
+    background: linear-gradient(160deg, #2c2c2c 0%, #1a1a1a 100%);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+    font-family: Georgia, 'Times New Roman', serif;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.decalogo-item {
+    display: flex;
+    align-items: baseline;
+    gap: 1.2rem;
+    padding: 0.6rem 0;
+}
+
+.decalogo-num {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #a8c97f;
+    min-width: 2.8rem;
+    text-align: right;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    text-shadow: 0 0 8px rgba(168,201,127,0.4);
+}
+
+.decalogo-text {
+    color: #e8e8e0;
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.decalogo-text strong {
+    color: #b8dba0;
+    font-weight: 700;
+}
+
+.decalogo-sep {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 0;
+}
+
+/* ── CTA Contacto ────────────────────────────────────────────────────── */
+.cta-contacto {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 2px solid #bbf7d0;
+    box-shadow: 0 4px 24px rgba(34,197,94,0.10);
+}

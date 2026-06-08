@@ -1,0 +1,33 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div class="m-layout">
+    <NavMenu />
+
+    <main class="m-main">
+        @Body
+    </main>
+
+    <footer class="m-footer">
+        <small>⛰️ &copy; 2025–2026 Meseta Inclinada · Grupo de Montaña Valladolid</small>
+    </footer>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        try { await JS.InvokeVoidAsync("bootstrapCleanup"); } catch { }
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+}

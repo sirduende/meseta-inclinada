@@ -1,0 +1,480 @@
+@page "/admin/usuarios"
+@inject AuthService AuthService
+@inject FirestoreService FirestoreService
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Usuarios – Administración</PageTitle>
+
+<div class="container py-4">
+
+    @if (!AuthService.IsAdmin)
+    {
+        <div class="text-center py-5">
+            <p class="text-muted">Acceso restringido a administradores.</p>
+            <a href="/admin" class="btn btn-dark">Ir al panel de administración</a>
+        </div>
+    }
+    else
+    {
+        <!-- Cabecera -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="/admin" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <strong class="fs-5"><i class="bi bi-people-fill me-2"></i>Gestión de usuarios</strong>
+            </div>
+            <span class="text-muted small">@AuthService.CurrentUser?.DisplayName</span>
+        </div>
+
+        <!-- Mensajes -->
+        @if (!string.IsNullOrEmpty(mensajeExito))
+        {
+            <div class="alert alert-success alert-dismissible mb-3">
+                @mensajeExito
+                <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger alert-dismissible mb-3">
+                @mensajeError
+                <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
+            </div>
+        }
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <button class="nav-link @(tab == "miembros" ? "active" : "")"
+                        @onclick='() => tab = "miembros"'>
+                    <i class="bi bi-person-check me-1"></i> Miembros
+                    <span class="badge bg-secondary ms-1">@miembros.Count</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(tab == "invitaciones" ? "active" : "")"
+                        @onclick='() => tab = "invitaciones"'>
+                    <i class="bi bi-envelope me-1"></i> Invitaciones
+                    @if (invitaciones.Count > 0)
+                    {
+                        <span class="badge bg-primary ms-1">@invitaciones.Count</span>
+                    }
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(tab == "solicitudes" ? "active" : "")"
+                        @onclick='() => tab = "solicitudes"'>
+                    <i class="bi bi-hourglass-split me-1"></i> Solicitudes
+                    @if (solicitudes.Count > 0)
+                    {
+                        <span class="badge bg-warning text-dark ms-1">@solicitudes.Count</span>
+                    }
+                </button>
+            </li>
+        </ul>
+
+        @if (isLoading)
+        {
+            <div class="text-center py-4"><div class="spinner-border text-secondary"></div></div>
+        }
+        else
+        {
+            <!-- ── TAB: MIEMBROS ─────────────────────────── -->
+            @if (tab == "miembros")
+            {
+                <p class="text-muted small mb-3">Usuarios con acceso activo. Puedes editar su nombre o eliminarlos.</p>
+
+                @if (miembros.Count == 0)
+                {
+                    <p class="text-muted">No hay miembros activos todavía.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle table-sm">
+                            <thead class="table-light">
+                                <tr><th>Email</th><th>Nombre mostrado</th><th style="width:80px"></th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var m in miembros.OrderBy(m => m.Email))
+                                {
+                                    @if (editandoUid == m.Uid)
+                                    {
+                                        <!-- Fila en edición -->
+                                        <tr class="table-warning">
+                                            <td class="small">@m.Email</td>
+                                            <td>
+                                                <input class="form-control form-control-sm"
+                                                       @bind="editNombre" placeholder="Nombre a mostrar" />
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <button class="btn btn-sm btn-success me-1" @onclick="() => GuardarMiembro(m)"
+                                                        disabled="@guardando">
+                                                    @if (guardando) { <span class="spinner-border spinner-border-sm"></span> }
+                                                    else { <i class="bi bi-check-lg"></i> }
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary"
+                                                        @onclick="CancelarEdicion">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td class="small">
+                                                @m.Email
+                                                @if (m.EsAdmin)
+                                                {
+                                                    <span class="badge bg-dark ms-1">admin</span>
+                                                }
+                                            </td>
+                                            <td class="small">
+                                                @if (!string.IsNullOrEmpty(m.NombreMostrado))
+                                                {
+                                                    @m.NombreMostrado
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted fst-italic">sin nombre</span>
+                                                }
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <button class="btn btn-sm btn-outline-primary me-1"
+                                                        @onclick="() => IniciarEdicion(m)" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                @if (!m.EsAdmin)
+                                                {
+                                                    <button class="btn btn-sm btn-outline-danger"
+                                                            @onclick="() => ConfirmarEliminar(m.Uid, m.Email)" title="Eliminar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+
+            <!-- ── TAB: INVITACIONES ─────────────────────── -->
+            @if (tab == "invitaciones")
+            {
+                <p class="text-muted small mb-3">
+                    Pre-registra el email de un futuro miembro. La próxima vez que inicie sesión con esa cuenta Google
+                    quedará automáticamente aprobado como miembro.
+                </p>
+
+                <!-- Formulario nueva invitación -->
+                <div class="card border-primary mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <strong><i class="bi bi-envelope-plus me-1"></i> Invitar nuevo miembro</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email Google <span class="text-danger">*</span></label>
+                                <input class="form-control" @bind="invEmail" type="email"
+                                       placeholder="usuario@gmail.com" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nombre a mostrar</label>
+                                <input class="form-control" @bind="invNombre"
+                                       placeholder="Ej: Dani" />
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(invError))
+                        {
+                            <div class="alert alert-danger py-2 mt-2">@invError</div>
+                        }
+                        <button class="btn btn-primary mt-3" @onclick="CrearInvitacion" disabled="@guardando">
+                            @if (guardando) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                            <i class="bi bi-send me-1"></i> Crear invitación
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de invitaciones pendientes -->
+                @if (invitaciones.Count == 0)
+                {
+                    <p class="text-muted small">No hay invitaciones pendientes.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead class="table-light">
+                                <tr><th>Email</th><th>Nombre</th><th>Fecha</th><th style="width:60px"></th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var inv in invitaciones.OrderBy(i => i.Email))
+                                {
+                                    <tr>
+                                        <td class="small">@inv.Email</td>
+                                        <td class="small">@inv.NombreMostrado</td>
+                                        <td class="small text-muted">@inv.FechaInvitacion</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    @onclick="() => ConfirmarEliminarInv(inv.Email)">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+
+            <!-- ── TAB: SOLICITUDES ──────────────────────── -->
+            @if (tab == "solicitudes")
+            {
+                <p class="text-muted small mb-3">
+                    Usuarios que han intentado acceder sin permiso. Apruébalos para convertirlos en miembros
+                    o recházalos para eliminar la solicitud.
+                </p>
+
+                @if (solicitudes.Count == 0)
+                {
+                    <p class="text-muted">No hay solicitudes pendientes. ✅</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead class="table-light">
+                                <tr><th>Email</th><th>Nombre Google</th><th>Fecha</th><th>Nombre a mostrar</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in solicitudes.OrderBy(s => s.FechaSolicitud))
+                                {
+                                    <tr>
+                                        <td class="small">@s.Email</td>
+                                        <td class="small">@s.DisplayName</td>
+                                        <td class="small text-muted">@s.FechaSolicitud</td>
+                                        <td>
+                                            <input class="form-control form-control-sm" style="max-width:160px"
+                                                   placeholder="Nombre opcional"
+                                                   @bind="nombreParaAprobar[s.Uid]" />
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <button class="btn btn-sm btn-success me-1"
+                                                    @onclick="() => AprobarSolicitud(s)">
+                                                <i class="bi bi-check-lg me-1"></i>Aprobar
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    @onclick="() => RechazarSolicitud(s.Uid)">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+        }
+
+        <!-- Modal confirmación borrado -->
+        @if (!string.IsNullOrEmpty(eliminarTarget))
+        {
+            <div class="modal fade show d-block" style="background:rgba(0,0,0,0.5)">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar eliminación</h5>
+                        </div>
+                        <div class="modal-body">
+                            ¿Eliminar el acceso de <strong>@eliminarLabel</strong>? El usuario no podrá volver a entrar.
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @onclick="() => eliminarTarget = null">Cancelar</button>
+                            <button class="btn btn-danger" @onclick="EjecutarEliminar" disabled="@eliminando">
+                                @if (eliminando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private string tab = "miembros";
+
+    private List<Miembro>   miembros     = new();
+    private List<Invitacion> invitaciones = new();
+    private List<Solicitud>  solicitudes  = new();
+    private Dictionary<string, string> nombreParaAprobar = new();
+
+    private bool isLoading = true;
+    private bool guardando = false;
+    private bool eliminando = false;
+    private string? mensajeExito;
+    private string? mensajeError;
+
+    // Edición inline de miembro
+    private string? editandoUid;
+    private string  editNombre = "";
+
+    // Nueva invitación
+    private string invEmail  = "";
+    private string invNombre = "";
+    private string? invError;
+
+    // Confirmación borrado
+    private string? eliminarTarget;  // uid o email
+    private string  eliminarLabel = "";
+    private bool    eliminarEsInv = false;  // true = invitación, false = miembro
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthService.AuthStateChanged += OnAuthChanged;
+        if (AuthService.IsAdmin) await Cargar();
+        else isLoading = false;
+    }
+
+    private async void OnAuthChanged(UserInfo? _)
+    {
+        if (AuthService.IsAdmin) await Cargar();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Cargar()
+    {
+        isLoading = true;
+        var t1 = FirestoreService.GetMiembrosAsync();
+        var t2 = FirestoreService.GetInvitacionesAsync();
+        var t3 = FirestoreService.GetSolicitudesAsync();
+        await Task.WhenAll(t1, t2, t3);
+        miembros     = t1.Result;
+        invitaciones = t2.Result;
+        solicitudes  = t3.Result;
+        nombreParaAprobar = solicitudes.ToDictionary(s => s.Uid, _ => "");
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    // ── Miembros ────────────────────────────────────────────────
+
+    private void IniciarEdicion(Miembro m)
+    {
+        editandoUid = m.Uid;
+        editNombre  = m.NombreMostrado;
+        mensajeExito = null;
+    }
+
+    private void CancelarEdicion() { editandoUid = null; editNombre = ""; }
+
+    private async Task GuardarMiembro(Miembro m)
+    {
+        guardando = true;
+        m.NombreMostrado = editNombre;
+        var ok = await FirestoreService.SaveMiembroAsync(m.Uid, m);
+        guardando = false;
+        if (ok) { mensajeExito = "Nombre actualizado."; editandoUid = null; }
+        else mensajeError = "Error al guardar.";
+    }
+
+    // ── Invitaciones ────────────────────────────────────────────
+
+    private async Task CrearInvitacion()
+    {
+        invError = null;
+        if (string.IsNullOrWhiteSpace(invEmail) || !invEmail.Contains('@'))
+        {
+            invError = "Introduce un email válido."; return;
+        }
+        guardando = true;
+        var inv = new Invitacion
+        {
+            Email          = invEmail.Trim().ToLower(),
+            NombreMostrado = invNombre.Trim(),
+            FechaInvitacion = DateTime.Today.ToString("yyyy-MM-dd")
+        };
+        var ok = await FirestoreService.SaveInvitacionAsync(inv);
+        guardando = false;
+        if (ok)
+        {
+            mensajeExito = $"Invitación creada para {inv.Email}.";
+            invEmail = ""; invNombre = "";
+            await Cargar();
+        }
+        else invError = "Error al crear la invitación.";
+    }
+
+    private void ConfirmarEliminarInv(string email)
+    {
+        eliminarTarget  = email;
+        eliminarLabel   = email;
+        eliminarEsInv   = true;
+    }
+
+    // ── Solicitudes ─────────────────────────────────────────────
+
+    private async Task AprobarSolicitud(Solicitud s)
+    {
+        mensajeError = null;
+        var nombre = nombreParaAprobar.TryGetValue(s.Uid, out var n) ? n : "";
+        var miembro = new Miembro { Uid = s.Uid, Email = s.Email, NombreMostrado = nombre };
+        var ok = await FirestoreService.SaveMiembroAsync(s.Uid, miembro);
+        if (ok)
+        {
+            await FirestoreService.DeleteSolicitudAsync(s.Uid);
+            mensajeExito = $"{s.Email} aprobado como miembro.";
+            await Cargar();
+        }
+        else mensajeError = "Error al aprobar la solicitud.";
+    }
+
+    private async Task RechazarSolicitud(string uid)
+    {
+        await FirestoreService.DeleteSolicitudAsync(uid);
+        solicitudes.RemoveAll(s => s.Uid == uid);
+        StateHasChanged();
+    }
+
+    // ── Borrado con confirmación ────────────────────────────────
+
+    private void ConfirmarEliminar(string uid, string email)
+    {
+        eliminarTarget = uid;
+        eliminarLabel  = email;
+        eliminarEsInv  = false;
+    }
+
+    private async Task EjecutarEliminar()
+    {
+        if (string.IsNullOrEmpty(eliminarTarget)) return;
+        eliminando = true;
+        bool ok;
+        if (eliminarEsInv)
+        {
+            ok = await FirestoreService.DeleteInvitacionAsync(eliminarTarget);
+            if (ok) invitaciones.RemoveAll(i => i.Email == eliminarTarget);
+        }
+        else
+        {
+            ok = await FirestoreService.DeleteMiembroAsync(eliminarTarget);
+            if (ok) miembros.RemoveAll(m => m.Uid == eliminarTarget);
+        }
+        eliminando = false;
+        if (ok) mensajeExito = $"{eliminarLabel} eliminado.";
+        else mensajeError = "Error al eliminar.";
+        eliminarTarget = null;
+        StateHasChanged();
+    }
+
+    public void Dispose() => AuthService.AuthStateChanged -= OnAuthChanged;
+}
