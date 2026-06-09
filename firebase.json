@@ -19,7 +19,7 @@
     "rules": "storage.rules"
   },
   "hosting": {
-    "public": "public",
+    "public": "publish_output/wwwroot",
     "ignore": [
       "firebase.json",
       "**/.*",

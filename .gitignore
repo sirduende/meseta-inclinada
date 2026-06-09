@@ -95,3 +95,4 @@ yarn-error.log*
 *.sln
 *.sw*
 /GreenCat.Frontal/dist/*
+publish_output/
