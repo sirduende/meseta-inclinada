@@ -18,10 +18,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- Galería desactivada: las fotos y el interop no se incluyen en publish -->
+  <!-- Imágenes y galería incluidas en publish -->
   <ItemGroup>
-    <Content Update="wwwroot\image\**" CopyToPublishDirectory="Never" />
-    <Content Update="wwwroot\js\album-interop.js" CopyToPublishDirectory="Never" />
+    <Content Update="wwwroot\js\album-interop.js" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

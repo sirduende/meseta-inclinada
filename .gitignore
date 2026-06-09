@@ -5,12 +5,11 @@ obj/
 ParquesolSoftware.MesetaInclinada/bin/
 ParquesolSoftware.MesetaInclinada/obj/
 
-# Assets copiados de public/ — se sincronizan en build/deploy, no en git
+# Assets grandes — existen localmente, se incluyen en publish pero no en git
 ParquesolSoftware.MesetaInclinada/wwwroot/libs/
 ParquesolSoftware.MesetaInclinada/wwwroot/gpx/
 ParquesolSoftware.MesetaInclinada/wwwroot/gpx2026/
 ParquesolSoftware.MesetaInclinada/wwwroot/fotos/
-ParquesolSoftware.MesetaInclinada/wwwroot/image/
 ParquesolSoftware.MesetaInclinada/wwwroot/audio/
 ParquesolSoftware.MesetaInclinada/wwwroot/lib/
 
