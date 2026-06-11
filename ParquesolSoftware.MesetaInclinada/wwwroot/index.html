@@ -6,15 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meseta Inclinada â€“ Grupo de MontaÃ±a Valladolid</title>
     <meta name="description" content="Grupo de montaÃ±a autogestionado de Valladolid. Rutas semanales por Castilla y LeÃ³n, reto de cumbres 2026 y propuestas colaborativas." />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://mesetainclinada.web.app/" />
+    <meta name=”robots” content=”index, follow” />
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Meseta Inclinada â€“ Grupo de MontaÃ±a Valladolid" />
-    <meta property="og:description" content="Grupo de montaÃ±a autogestionado de Valladolid. Rutas semanales, reto de cumbres 2026 y propuestas colaborativas." />
-    <meta property="og:url" content="https://mesetainclinada.web.app/" />
-    <meta property="og:image" content="https://mesetainclinada.web.app/image/03.jpg?v=2" />
-    <meta property="og:locale" content="es_ES" />
+    <meta property=”og:type” content=”website” />
+    <meta property=”og:title” content=”Meseta Inclinada – Grupo de Montaña Valladolid” />
+    <meta property=”og:description” content=”Grupo de montaña autogestionado de Valladolid. Rutas semanales, reto de cumbres 2026 y propuestas colaborativas.” />
+    <meta property=”og:url” content=”https://mesetainclinada.web.app/” />
+    <meta property=”og:image” content=”https://mesetainclinada.web.app/image/03.jpg?v=2” />
+    <meta property=”og:locale” content=”es_ES” />
+    <!-- Twitter Card -->
+    <meta name=”twitter:card” content=”summary_large_image” />
+    <meta name=”twitter:title” content=”Meseta Inclinada – Grupo de Montaña Valladolid” />
+    <meta name=”twitter:description” content=”Grupo de montaña autogestionado de Valladolid. Rutas semanales por Castilla y León, reto de cumbres 2026 y propuestas colaborativas.” />
+    <meta name=”twitter:image” content=”https://mesetainclinada.web.app/image/03.jpg?v=2” />
     <base href="/" />
     <link rel="preload" id="webassembly" />
     <!-- Leaflet -->
@@ -28,22 +32,76 @@
     <link href="ParquesolSoftware.MesetaInclinada.styles.css" rel="stylesheet" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <script type="importmap"></script>
+    <!-- Datos estructurados (Schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SportsClub",
+      "name": "Meseta Inclinada",
+      "alternateName": "Grupo de Montaña Meseta Inclinada Valladolid",
+      "description": "Grupo de montaña autogestionado de Valladolid. Rutas semanales por Castilla y León, reto de cumbres 2026 y propuestas colaborativas.",
+      "url": "https://mesetainclinada.web.app/",
+      "email": "mesetainclinada@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Valladolid",
+        "addressRegion": "Castilla y León",
+        "addressCountry": "ES"
+      },
+      "sport": "Senderismo y montaña",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://mesetainclinada.web.app/image/meseta_inclinada.png"
+      }
+    }
+    </script>
 </head>
 
 <body>
     <div id="app">
-        <svg class="loading-progress">
+        <!-- Contenido pre-renderizado: visible para crawlers y durante la carga de Blazor -->
+        <nav style="background:#1c3d1f;padding:.5rem 1rem;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;font-family:sans-serif">
+            <strong style="color:#fff">⛰️ Meseta Inclinada</strong>
+            <a href="/" style="color:#9fcfa0;text-decoration:none;font-size:.9rem">Inicio</a>
+            <a href="/rutas" style="color:#9fcfa0;text-decoration:none;font-size:.9rem">Rutas</a>
+            <a href="/propuestas" style="color:#9fcfa0;text-decoration:none;font-size:.9rem">Propuestas</a>
+            <a href="/secundarios" style="color:#9fcfa0;text-decoration:none;font-size:.9rem">Reto 2026</a>
+            <a href="/estadisticas" style="color:#9fcfa0;text-decoration:none;font-size:.9rem">Estadísticas</a>
+            <a href="/acerca-de" style="color:#9fcfa0;text-decoration:none;font-size:.9rem">Acerca de</a>
+        </nav>
+        <div style="max-width:700px;margin:2.5rem auto;padding:0 1.25rem;font-family:sans-serif">
+            <h1 style="color:#1c3d1f;font-size:1.6rem;margin-bottom:.6rem">Grupo de Montaña Valladolid</h1>
+            <p style="font-size:1rem;color:#333;line-height:1.7">
+                <strong>Meseta Inclinada</strong> es un grupo autogestionado de montaña de Valladolid.
+                Salimos cada semana por Castilla y León: Sierra de Gredos, Picos de Europa, Sanabria y Sistema Central.
+            </p>
+            <p style="color:#555;line-height:1.7;margin-top:.5rem">Sin cuotas ni jerarquías. Solo ganas de caminar, compartir y respetar el entorno.</p>
+            <ul style="margin-top:1rem;padding-left:1.1rem;color:#444;line-height:2.1">
+                <li><a href="/rutas" style="color:#1c3d1f">Rutas con track GPX y estadísticas de participantes</a></li>
+                <li><a href="/propuestas" style="color:#1c3d1f">Propuestas de rutas colaborativas para próximas salidas</a></li>
+                <li><a href="/secundarios" style="color:#1c3d1f">Reto 2026: cumbres secundarias de Castilla y León</a></li>
+                <li><a href="/estadisticas" style="color:#1c3d1f">Estadísticas del grupo: rutas, distancias y participación</a></li>
+            </ul>
+        </div>
+        <svg class="loading-progress" aria-hidden="true">
             <circle r="40%" cx="50%" cy="50%" />
             <circle r="40%" cx="50%" cy="50%" />
         </svg>
-        <div class="loading-progress-text"></div>
+        <div class="loading-progress-text" aria-hidden="true"></div>
     </div>
 
     <div id="blazor-error-ui">
         Ha ocurrido un error.
         <a href="." class="reload">Recargar</a>
-        <span class="dismiss">ðŸ—™</span>
+        <span class="dismiss">🗙</span>
     </div>
+    <noscript>
+        <div style="font-family:sans-serif;padding:2rem;max-width:600px;margin:0 auto">
+            <h1>Meseta Inclinada – Grupo de Montaña Valladolid</h1>
+            <p>Esta aplicación requiere JavaScript. Por favor, actívalo en tu navegador para continuar.</p>
+            <nav><a href="/rutas">Rutas</a> · <a href="/propuestas">Propuestas</a> · <a href="/secundarios">Reto 2026</a> · <a href="/estadisticas">Estadísticas</a></nav>
+        </div>
+    </noscript>
 
     <!-- Leaflet JS -->
     <script src="libs/leaflet.js"></script>
