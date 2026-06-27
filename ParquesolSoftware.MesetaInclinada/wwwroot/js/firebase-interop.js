@@ -475,6 +475,77 @@ window.firebaseInterop = {
         }
     },
 
+    // === RESEÑAS GASTRO ===
+
+    async getResenasGastro(sitioId) {
+        try {
+            const snap = await firebaseDb.collection('gastro').doc(sitioId).collection('resenas').get();
+            const data = snap.docs.map(d => ({ sitioId, uid: d.id, ...d.data() }));
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error getting resenas:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getMyResenasGastro(uid) {
+        try {
+            const snap = await firebaseDb.collectionGroup('resenas')
+                .where('uid', '==', uid).get();
+            const data = snap.docs.map(d => ({
+                sitioId: d.ref.parent.parent.id,
+                ...d.data()
+            }));
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error getting my resenas:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async saveResenaGastro(sitioId, uid, data) {
+        try {
+            await firebaseDb.collection('gastro').doc(sitioId)
+                .collection('resenas').doc(uid).set(data);
+            await this._updateGastroAggregates(sitioId);
+            return { success: true };
+        } catch (error) {
+            console.error('Error saving resena:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async deleteResenaGastro(sitioId, uid) {
+        try {
+            await firebaseDb.collection('gastro').doc(sitioId)
+                .collection('resenas').doc(uid).delete();
+            await this._updateGastroAggregates(sitioId);
+            return { success: true };
+        } catch (error) {
+            console.error('Error deleting resena:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async _updateGastroAggregates(sitioId) {
+        const snap = await firebaseDb.collection('gastro').doc(sitioId)
+            .collection('resenas').get();
+        const resenas = snap.docs.map(d => d.data());
+        const numResenas = resenas.length;
+        const valoracionMedia = numResenas > 0
+            ? Math.round(resenas.reduce((s, r) => s + (r.estrellas || 0), 0) / numResenas * 10) / 10
+            : 0;
+        const conComentario = resenas
+            .filter(r => r.comentario)
+            .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+        await firebaseDb.collection('gastro').doc(sitioId).update({
+            valoracionMedia,
+            numResenas,
+            ultimoComentario: conComentario[0]?.comentario || '',
+            ultimoAutor: conComentario[0]?.nombreUsuario || ''
+        });
+    },
+
     // === STORAGE - GPX ===
 
     async uploadGpx(filename, fileBytes, contentType) {
@@ -496,7 +567,10 @@ window.firebaseInterop = {
             try {
                 const localUrl = `${carpeta}/${nombreArchivo}`;
                 const response = await fetch(localUrl);
-                if (response.ok) {
+                const contentType = response.headers.get('Content-Type') || '';
+                // Firebase Hosting reescribe rutas inexistentes a index.html (200 OK con HTML).
+                // Descartar si devuelve HTML — el archivo no existe realmente en local.
+                if (response.ok && !contentType.includes('text/html')) {
                     console.log(`📂 GPX local (${carpeta}/): ${nombreArchivo}`);
                     return { success: true, data: localUrl };
                 }

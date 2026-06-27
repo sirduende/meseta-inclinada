@@ -237,7 +237,8 @@ window.leafletInterop = {
             }
         });
 
-        gpx.on('error', () => {
+        gpx.on('error', (e) => {
+            console.error(`❌ GPX mal formado o no encontrado: ${gpxUrl}`, e?.error || e);
             if (dotNetHelper) {
                 dotNetHelper.invokeMethodAsync('OnGpxLoaded', {
                     id: routeId, nombre: meta?.nombre || routeId,
@@ -478,16 +479,26 @@ window.leafletInterop = {
                 ? `https://www.google.com/maps/place/?q=place_id:${s.placeId}`
                 : `https://www.google.com/maps?q=${s.lat},${s.lng}`;
 
+            const starsHtml = s.valoracionMedia > 0
+                ? `<div style="font-size:13px;color:#f59e0b;margin:3px 0">
+                       ${'★'.repeat(Math.round(s.valoracionMedia))}${'☆'.repeat(5 - Math.round(s.valoracionMedia))}
+                       <span style="font-size:10px;color:#666"> ${s.valoracionMedia.toFixed(1)} (${s.numResenas || 0})</span>
+                   </div>`
+                : '';
+            const comentPopup = s.ultimoComentario || s.comentario;
             const popup = `
-                <div style="max-width:210px;font-family:sans-serif;line-height:1.4">
+                <div style="max-width:220px;font-family:sans-serif;line-height:1.4">
                     <b style="font-size:13px">${s.nombre}</b>
                     ${s.direccion ? `<div style="font-size:11px;color:#666;margin:2px 0">${s.direccion}</div>` : ''}
-                    ${s.comentario ? `<p style="font-size:12px;margin:5px 0;color:#333;font-style:italic">"${s.comentario}"</p>` : ''}
+                    ${starsHtml}
+                    ${comentPopup ? `<p style="font-size:12px;margin:5px 0;color:#333;font-style:italic">"${comentPopup}"</p>` : ''}
                     <a href="${mapsUrl}" target="_blank" rel="noopener"
                        style="font-size:12px;color:#1a73e8;text-decoration:none">
                         📍 Ver en Google Maps
                     </a>
-                    <div style="font-size:10px;color:#999;margin-top:3px">por ${s.nombreCreador || '—'}</div>
+                    <div style="font-size:10px;color:#999;margin-top:3px">
+                        ${s.ultimoAutor ? `último: ${s.ultimoAutor}` : (s.nombreCreador ? `por ${s.nombreCreador}` : '')}
+                    </div>
                 </div>`;
 
             const marker = L.marker([s.lat, s.lng], { icon }).addTo(map);

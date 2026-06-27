@@ -1,0 +1,309 @@
+@page "/gastronomia"
+@inject FirestoreService FirestoreService
+@inject AuthService AuthService
+@using ParquesolSoftware.MesetaInclinada.Models
+
+<PageTitle>Zona Gastro – Meseta Inclinada</PageTitle>
+<HeadContent>
+    <meta name="description" content="Restaurantes y sitios gastronómicos recomendados por el grupo Meseta Inclinada en sus rutas por Castilla y León." />
+    <link rel="canonical" href="https://mesetainclinada.web.app/gastronomia" />
+</HeadContent>
+
+<header class="m-page-header text-center">
+    <h1>🍳</h1>
+    <p>Sitios recomendados por el grupo</p>
+</header>
+
+<div class="container my-4" style="max-width:720px">
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-success"></div>
+        </div>
+    }
+    else if (sitios.Count == 0)
+    {
+        <div class="text-center text-muted py-5">
+            <p>Aún no hay sitios gastronómicos registrados.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var sitio in sitios)
+        {
+            var sid = sitio.FirestoreId ?? "";
+            <div class="card mb-4 shadow-sm">
+
+                <!-- Cabecera: nombre + valoración -->
+                <div class="card-header d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <h5 class="mb-0 fw-bold">
+                            <a href="@sitio.GoogleMapsUrl" target="_blank" rel="noopener"
+                               class="text-decoration-none" style="color:var(--m-verde-oscuro,#1c3d1f)">
+                                @sitio.Nombre
+                                <i class="bi bi-box-arrow-up-right" style="font-size:0.7rem"></i>
+                            </a>
+                        </h5>
+                        @if (!string.IsNullOrEmpty(sitio.Direccion))
+                        {
+                            <small class="text-muted">@sitio.Direccion</small>
+                        }
+                    </div>
+                    <div class="text-end text-nowrap">
+                        @if (sitio.NumResenas > 0)
+                        {
+                            <div style="color:#f59e0b;font-size:1.05rem;line-height:1">
+                                @EstrellasTxt(sitio.ValoracionMedia)
+                            </div>
+                            <small class="text-muted">
+                                @sitio.ValoracionMedia.ToString("F1") · @sitio.NumResenas reseña@(sitio.NumResenas != 1 ? "s" : "")
+                            </small>
+                        }
+                        else
+                        {
+                            <small class="text-muted">Sin reseñas</small>
+                        }
+                    </div>
+                </div>
+
+                <!-- Último comentario de la comunidad -->
+                @{
+                    var ultimoCom = sitio.UltimoComentario ?? sitio.Comentario;
+                }
+                @if (!string.IsNullOrEmpty(ultimoCom))
+                {
+                    <div class="card-body pb-2">
+                        <p class="fst-italic text-muted mb-1" style="font-size:0.9rem">"@ultimoCom"</p>
+                        @if (!string.IsNullOrEmpty(sitio.UltimoAutor))
+                        {
+                            <small class="text-muted">— @sitio.UltimoAutor</small>
+                        }
+                    </div>
+                }
+
+                <!-- Sección de reseña del usuario autenticado -->
+                @if (!string.IsNullOrEmpty(sid))
+                {
+                    @if (AuthService.IsAuthenticated)
+                    {
+                        var miResena = misResenas.GetValueOrDefault(sid);
+                        var enEdicion = editando.Contains(sid);
+                        var enEspera = guardando.Contains(sid);
+
+                        <div class="card-footer bg-light">
+                            @if (miResena != null && !enEdicion)
+                            {
+                                <!-- Mi reseña guardada -->
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div style="color:#f59e0b">@EstrellasTxt(miResena.Estrellas)</div>
+                                        @if (!string.IsNullOrEmpty(miResena.Comentario))
+                                        {
+                                            <small class="fst-italic text-muted">"@miResena.Comentario"</small>
+                                        }
+                                        <div><small class="text-muted">Mi reseña · @miResena.Fecha</small></div>
+                                    </div>
+                                    <div class="d-flex gap-1 ms-2">
+                                        <button class="btn btn-outline-secondary btn-sm"
+                                                title="Editar"
+                                                disabled="@enEspera"
+                                                @onclick="() => IniciarEdicion(sid, miResena)">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                title="Eliminar"
+                                                disabled="@enEspera"
+                                                @onclick="() => EliminarResena(sitio)">
+                                            @if (enEspera)
+                                            { <span class="spinner-border spinner-border-sm"></span> }
+                                            else
+                                            { <i class="bi bi-trash"></i> }
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Formulario de nueva reseña o edición -->
+                                var estado = GetEstado(sid);
+                                <div>
+                                    <small class="fw-semibold text-muted d-block mb-1">
+                                        @(miResena != null ? "Editar mi reseña" : "Añadir reseña")
+                                    </small>
+                                    <div class="mb-2">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            int star = i;
+                                            <span role="button"
+                                                  style="font-size:1.5rem;cursor:pointer;color:@(estado.Estrellas >= star ? "#f59e0b" : "#d1d5db");user-select:none"
+                                                  @onclick="() => SetEstrellas(sid, star)">★</span>
+                                        }
+                                        @if (estado.Estrellas == 0)
+                                        {
+                                            <small class="text-muted ms-2">Selecciona una valoración</small>
+                                        }
+                                    </div>
+                                    <textarea class="form-control form-control-sm mb-2"
+                                              rows="2"
+                                              placeholder="Comentario (opcional)"
+                                              value="@estado.Comentario"
+                                              @oninput="e => SetComentario(sid, e.Value?.ToString() ?? string.Empty)">
+                                    </textarea>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-success btn-sm"
+                                                disabled="@(estado.Estrellas == 0 || enEspera)"
+                                                @onclick="() => GuardarResena(sitio)">
+                                            @if (enEspera)
+                                            { <span class="spinner-border spinner-border-sm me-1"></span> }
+                                            Guardar
+                                        </button>
+                                        @if (miResena != null)
+                                        {
+                                            <button class="btn btn-outline-secondary btn-sm"
+                                                    @onclick="() => CancelarEdicion(sid)">
+                                                Cancelar
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card-footer text-muted small">
+                            <a href="/admin">Inicia sesión</a> para valorar y comentar
+                        </div>
+                    }
+                }
+            </div>
+        }
+    }
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-4">
+    <small>&copy; 2025–2026 Meseta Inclinada</small>
+</footer>
+
+@code {
+    private List<SitioGastro> sitios = new();
+    private Dictionary<string, ResenaGastro> misResenas = new();
+    private Dictionary<string, (int Estrellas, string Comentario)> formState = new();
+    private HashSet<string> editando = new();
+    private HashSet<string> guardando = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        sitios = await FirestoreService.GetGastroSitiosAsync();
+
+        if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
+            await CargarMisResenas();
+
+        isLoading = false;
+        AuthService.AuthStateChanged += OnAuthChanged;
+    }
+
+    private async void OnAuthChanged(UserInfo? _)
+    {
+        misResenas.Clear();
+        if (AuthService.IsAuthenticated && AuthService.CurrentUser != null)
+            await CargarMisResenas();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CargarMisResenas()
+    {
+        var mis = await FirestoreService.GetMisResenasGastroAsync(AuthService.CurrentUser!.Uid);
+        misResenas = mis
+            .Where(r => r.SitioId != null)
+            .ToDictionary(r => r.SitioId!, r => r);
+    }
+
+    private (int Estrellas, string Comentario) GetEstado(string sid)
+        => formState.TryGetValue(sid, out var e) ? e : (0, string.Empty);
+
+    private void SetEstrellas(string sid, int estrellas)
+    {
+        var e = GetEstado(sid);
+        formState[sid] = (estrellas, e.Comentario);
+    }
+
+    private void SetComentario(string sid, string comentario)
+    {
+        var e = GetEstado(sid);
+        formState[sid] = (e.Estrellas, comentario);
+    }
+
+    private void IniciarEdicion(string sid, ResenaGastro resena)
+    {
+        formState[sid] = (resena.Estrellas, resena.Comentario);
+        editando.Add(sid);
+    }
+
+    private void CancelarEdicion(string sid)
+    {
+        editando.Remove(sid);
+        formState.Remove(sid);
+    }
+
+    private async Task GuardarResena(SitioGastro sitio)
+    {
+        var sid = sitio.FirestoreId;
+        if (sid == null || AuthService.CurrentUser == null) return;
+        var estado = GetEstado(sid);
+        if (estado.Estrellas == 0) return;
+
+        guardando.Add(sid);
+        StateHasChanged();
+
+        var resena = new ResenaGastro
+        {
+            SitioId      = sid,
+            Uid          = AuthService.CurrentUser.Uid,
+            NombreUsuario = AuthService.NombreMostrado ?? AuthService.CurrentUser.DisplayName,
+            Estrellas    = estado.Estrellas,
+            Comentario   = estado.Comentario,
+            Fecha        = DateTime.Today.ToString("yyyy-MM-dd")
+        };
+
+        var ok = await FirestoreService.SaveResenaGastroAsync(sid, AuthService.CurrentUser.Uid, resena);
+        if (ok)
+        {
+            misResenas[sid] = resena;
+            editando.Remove(sid);
+            formState.Remove(sid);
+            sitios = await FirestoreService.GetGastroSitiosAsync();
+        }
+
+        guardando.Remove(sid);
+        StateHasChanged();
+    }
+
+    private async Task EliminarResena(SitioGastro sitio)
+    {
+        var sid = sitio.FirestoreId;
+        if (sid == null || AuthService.CurrentUser == null) return;
+
+        guardando.Add(sid);
+        StateHasChanged();
+
+        var ok = await FirestoreService.DeleteResenaGastroAsync(sid, AuthService.CurrentUser.Uid);
+        if (ok)
+        {
+            misResenas.Remove(sid);
+            formState.Remove(sid);
+            sitios = await FirestoreService.GetGastroSitiosAsync();
+        }
+
+        guardando.Remove(sid);
+        StateHasChanged();
+    }
+
+    public static string EstrellasTxt(double valoracion)
+    {
+        int llenas = (int)Math.Round(valoracion);
+        return new string('★', llenas) + new string('☆', 5 - llenas);
+    }
+}

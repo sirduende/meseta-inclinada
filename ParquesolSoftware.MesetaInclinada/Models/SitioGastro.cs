@@ -13,7 +13,13 @@ public class SitioGastro
     [JsonPropertyName("comentario")]    public string Comentario { get; set; } = string.Empty;
     [JsonPropertyName("creadoPor")]     public string? CreadoPor { get; set; }
     [JsonPropertyName("nombreCreador")] public string NombreCreador { get; set; } = string.Empty;
-    [JsonPropertyName("fechaCreacion")] public string FechaCreacion { get; set; } = string.Empty;
+    [JsonPropertyName("fechaCreacion")]     public string FechaCreacion { get; set; } = string.Empty;
+
+    // Agregados calculados a partir de la subcolección resenas/{uid}
+    [JsonPropertyName("valoracionMedia")]   public double ValoracionMedia { get; set; }
+    [JsonPropertyName("numResenas")]        public int NumResenas { get; set; }
+    [JsonPropertyName("ultimoComentario")]  public string? UltimoComentario { get; set; }
+    [JsonPropertyName("ultimoAutor")]       public string? UltimoAutor { get; set; }
 
     /// <summary>Enlace a Google Maps usando placeId (preferente) o coordenadas.</summary>
     public string GoogleMapsUrl =>

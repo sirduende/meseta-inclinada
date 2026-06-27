@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "buildDate": "2026-06-03T00:00:00Z",
+  "version": "2.0.2",
+  "buildDate": "2026-06-27T00:00:00Z",
   "appName": "Meseta Inclinada",
   "description": "Migración a Blazor WebAssembly"
 }

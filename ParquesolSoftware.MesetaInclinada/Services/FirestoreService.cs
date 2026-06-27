@@ -348,6 +348,81 @@ public class FirestoreService
         }
     }
 
+    // === RESEÑAS GASTRO ===
+
+    public async Task<List<ResenaGastro>> GetResenasGastroAsync(string sitioId)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            var result = await _jsRuntime.InvokeAsync<FirestoreResult<List<ResenaGastro>>>(
+                "firebaseInterop.getResenasGastro", sitioId);
+            return result.Success && result.Data != null ? result.Data : new();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[Gastro] GetResenasGastroAsync error: {ex.Message}");
+            return new();
+        }
+    }
+
+    public async Task<List<ResenaGastro>> GetMisResenasGastroAsync(string uid)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            var result = await _jsRuntime.InvokeAsync<FirestoreResult<List<ResenaGastro>>>(
+                "firebaseInterop.getMyResenasGastro", uid);
+            return result.Success && result.Data != null ? result.Data : new();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[Gastro] GetMisResenasGastroAsync error: {ex.Message}");
+            return new();
+        }
+    }
+
+    public async Task<bool> SaveResenaGastroAsync(string sitioId, string uid, ResenaGastro r)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            var data = new
+            {
+                sitioId,
+                uid          = r.Uid,
+                nombreUsuario = r.NombreUsuario,
+                estrellas    = r.Estrellas,
+                comentario   = r.Comentario,
+                fecha        = r.Fecha
+            };
+            var result = await _jsRuntime.InvokeAsync<FirestoreResult<object>>(
+                "firebaseInterop.saveResenaGastro", sitioId, uid, data);
+            return result.Success;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[Gastro] SaveResenaGastroAsync error: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteResenaGastroAsync(string sitioId, string uid)
+    {
+        try
+        {
+            await EnsureInitializedAsync();
+            var result = await _jsRuntime.InvokeAsync<FirestoreResult<object>>(
+                "firebaseInterop.deleteResenaGastro", sitioId, uid);
+            return result.Success;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[Gastro] DeleteResenaGastroAsync error: {ex.Message}");
+            return false;
+        }
+    }
+
     public async Task<bool> DeleteGastroSitioAsync(string id)
     {
         try

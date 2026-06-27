@@ -59,6 +59,26 @@
             @foreach (var r in rutasEnriquecidas.OrderByDescending(x => x.Fecha))
             {
                 <RouteCard Ruta="r" OnClick="() => ZoomAndClose(r.Id)" />
+                @if (AuthService.IsAdmin)
+                {
+                    <div class="text-end mb-1" style="margin-top:-6px">
+                        <button class="btn btn-link btn-sm p-0 text-muted"
+                                style="font-size:11px"
+                                disabled="@(recalculandoId == r.Id)"
+                                @onclick="() => ForceRecalcularAsync(r.Id)"
+                                title="Forzar recálculo de métricas GPX">
+                            @if (recalculandoId == r.Id)
+                            {
+                                <span class="spinner-border spinner-border-sm"></span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-arrow-clockwise"></i>
+                            }
+                            <span class="ms-1">Recalcular</span>
+                        </button>
+                    </div>
+                }
             }
         }
 
@@ -87,6 +107,7 @@
     // Estado sidebar
     private bool collapsed = false;   // desktop: colapsado o no
     private bool mobileOpen = false;  // móvil: abierto o no
+    private string? recalculandoId = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -183,20 +204,23 @@
         {
             existing.Color      = enriched.Color;
             existing.ColorIndex = enriched.ColorIndex;
-            // Si Firestore no tenía métricas aún, actualizar con los datos reales del GPX
-            if (existing.DistanciaKm == 0 && enriched.DistanciaKm > 0)
+            // Si Firestore no tenía métricas completas, actualizar con los datos reales del GPX
+            if (enriched.DistanciaKm > 0 && (existing.DistanciaKm == 0 || existing.DuracionS == 0))
             {
-                existing.DistanciaKm = enriched.DistanciaKm;
-                existing.DesnivelM   = enriched.DesnivelM;
+                existing.DistanciaKm        = enriched.DistanciaKm;
+                existing.DesnivelM          = enriched.DesnivelM;
+                existing.DuracionS          = enriched.DuracionS;
+                existing.DuracionFormateada = enriched.DuracionFormateada;
+                existing.Nivel              = enriched.Nivel;
             }
         }
 
         gpxPendientes--;
 
-        // Persistir métricas en Firestore si el admin cargó una ruta que aún no las tenía
+        // Persistir métricas en Firestore si el admin cargó una ruta que aún no las tenía completas
         var rutaOriginal = rutas.FirstOrDefault(r => r.Id == enriched.Id);
-        if (AuthService.IsAdmin && rutaOriginal is not null
-            && rutaOriginal.DistanciaKm == 0 && enriched.DistanciaKm > 0)
+        if (AuthService.IsAdmin && rutaOriginal is not null && enriched.DistanciaKm > 0
+            && (rutaOriginal.DistanciaKm == 0 || rutaOriginal.DuracionS == 0))
         {
             _ = FirestoreService.PatchRutaMetricasAsync(enriched.Id, enriched);
         }
@@ -228,6 +252,15 @@
     }
 
     private void ToggleMobile() => mobileOpen = !mobileOpen;
+
+    private async Task ForceRecalcularAsync(string rutaId)
+    {
+        recalculandoId = rutaId;
+        StateHasChanged();
+        await FirestoreService.ResetRutaMetricasAsync(rutaId);
+        recalculandoId = null;
+        await LoadRutas();
+    }
 
     public async ValueTask DisposeAsync()
     {
