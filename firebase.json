@@ -37,6 +37,10 @@
         "headers": [{ "key": "Content-Type", "value": "text/html; charset=utf-8" }]
       },
       {
+        "source": "/!(*.@(js|css|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|ico|json|xml|gpx|txt|map|br|gz|html))",
+        "headers": [{ "key": "Content-Type", "value": "text/html; charset=utf-8" }]
+      },
+      {
         "source": "/robots.txt",
         "headers": [{ "key": "Content-Type", "value": "text/plain" }]
       },
