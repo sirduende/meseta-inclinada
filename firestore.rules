@@ -94,6 +94,13 @@ service cloud.firestore {
       allow create: if isAdminOrMember();
       allow update, delete: if isAdmin() ||
         (isMember() && resource.data.creadoPor == request.auth.uid);
+
+      // Reseñas: una por usuario (uid == resenaId). Lectura pública.
+      match /resenas/{resenaId} {
+        allow read: if true;
+        allow create, update: if isSignedIn() && request.auth.uid == resenaId;
+        allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == resenaId);
+      }
     }
   }
 }
