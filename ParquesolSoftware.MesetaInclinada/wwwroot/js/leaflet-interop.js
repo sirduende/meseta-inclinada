@@ -1,4 +1,9 @@
 // Leaflet Interop for Blazor WebAssembly - Meseta Inclinada
+
+function esc(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 window.leafletInterop = {
     maps: {},
     gpxLayers: {},
@@ -171,11 +176,11 @@ window.leafletInterop = {
 
             const popupHtml = `
                 <div style="min-width:200px">
-                    <div style="font-weight:600;margin-bottom:4px;font-size:14px;">${meta?.nombre || routeId}</div>
-                    <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">${meta?.fecha || ''}</div>
-                    ${meta?.descripcion ? `<div style="font-size:12px;margin-bottom:6px;">${meta.descripcion}</div>` : ''}
+                    <div style="font-weight:600;margin-bottom:4px;font-size:14px;">${esc(meta?.nombre || routeId)}</div>
+                    <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">${esc(meta?.fecha || '')}</div>
+                    ${meta?.descripcion ? `<div style="font-size:12px;margin-bottom:6px;">${esc(meta.descripcion)}</div>` : ''}
                     <div style="font-size:12px;">
-                        <b>Participantes:</b> ${(meta?.participantes || []).join(', ') || '—'}<br>
+                        <b>Participantes:</b> ${esc((meta?.participantes || []).join(', ') || '—')}<br>
                         <b>Longitud:</b> ${distanciaKm} km<br>
                         <b>Desnivel:</b> ${desnivelM} m<br>
                         <b>Duración:</b> ${duracionFormateada}<br>
@@ -340,19 +345,19 @@ window.leafletInterop = {
 
                 const popupHtml = `
                     <div>
-                        <div style="font-weight:600;margin-bottom:4px;">${ruta.nombreRuta}</div>
-                        <div style="font-size:12px;color:#6b7280;">${esFuera ? 'Ruta fuera de reto' : `Secundario de: ${ruta.cumbrePrincipal}`}</div>
+                        <div style="font-weight:600;margin-bottom:4px;">${esc(ruta.nombreRuta)}</div>
+                        <div style="font-size:12px;color:#6b7280;">${esFuera ? 'Ruta fuera de reto' : `Secundario de: ${esc(ruta.cumbrePrincipal)}`}</div>
                         <div style="margin:6px 0;font-size:13px;">
                             <b>Longitud:</b> ${distanciaKm} km<br>
                             <b>Desnivel:</b> ${desnivelM} m<br>
-                            <b>Dificultad:</b> <span style="color:${color}">${ruta.dificultad}</span>
+                            <b>Dificultad:</b> <span style="color:${color}">${esc(ruta.dificultad)}</span>
                         </div>
-                        <div style="font-size:12px;color:#6b7280;">Propuesto por ${ruta.propuestoPor || '—'}</div>
+                        <div style="font-size:12px;color:#6b7280;">Propuesto por ${esc(ruta.propuestoPor || '—')}</div>
                         <div style="margin-top:4px;">
                             <a href="${ruta.archivoGPX}" download>📥 Descargar GPX</a> ·
-                            <a href="${ruta.enlaceWikiloc}" target="_blank">🌐 Wikiloc (${ruta.añoRuta})</a>
+                            <a href="${ruta.enlaceWikiloc}" target="_blank">🌐 Wikiloc (${esc(String(ruta.añoRuta || ''))})</a>
                         </div>
-                        ${ruta.aviso ? `<div style="margin-top:6px;color:#ef4444;font-weight:bold;">${ruta.aviso}</div>` : ''}
+                        ${ruta.aviso ? `<div style="margin-top:6px;color:#ef4444;font-weight:bold;">${esc(ruta.aviso)}</div>` : ''}
                     </div>`;
 
                 e.target.bindPopup(popupHtml, { pane: 'pane-popups' });
@@ -488,16 +493,16 @@ window.leafletInterop = {
             const comentPopup = s.ultimoComentario || s.comentario;
             const popup = `
                 <div style="max-width:220px;font-family:sans-serif;line-height:1.4">
-                    <b style="font-size:13px">${s.nombre}</b>
-                    ${s.direccion ? `<div style="font-size:11px;color:#666;margin:2px 0">${s.direccion}</div>` : ''}
+                    <b style="font-size:13px">${esc(s.nombre)}</b>
+                    ${s.direccion ? `<div style="font-size:11px;color:#666;margin:2px 0">${esc(s.direccion)}</div>` : ''}
                     ${starsHtml}
-                    ${comentPopup ? `<p style="font-size:12px;margin:5px 0;color:#333;font-style:italic">"${comentPopup}"</p>` : ''}
+                    ${comentPopup ? `<p style="font-size:12px;margin:5px 0;color:#333;font-style:italic">"${esc(comentPopup)}"</p>` : ''}
                     <a href="${mapsUrl}" target="_blank" rel="noopener"
                        style="font-size:12px;color:#1a73e8;text-decoration:none">
                         📍 Ver en Google Maps
                     </a>
                     <div style="font-size:10px;color:#999;margin-top:3px">
-                        ${s.ultimoAutor ? `último: ${s.ultimoAutor}` : (s.nombreCreador ? `por ${s.nombreCreador}` : '')}
+                        ${s.ultimoAutor ? `último: ${esc(s.ultimoAutor)}` : (s.nombreCreador ? `por ${esc(s.nombreCreador)}` : '')}
                     </div>
                 </div>`;
 
