@@ -75,7 +75,7 @@ service cloud.firestore {
     match /invitaciones/{invId} {
       allow read: if isSignedIn();
       allow create, update: if isAdmin();
-      allow delete: if isAdmin() || isSignedIn();
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.token.email == resource.data.email);
     }
 
     // ── Avatares ───────────────────────────────────────────────
@@ -98,7 +98,8 @@ service cloud.firestore {
       // Reseñas: una por usuario (uid == resenaId). Lectura pública.
       match /resenas/{resenaId} {
         allow read: if true;
-        allow create, update: if isSignedIn() && request.auth.uid == resenaId;
+        allow create, update: if isSignedIn() && request.auth.uid == resenaId
+          && request.resource.data.uid == request.auth.uid;
         allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == resenaId);
       }
     }

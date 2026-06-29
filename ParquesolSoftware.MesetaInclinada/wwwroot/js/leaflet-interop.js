@@ -3,6 +3,11 @@
 function esc(s) {
     return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+// Sólo permite URLs http/https o rutas relativas; cualquier otra cosa devuelve '#'
+function safeUrl(url) {
+    if (!url) return '#';
+    return /^https?:\/\//i.test(url) || url.startsWith('/') ? esc(url) : '#';
+}
 
 window.leafletInterop = {
     maps: {},
@@ -285,8 +290,8 @@ window.leafletInterop = {
             const cercanas = cumbres
                 .filter((_, i) => i !== index && this._distKm(cumbre.lat, cumbre.lng, cumbres[i]?.lat, cumbres[i]?.lng) <= 10)
                 .map(c => c.nombre);
-            let popupHtml = `<strong>${cumbre.nombre}</strong><br>Cumbre #${cumbre.orden}`;
-            if (cercanas.length > 0) popupHtml += `<br><span style="color:#f97316;">🟠 Dentro del radar:</span><br>${cercanas.join(', ')}`;
+            let popupHtml = `<strong>${esc(cumbre.nombre)}</strong><br>Cumbre #${esc(String(cumbre.orden))}`;
+            if (cercanas.length > 0) popupHtml += `<br><span style="color:#f97316;">🟠 Dentro del radar:</span><br>${cercanas.map(esc).join(', ')}`;
             marker.bindPopup(popupHtml, { pane: 'pane-popups' });
 
             this.radarLayers[mapId].push(circle, marker);
@@ -354,8 +359,8 @@ window.leafletInterop = {
                         </div>
                         <div style="font-size:12px;color:#6b7280;">Propuesto por ${esc(ruta.propuestoPor || '—')}</div>
                         <div style="margin-top:4px;">
-                            <a href="${ruta.archivoGPX}" download>📥 Descargar GPX</a> ·
-                            <a href="${ruta.enlaceWikiloc}" target="_blank">🌐 Wikiloc (${esc(String(ruta.añoRuta || ''))})</a>
+                            <a href="${safeUrl(ruta.archivoGPX)}" download>📥 Descargar GPX</a> ·
+                            <a href="${safeUrl(ruta.enlaceWikiloc)}" target="_blank">🌐 Wikiloc (${esc(String(ruta.añoRuta || ''))})</a>
                         </div>
                         ${ruta.aviso ? `<div style="margin-top:6px;color:#ef4444;font-weight:bold;">${esc(ruta.aviso)}</div>` : ''}
                     </div>`;
@@ -411,8 +416,8 @@ window.leafletInterop = {
             const desnivelM   = this._calcElevGain(e.target, 5);
             const popupHtml = `
                 <div>
-                    <div style="font-weight:600">${meta?.nombre || routeId}</div>
-                    <div style="font-size:12px;color:#6b7280">${meta?.fecha || ''}</div>
+                    <div style="font-weight:600">${esc(meta?.nombre || routeId)}</div>
+                    <div style="font-size:12px;color:#6b7280">${esc(meta?.fecha || '')}</div>
                     <div style="font-size:13px;margin-top:4px">
                         <b>Longitud:</b> ${distanciaKm} km · <b>Desnivel:</b> ${desnivelM} m
                     </div>
@@ -481,8 +486,8 @@ window.leafletInterop = {
             });
 
             const mapsUrl = s.placeId
-                ? `https://www.google.com/maps/place/?q=place_id:${s.placeId}`
-                : `https://www.google.com/maps?q=${s.lat},${s.lng}`;
+                ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(s.placeId)}`
+                : `https://www.google.com/maps?q=${encodeURIComponent(s.lat)},${encodeURIComponent(s.lng)}`;
 
             const starsHtml = s.valoracionMedia > 0
                 ? `<div style="font-size:13px;color:#f59e0b;margin:3px 0">
