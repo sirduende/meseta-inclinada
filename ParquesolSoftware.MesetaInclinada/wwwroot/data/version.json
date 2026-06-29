@@ -1,6 +1,6 @@
 {
-  "version": "2.0.5",
+  "version": "2.0.6",
   "buildDate": "2026-06-29T00:00:00Z",
   "appName": "Meseta Inclinada",
-  "description": "Security hardening: storage rules, XSS fixes, security headers"
+  "description": "Refactor modelos + sync GPX script"
 }
