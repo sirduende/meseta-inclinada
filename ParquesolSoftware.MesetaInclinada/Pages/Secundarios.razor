@@ -155,8 +155,8 @@
                         @foreach (var r in PropuestasFiltradas)
                         {
                             var completada = cumbresCompletadas.Contains(r.CumbrePrincipal);
-                            var colorDif   = DificultadColor(r.Dificultad);
-                            var esLibre    = r.TipoPropuesta == "libre" || r.CumbrePrincipal == "Fuera de Reto";
+                            var colorDif   = r.DificultadColor;
+                            var esLibre    = r.EsLibre;
                             <tr class="@(completada ? "table-success" : "")">
                                 <td class="text-muted">@(i++)</td>
                                 <td>
@@ -194,8 +194,8 @@
                 @foreach (var r in PropuestasFiltradas)
                 {
                     var completada = cumbresCompletadas.Contains(r.CumbrePrincipal);
-                    var colorDif   = DificultadColor(r.Dificultad);
-                    var esLibre    = r.TipoPropuesta == "libre" || r.CumbrePrincipal == "Fuera de Reto";
+                    var colorDif   = r.DificultadColor;
+                    var esLibre    = r.EsLibre;
                     var fondoCard  = completada ? "#f0fdf4" : "#fff";
                     var bordeProp  = completada ? "2px solid #22c55e" : "1px solid #e5e7eb";
                     <div class="mb-3 p-3 rounded" style="background:@fondoCard;border:@bordeProp">
@@ -250,8 +250,6 @@
     private string filtroTipo          = "secundario";
     private string filtroPropuestoPor  = "";
 
-    private static bool EsLibre(RutaSecundaria r) => r.CumbrePrincipal == "Fuera de Reto";
-
     private IEnumerable<RutaSecundaria> PropuestasFiltradas
     {
         get
@@ -260,23 +258,23 @@
 
             q = filtroTipo switch
             {
-                "secundario" => q.Where(r => !EsLibre(r)),
-                "libre"      => q.Where(r =>  EsLibre(r)),
+                "secundario" => q.Where(r => !r.EsLibre),
+                "libre"      => q.Where(r =>  r.EsLibre),
                 _            => q
             };
 
             if (!string.IsNullOrEmpty(filtroPropuestoPor))
                 q = q.Where(r => r.PropuestoPor.Equals(filtroPropuestoPor, StringComparison.OrdinalIgnoreCase));
 
-            return q.OrderBy(r => ExtraerNumero(r.CumbrePrincipal));
+            return q.OrderBy(r => r.NumeroOrden);
         }
     }
 
     private IEnumerable<string> autoresPropuestas =>
         rutasSecundarias
             .Where(r => filtroTipo switch {
-                "secundario" => !EsLibre(r),
-                "libre"      =>  EsLibre(r),
+                "secundario" => !r.EsLibre,
+                "libre"      =>  r.EsLibre,
                 _            => true
             })
             .Select(r => r.PropuestoPor).Where(n => !string.IsNullOrEmpty(n))
@@ -304,18 +302,5 @@
             filtroPropuestoPor = "";
     }
 
-    private static string DificultadColor(string d) => d switch
-    {
-        "Fácil"      => "#22c55e",
-        "Moderada"   => "#f97316",
-        "Difícil"    => "#ef4444",
-        "Muy difícil"=> "#1f2937",
-        _            => "#6b7280"
-    };
 
-    private static int ExtraerNumero(string cumbre)
-    {
-        var match = System.Text.RegularExpressions.Regex.Match(cumbre, @"^(\d+)");
-        return match.Success ? int.Parse(match.Groups[1].Value) : 999;
-    }
 }

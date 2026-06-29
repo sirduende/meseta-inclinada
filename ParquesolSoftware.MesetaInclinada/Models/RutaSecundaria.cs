@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace ParquesolSoftware.MesetaInclinada.Models;
 
@@ -44,4 +45,27 @@ public class RutaSecundaria
     // (SavePropuestaAsync construye el payload manualmente sin incluir este campo)
     [JsonPropertyName("firestoreId")]
     public string? FirestoreId { get; set; }
+
+    /// <summary>True si es una propuesta libre (fuera del reto de cumbres).</summary>
+    public bool EsLibre => TipoPropuesta == "libre" || CumbrePrincipal == "Fuera de Reto";
+
+    /// <summary>Color hex asociado al nivel de dificultad.</summary>
+    public string DificultadColor => Dificultad switch
+    {
+        "Fácil"       => "#22c55e",
+        "Moderada"    => "#f97316",
+        "Difícil"     => "#ef4444",
+        "Muy difícil" => "#1f2937",
+        _             => "#6b7280"
+    };
+
+    /// <summary>Número de orden extraído del prefijo numérico de CumbrePrincipal (para ordenación).</summary>
+    public int NumeroOrden
+    {
+        get
+        {
+            var m = Regex.Match(CumbrePrincipal, @"^(\d+)");
+            return m.Success ? int.Parse(m.Groups[1].Value) : 999;
+        }
+    }
 }

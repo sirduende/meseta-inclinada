@@ -1,6 +1,5 @@
 using FluentAssertions;
 using ParquesolSoftware.MesetaInclinada.Models;
-using ParquesolSoftware.MesetaInclinada.Pages;
 
 namespace ParquesolSoftware.MesetaInclinada.Tests.Models;
 
@@ -97,26 +96,26 @@ public class GastroModelTests
     [InlineData(0.0, "☆☆☆☆☆")]
     public void EstrellasTxt_genera_cadena_correcta(double valoracion, string esperado)
     {
-        var resultado = Gastronomia.EstrellasTxt(valoracion);
+        var resultado = SitioGastro.EstrellasTxt(valoracion);
         resultado.Should().Be(esperado);
     }
 
     [Fact]
     public void EstrellasTxt_cinco_estrellas_son_cinco_llenas()
     {
-        Gastronomia.EstrellasTxt(5).Should().Be("★★★★★");
+        SitioGastro.EstrellasTxt(5).Should().Be("★★★★★");
     }
 
     [Fact]
     public void EstrellasTxt_cero_devuelve_cinco_vacias()
     {
-        Gastronomia.EstrellasTxt(0).Should().Be("☆☆☆☆☆");
+        SitioGastro.EstrellasTxt(0).Should().Be("☆☆☆☆☆");
     }
 
     [Fact]
     public void EstrellasTxt_longitud_siempre_cinco()
     {
         foreach (var v in new[] { 0.0, 1.0, 2.5, 4.0, 5.0 })
-            Gastronomia.EstrellasTxt(v).Should().HaveLength(5);
+            SitioGastro.EstrellasTxt(v).Should().HaveLength(5);
     }
 }

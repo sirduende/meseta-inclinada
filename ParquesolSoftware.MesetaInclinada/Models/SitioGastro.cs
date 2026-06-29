@@ -26,4 +26,11 @@ public class SitioGastro
         !string.IsNullOrEmpty(PlaceId)
             ? $"https://www.google.com/maps/place/?q=place_id:{PlaceId}"
             : $"https://www.google.com/maps?q={Lat.ToString(System.Globalization.CultureInfo.InvariantCulture)},{Lng.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
+    /// <summary>Convierte una valoración numérica en cadena de estrellas (★/☆) de 5 caracteres.</summary>
+    public static string EstrellasTxt(double valoracion)
+    {
+        int llenas = (int)Math.Round(valoracion);
+        return new string('★', llenas) + new string('☆', 5 - llenas);
+    }
 }

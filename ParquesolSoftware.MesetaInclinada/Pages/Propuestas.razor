@@ -153,10 +153,10 @@
     private List<RutaSecundaria> todasSecundarias = new();
     private bool _verdeLoaded;
 
-    private int totalReto   => todasSecundarias.Count(r => !EsLibre(r));
-    private int totalLibre  => todasSecundarias.Count(r => EsLibre(r));
+    private int totalReto   => todasSecundarias.Count(r => !r.EsLibre);
+    private int totalLibre  => todasSecundarias.Count(r => r.EsLibre);
     private int rutasMostradas =>
-        todasSecundarias.Count(r => (EsLibre(r) && mostrarLibre) || (!EsLibre(r) && mostrarReto));
+        todasSecundarias.Count(r => (r.EsLibre && mostrarLibre) || (!r.EsLibre && mostrarReto));
 
     // ── Ciclo de vida ────────────────────────────────────────────────────────
 
@@ -187,7 +187,7 @@
         // Todas las propuestas secundarias — cada una cargada con su visibilidad inicial
         todasSecundarias = await RutasSecundariasService.GetAllAsync();
         await Task.WhenAll(todasSecundarias.Select(r =>
-            LeafletService.LoadRutaSecundariaAsync("map", r, EsLibre(r) ? mostrarLibre : mostrarReto)));
+            LeafletService.LoadRutaSecundariaAsync("map", r, r.EsLibre ? mostrarLibre : mostrarReto)));
 
         // Rutas realizadas 2026 — carga diferida: solo si el checkbox está activo en este momento
         if (mostrarVerde)
@@ -202,8 +202,6 @@
         isLoading = false;
         StateHasChanged();
     }
-
-    private static bool EsLibre(RutaSecundaria r) => r.CumbrePrincipal == "Fuera de Reto";
 
     // ── Handlers de capas ────────────────────────────────────────────────────
 

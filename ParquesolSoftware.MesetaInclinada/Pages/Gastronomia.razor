@@ -54,7 +54,7 @@
                         @if (sitio.NumResenas > 0)
                         {
                             <div style="color:#f59e0b;font-size:1.05rem;line-height:1">
-                                @EstrellasTxt(sitio.ValoracionMedia)
+                                @SitioGastro.EstrellasTxt(sitio.ValoracionMedia)
                             </div>
                             <small class="text-muted">
                                 @sitio.ValoracionMedia.ToString("F1") · @sitio.NumResenas reseña@(sitio.NumResenas != 1 ? "s" : "")
@@ -97,7 +97,7 @@
                                 <!-- Mi reseña guardada -->
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div style="color:#f59e0b">@EstrellasTxt(miResena.Estrellas)</div>
+                                        <div style="color:#f59e0b">@SitioGastro.EstrellasTxt(miResena.Estrellas)</div>
                                         @if (!string.IsNullOrEmpty(miResena.Comentario))
                                         {
                                             <small class="fst-italic text-muted">"@miResena.Comentario"</small>
@@ -301,9 +301,5 @@
         StateHasChanged();
     }
 
-    public static string EstrellasTxt(double valoracion)
-    {
-        int llenas = (int)Math.Round(valoracion);
-        return new string('★', llenas) + new string('☆', 5 - llenas);
-    }
+
 }
