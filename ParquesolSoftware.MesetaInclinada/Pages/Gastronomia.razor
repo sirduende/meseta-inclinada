@@ -264,7 +264,7 @@
             Uid          = AuthService.CurrentUser.Uid,
             NombreUsuario = AuthService.NombreMostrado ?? AuthService.CurrentUser.DisplayName,
             Estrellas    = estado.Estrellas,
-            Comentario   = estado.Comentario,
+            Comentario   = estado.Comentario.Trim(),
             Fecha        = DateTime.Today.ToString("yyyy-MM-dd")
         };
 

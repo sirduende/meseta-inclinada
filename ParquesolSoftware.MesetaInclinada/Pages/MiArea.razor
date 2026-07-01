@@ -803,6 +803,11 @@
         if (string.IsNullOrWhiteSpace(form.Dificultad))
             { formError = "Selecciona la dificultad."; return; }
 
+        form.NombreRuta     = form.NombreRuta?.Trim() ?? "";
+        form.PropuestoPor   = form.PropuestoPor?.Trim() ?? "";
+        form.EnlaceWikiloc  = form.EnlaceWikiloc?.Trim();
+        form.Aviso          = form.Aviso?.Trim();
+
         guardando = true;
 
         var esEdicion = !string.IsNullOrEmpty(form.FirestoreId);
@@ -921,6 +926,8 @@
             gastroError = "Busca y selecciona un lugar antes de guardar.";
             return;
         }
+
+        formGastro.Comentario = formGastro.Comentario?.Trim();
 
         guardandoGastro = true;
         gastroError     = null;

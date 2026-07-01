@@ -2,6 +2,9 @@
 
 Aplicación web del grupo de montaña Meseta Inclinada (Valladolid). Stack: **Blazor WebAssembly .NET 10 + Firebase**.
 
+## Mapa del código
+Lee [`codebase-map.md`](codebase-map.md) al inicio de cada sesión para entender la estructura del proyecto sin explorar ficheros. Actualizar con `/map-codebase`.
+
 ## Repositorio de conocimiento compartido
 
 Antes de implementar cualquier patrón nuevo, consultar [`C:/Proyectos/parquesol-skills`](../parquesol-skills) (GitHub: `sirduende/parquesol-skills`). Contiene patrones probados para todo el stack. **Al aprender algo nuevo aplicable a otros proyectos, añadirlo ahí y hacer push al final de la sesión.**
@@ -119,3 +122,9 @@ Patrones: xUnit + bUnit (componentes) + Moq (JSRuntime) + FluentAssertions. Ver 
 ## Especificaciones funcionales
 
 Ver [`docs/especificaciones.md`](docs/especificaciones.md) para el detalle de cada funcionalidad.
+
+## Comandos Claude Code
+
+- `/release` — Proceso completo de release: obtiene versión de producción, calcula la nueva versión (PATCH o MINOR según reglas del mes), actualiza los 4 ficheros de versión, hace commit/push, crea tag git y despliega a Firebase Hosting. **Sugerirlo cuando el usuario mencione "subir a producción", "release", "nueva versión", "desplegar" o "publicar".**
+- `/map-codebase` — Regenera `codebase-map.md` con el índice compacto del proyecto.
+- `/security-audit` — Auditoría de seguridad Firebase + Blazor WASM (reglas, claves, guards de auth, headers).

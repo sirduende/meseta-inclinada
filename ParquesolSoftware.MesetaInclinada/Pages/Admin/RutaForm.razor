@@ -1,5 +1,8 @@
 @inject FirestoreService FirestoreService
 @inject StorageService StorageService
+@inject HttpClient Http
+@using System.Net.Http.Json
+@using ParquesolSoftware.MesetaInclinada.Models
 
 <div class="card p-4 mb-4 border-success">
     <h5 class="mb-3">@(RutaEditar == null ? "Nueva ruta" : $"Editar: {RutaEditar.Nombre}")</h5>
@@ -30,6 +33,45 @@
                 </InputSelect>
             </div>
 
+            <div class="col-md-3">
+                <label class="form-label">Zona</label>
+                <InputSelect class="form-select" @bind-Value="modelo.Zona">
+                    <option value="">— Sin zona —</option>
+                    <optgroup label="Cordillera Cantábrica">
+                        <option value="picos-de-europa">Picos de Europa</option>
+                        <option value="montana-palentina">Montaña Palentina</option>
+                        <option value="las-loras">Las Loras</option>
+                        <option value="riano-mampodre">Riaño y Mampodre</option>
+                        <option value="alto-bernesga">Alto Bernesga</option>
+                        <option value="cantabrica-occidental">Cordillera Cantábrica (W)</option>
+                        <option value="saja-besaya">Saja-Besaya</option>
+                        <option value="colados-ason">Collados del Asón</option>
+                    </optgroup>
+                    <optgroup label="Noroeste y oeste">
+                        <option value="bierzo-ancares">El Bierzo / Ancares</option>
+                        <option value="sanabria-segundera">Sanabria / Segundera</option>
+                        <option value="arribes-duero">Arribes del Duero</option>
+                        <option value="bejar-pena-francia">Béjar / Peña de Francia</option>
+                    </optgroup>
+                    <optgroup label="Sistema Central">
+                        <option value="gredos">Sierra de Gredos</option>
+                        <option value="paramera-serrota">Paramera y Serrota</option>
+                        <option value="guadarrama">Sierra de Guadarrama</option>
+                        <option value="sierra-ayllon">Sierra de Ayllón / Somosierra</option>
+                    </optgroup>
+                    <optgroup label="Meseta norte y Burgos">
+                        <option value="hoces-ebro-rudron">Hoces del Ebro y Rudrón</option>
+                        <option value="montes-obarenes">Montes Obarenes</option>
+                        <option value="sistema-iberico-norte">Sistema Ibérico Norte</option>
+                        <option value="picos-urbion">Picos de Urbión</option>
+                    </optgroup>
+                    <optgroup label="Otras">
+                        <option value="sierra-nevada">Sierra Nevada</option>
+                        <option value="otras-zonas">Otras zonas</option>
+                    </optgroup>
+                </InputSelect>
+            </div>
+
             <div class="col-12">
                 <label class="form-label">Descripción</label>
                 <InputTextArea class="form-control" @bind-Value="modelo.Descripcion" rows="2" />
@@ -46,6 +88,12 @@
                 @if (!string.IsNullOrEmpty(gpxNombre))
                 {
                     <small class="text-muted">Seleccionado: @gpxNombre</small>
+                }
+                @if (!string.IsNullOrEmpty(zonaDetectada))
+                {
+                    <small class="text-success d-block mt-1">
+                        <i class="bi bi-geo-alt me-1"></i>Zona detectada: <strong>@zonaDetectada</strong> (puedes cambiarla arriba)
+                    </small>
                 }
             </div>
 
@@ -96,7 +144,10 @@
     private List<string> todosLosParticipantes = new();
     private string nuevoParticipante = string.Empty;
     private IBrowserFile? gpxFile;
+    private byte[]? gpxBytes;
     private string? gpxNombre;
+    private string? zonaDetectada;
+    private List<ZonaMontana>? _zonasCache;
     private bool isSaving = false;
     private string? errorMsg;
 
@@ -115,6 +166,7 @@
                 Dificultad = RutaEditar.Dificultad,
                 Relive = RutaEditar.Relive,
                 Archivo = RutaEditar.Archivo,
+                Zona = RutaEditar.Zona,
                 Participantes = new List<string>(RutaEditar.Participantes)
             };
             if (DateTime.TryParse(RutaEditar.Fecha, out var d)) fechaDate = d;
@@ -130,10 +182,67 @@
         }
     }
 
-    private void OnGpxSelected(InputFileChangeEventArgs e)
+    private async Task OnGpxSelected(InputFileChangeEventArgs e)
     {
         gpxFile = e.File;
         gpxNombre = e.File.Name;
+        gpxBytes = null;
+        zonaDetectada = null;
+
+        try
+        {
+            using var stream = gpxFile.OpenReadStream(10 * 1024 * 1024);
+            using var ms = new System.IO.MemoryStream();
+            await stream.CopyToAsync(ms);
+            gpxBytes = ms.ToArray();
+
+            var centroide = CalcularCentroide(gpxBytes);
+            if (centroide.HasValue)
+            {
+                var zonas = await CargarZonasAsync();
+                var zona = zonas
+                    .Where(z => z.ContienePunto(centroide.Value.lat, centroide.Value.lng))
+                    .OrderBy(z => z.Area)
+                    .FirstOrDefault();
+
+                if (zona != null && string.IsNullOrEmpty(modelo.Zona))
+                {
+                    modelo.Zona = zona.Id;
+                    zonaDetectada = zona.Nombre;
+                }
+            }
+        }
+        catch { /* detección no crítica, no bloquear el flujo */ }
+    }
+
+    private static (double lat, double lng)? CalcularCentroide(byte[] bytes)
+    {
+        var xml = System.Text.Encoding.UTF8.GetString(bytes);
+        var doc = new System.Xml.XmlDocument();
+        doc.LoadXml(xml);
+
+        var nsm = new System.Xml.XmlNamespaceManager(doc.NameTable);
+        nsm.AddNamespace("g", "http://www.topografix.com/GPX/1/1");
+        var nodes = doc.SelectNodes("//g:trkpt", nsm);
+
+        if (nodes == null || nodes.Count == 0)
+            nodes = doc.GetElementsByTagName("trkpt");
+
+        if (nodes == null || nodes.Count == 0) return null;
+
+        double sumLat = 0, sumLng = 0;
+        foreach (System.Xml.XmlNode n in nodes)
+        {
+            sumLat += double.Parse(n.Attributes!["lat"]!.Value, System.Globalization.CultureInfo.InvariantCulture);
+            sumLng += double.Parse(n.Attributes!["lon"]!.Value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+        return (sumLat / nodes.Count, sumLng / nodes.Count);
+    }
+
+    private async Task<List<ZonaMontana>> CargarZonasAsync()
+    {
+        _zonasCache ??= await Http.GetFromJsonAsync<List<ZonaMontana>>("data/zonas-montana.json") ?? new();
+        return _zonasCache;
     }
 
     private void ToggleParticipante(string nombre, bool checked_)
@@ -157,19 +266,19 @@
 
         try
         {
-            modelo.Fecha = fechaDate.ToString("yyyy-MM-dd");
+            modelo.Nombre      = modelo.Nombre?.Trim() ?? "";
+            modelo.Descripcion = modelo.Descripcion?.Trim();
+            modelo.Relive      = modelo.Relive?.Trim();
+            modelo.Fecha       = fechaDate.ToString("yyyy-MM-dd");
 
             // ID: usar el existente o generar uno nuevo
             if (string.IsNullOrEmpty(modelo.Id))
                 modelo.Id = await FirestoreService.GetNextRutaIdAsync();
 
-            // Subir GPX si hay uno nuevo
-            if (gpxFile != null)
+            // Subir GPX si hay uno nuevo (bytes ya leídos en OnGpxSelected)
+            if (gpxFile != null && gpxBytes != null)
             {
-                using var stream = gpxFile.OpenReadStream(10 * 1024 * 1024);
-                var bytes = new byte[gpxFile.Size];
-                await stream.ReadAsync(bytes);
-                await StorageService.UploadGpxAsync(gpxFile.Name, bytes);
+                await StorageService.UploadGpxAsync(gpxFile.Name, gpxBytes);
                 modelo.Archivo = gpxFile.Name;
             }
 

@@ -87,4 +87,16 @@ public class LeafletService
 
     public async Task SetGastroVisibilityAsync(string mapId, bool visible)
         => await _jsRuntime.InvokeVoidAsync("leafletInterop.setGastroVisibility", mapId, visible);
+
+    public async Task DrawZonaRectAsync(string mapId, object bounds)
+        => await _jsRuntime.InvokeVoidAsync("leafletInterop.drawZonaRect", mapId, bounds);
+
+    public async Task ClearZonaRectAsync(string mapId)
+        => await _jsRuntime.InvokeVoidAsync("leafletInterop.clearZonaRect", mapId);
+
+    public async Task DrawAllZoneRectsAsync(string mapId, IEnumerable<object> zones)
+        => await _jsRuntime.InvokeVoidAsync("leafletInterop.drawAllZoneRects", mapId, zones);
+
+    public async Task HighlightZoneRectAsync(string mapId, string zonaId)
+        => await _jsRuntime.InvokeVoidAsync("leafletInterop.highlightZoneRect", mapId, zonaId);
 }

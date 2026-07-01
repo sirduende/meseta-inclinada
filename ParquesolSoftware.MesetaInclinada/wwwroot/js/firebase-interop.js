@@ -228,6 +228,16 @@ window.firebaseInterop = {
         }
     },
 
+    async patchRutaZona(id, zona) {
+        try {
+            await firebaseDb.collection('rutas').doc(id).update({ zona: zona || null });
+            return { success: true };
+        } catch (error) {
+            console.warn(`No se pudo guardar zona para ruta ${id}:`, error.message);
+            return { success: false, error: error.message };
+        }
+    },
+
     // === MIEMBROS Y SOLICITUDES ===
 
     async isMember(uid) {

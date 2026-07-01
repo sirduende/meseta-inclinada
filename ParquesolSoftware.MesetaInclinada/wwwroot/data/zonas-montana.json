@@ -1,0 +1,23 @@
+[
+  { "id": "montana-palentina",    "nombre": "Montaña Palentina",              "tier": 1, "bounds": { "latMin": 42.70, "latMax": 43.10, "lngMin": -4.90, "lngMax": -4.15 } },
+  { "id": "las-loras",            "nombre": "Las Loras",                      "tier": 1, "bounds": { "latMin": 42.55, "latMax": 42.90, "lngMin": -4.20, "lngMax": -3.70 } },
+  { "id": "picos-de-europa",      "nombre": "Picos de Europa",                "tier": 1, "bounds": { "latMin": 43.00, "latMax": 43.45, "lngMin": -5.35, "lngMax": -4.45 } },
+  { "id": "cantabrica-occidental","nombre": "Cordillera Cantábrica (W)",      "tier": 1, "bounds": { "latMin": 42.75, "latMax": 43.25, "lngMin": -7.10, "lngMax": -5.80 } },
+  { "id": "riano-mampodre",       "nombre": "Riaño y Mampodre",               "tier": 1, "bounds": { "latMin": 42.80, "latMax": 43.10, "lngMin": -5.25, "lngMax": -4.85 } },
+  { "id": "alto-bernesga",        "nombre": "Alto Bernesga",                  "tier": 1, "bounds": { "latMin": 42.70, "latMax": 43.00, "lngMin": -5.75, "lngMax": -5.45 } },
+  { "id": "saja-besaya",          "nombre": "Saja-Besaya",                    "tier": 1, "bounds": { "latMin": 42.95, "latMax": 43.40, "lngMin": -4.30, "lngMax": -3.90 } },
+  { "id": "colados-ason",         "nombre": "Collados del Asón",              "tier": 1, "bounds": { "latMin": 43.00, "latMax": 43.35, "lngMin": -3.90, "lngMax": -3.45 } },
+  { "id": "sanabria-segundera",   "nombre": "Sanabria / Segundera",           "tier": 1, "bounds": { "latMin": 41.80, "latMax": 42.40, "lngMin": -7.05, "lngMax": -6.25 } },
+  { "id": "bierzo-ancares",       "nombre": "El Bierzo / Ancares",            "tier": 1, "bounds": { "latMin": 42.45, "latMax": 42.95, "lngMin": -7.20, "lngMax": -6.40 } },
+  { "id": "arribes-duero",        "nombre": "Arribes del Duero",              "tier": 1, "bounds": { "latMin": 40.80, "latMax": 41.50, "lngMin": -6.90, "lngMax": -6.30 } },
+  { "id": "gredos",               "nombre": "Sierra de Gredos",               "tier": 1, "bounds": { "latMin": 40.10, "latMax": 40.55, "lngMin": -5.75, "lngMax": -4.90 } },
+  { "id": "paramera-serrota",     "nombre": "Paramera y Serrota",             "tier": 1, "bounds": { "latMin": 40.40, "latMax": 40.75, "lngMin": -5.15, "lngMax": -4.70 } },
+  { "id": "bejar-pena-francia",   "nombre": "Béjar / Peña de Francia",        "tier": 1, "bounds": { "latMin": 40.25, "latMax": 40.75, "lngMin": -6.35, "lngMax": -5.65 } },
+  { "id": "guadarrama",           "nombre": "Sierra de Guadarrama",           "tier": 1, "bounds": { "latMin": 40.60, "latMax": 41.10, "lngMin": -4.35, "lngMax": -3.65 } },
+  { "id": "sierra-ayllon",        "nombre": "Sierra de Ayllón / Somosierra",  "tier": 1, "bounds": { "latMin": 40.90, "latMax": 41.35, "lngMin": -3.70, "lngMax": -3.10 } },
+  { "id": "hoces-ebro-rudron",    "nombre": "Hoces del Ebro y Rudrón",        "tier": 1, "bounds": { "latMin": 42.60, "latMax": 43.00, "lngMin": -3.95, "lngMax": -3.45 } },
+  { "id": "montes-obarenes",      "nombre": "Montes Obarenes",                "tier": 1, "bounds": { "latMin": 42.50, "latMax": 42.90, "lngMin": -3.50, "lngMax": -2.90 } },
+  { "id": "sistema-iberico-norte","nombre": "Sistema Ibérico Norte",          "tier": 1, "bounds": { "latMin": 41.45, "latMax": 42.35, "lngMin": -3.55, "lngMax": -1.95 } },
+  { "id": "sierra-nevada",        "nombre": "Sierra Nevada",                  "tier": 2, "bounds": { "latMin": 36.90, "latMax": 37.25, "lngMin": -3.55, "lngMax": -2.80 } },
+  { "id": "otras-zonas",          "nombre": "Otras zonas",                    "tier": 2, "bounds": null }
+]

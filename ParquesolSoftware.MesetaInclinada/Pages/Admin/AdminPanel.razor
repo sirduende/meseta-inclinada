@@ -2,8 +2,11 @@
 @inject AuthService AuthService
 @inject FirestoreService FirestoreService
 @inject RutasSecundariasService RutasSecundariasService
+@inject StorageService StorageService
 @inject HttpClient Http
 @inject NavigationManager Nav
+@using ParquesolSoftware.MesetaInclinada.Models
+@using System.Net.Http.Json
 @implements IDisposable
 
 <PageTitle>Administración – Meseta Inclinada</PageTitle>
@@ -103,6 +106,20 @@
                     <i class="bi bi-person-bounding-box me-1"></i> Avatares
                 </a>
             </li>
+            <li class="nav-item">
+                <button class="nav-link @(tab == "zonas" ? "active" : "")"
+                        @onclick='() => tab = "zonas"'>
+                    <i class="bi bi-geo-alt-fill me-1"></i> Zonas
+                    @if (!isLoadingRutas)
+                    {
+                        var sinZona = rutas.Count(r => string.IsNullOrEmpty(r.Zona));
+                        if (sinZona > 0)
+                        {
+                            <span class="badge bg-warning text-dark ms-1">@sinZona</span>
+                        }
+                    }
+                </button>
+            </li>
             @if (mostrarBotonMigracion)
             {
                 <li class="nav-item">
@@ -152,7 +169,7 @@
                     <table class="table table-hover align-middle table-sm">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th><th>Nombre</th><th>Fecha</th><th>Dificultad</th><th>Participantes</th><th></th>
+                                <th>ID</th><th>Nombre</th><th>Fecha</th><th>Dificultad</th><th>Zona</th><th>Participantes</th><th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -163,6 +180,44 @@
                                     <td><strong>@r.Nombre</strong></td>
                                     <td class="small">@r.Fecha</td>
                                     <td><span class="badge bg-secondary">@r.Dificultad</span></td>
+                                    <td style="min-width:170px">
+                                        <select class="form-select form-select-sm"
+                                                value="@r.Zona"
+                                                @onchange="e => CambiarZonaRuta(r, e.Value?.ToString())">
+                                            <option value="">— Sin zona —</option>
+                                            <optgroup label="Cordillera Cantábrica">
+                                                <option value="picos-de-europa">Picos de Europa</option>
+                                                <option value="montana-palentina">Montaña Palentina</option>
+                                                <option value="las-loras">Las Loras</option>
+                                                <option value="riano-mampodre">Riaño y Mampodre</option>
+                                                <option value="alto-bernesga">Alto Bernesga</option>
+                                                <option value="cantabrica-occidental">Cordillera Cantábrica (W)</option>
+                                                <option value="saja-besaya">Saja-Besaya</option>
+                                                <option value="colados-ason">Collados del Asón</option>
+                                            </optgroup>
+                                            <optgroup label="Noroeste y oeste">
+                                                <option value="bierzo-ancares">El Bierzo / Ancares</option>
+                                                <option value="sanabria-segundera">Sanabria / Segundera</option>
+                                                <option value="arribes-duero">Arribes del Duero</option>
+                                                <option value="bejar-pena-francia">Béjar / Peña de Francia</option>
+                                            </optgroup>
+                                            <optgroup label="Sistema Central">
+                                                <option value="gredos">Sierra de Gredos</option>
+                                                <option value="paramera-serrota">Paramera y Serrota</option>
+                                                <option value="guadarrama">Sierra de Guadarrama</option>
+                                                <option value="sierra-ayllon">Sierra de Ayllón / Somosierra</option>
+                                            </optgroup>
+                                            <optgroup label="Meseta norte y Burgos">
+                                                <option value="hoces-ebro-rudron">Hoces del Ebro y Rudrón</option>
+                                                <option value="montes-obarenes">Montes Obarenes</option>
+                                                <option value="sistema-iberico-norte">Sistema Ibérico Norte</option>
+                                            </optgroup>
+                                            <optgroup label="Otras">
+                                                <option value="sierra-nevada">Sierra Nevada</option>
+                                                <option value="otras-zonas">Otras zonas</option>
+                                            </optgroup>
+                                        </select>
+                                    </td>
                                     <td class="small">@string.Join(", ", r.Participantes)</td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => EditarRuta(r)">
@@ -302,6 +357,115 @@
                     <i class="bi bi-info-circle me-1"></i>
                     Los cambios se guardan al instante en Firestore y se reflejan en el mapa y el listado del Reto 2026.
                 </p>
+            }
+        }
+
+        <!-- ── TAB: ZONAS ───────────────────────────── -->
+        @if (tab == "zonas")
+        {
+            var sinZona = rutas.Where(r => string.IsNullOrEmpty(r.Zona)).ToList();
+            var conZona = rutas.Count - sinZona.Count;
+
+            <div class="mb-3">
+                <p class="text-muted small mb-1">
+                    <strong>@conZona</strong> rutas con zona asignada ·
+                    <strong>@sinZona.Count</strong> sin zona.
+                </p>
+                <p class="text-muted small">
+                    Pulsa el botón para que la app descargue cada GPX, calcule su centroide
+                    y asigne la zona geográfica automáticamente.
+                    Las rutas que ya tienen zona no se modifican.
+                </p>
+            </div>
+
+            @if (sinZona.Count > 0)
+            {
+                <button class="btn btn-success mb-3" @onclick="MigrarZonasAsync" disabled="@migrandoZonas">
+                    @if (migrandoZonas)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        <span>Procesando @zonasCount / @zonasTotalPendientes…</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-geo-alt-fill me-2"></i>
+                        <span>Asignar zonas automáticamente (@sinZona.Count rutas)</span>
+                    }
+                </button>
+            }
+
+            @if (zonasMigResult.Count > 0)
+            {
+                <div class="table-responsive" style="max-height:300px;overflow-y:auto">
+                    <table class="table table-sm table-bordered small">
+                        <thead class="table-light">
+                            <tr><th>Archivo GPX</th><th>Resultado</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (_, archivo, resultado) in zonasMigResult)
+                            {
+                                <tr>
+                                    <td class="text-muted">@archivo</td>
+                                    <td>@resultado</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @* ── Catálogo de zonas (solo lectura) ── *@
+            <hr class="my-3" />
+            <h6 class="text-muted mb-2"><i class="bi bi-map me-1"></i>Catálogo de zonas definidas</h6>
+            @if ((_zonasCache?.Count ?? 0) == 0)
+            {
+                <p class="text-muted small">Cargando catálogo…</p>
+                _ = CargarZonasAdminAsync().ContinueWith(__ => InvokeAsync(StateHasChanged));
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover small mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Zona</th>
+                                <th>ID</th>
+                                <th class="text-center">Rutas</th>
+                                <th>Bounds (lat / lng)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var z in _zonasCache!)
+                            {
+                                var nRutas = RutasPorZonaCount.GetValueOrDefault(z.Id, 0);
+                                <tr class="@(nRutas == 0 ? "text-muted" : "")">
+                                    <td>@z.Nombre</td>
+                                    <td><code class="small">@z.Id</code></td>
+                                    <td class="text-center">
+                                        @if (nRutas > 0)
+                                        {
+                                            <span class="badge bg-success">@nRutas</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-muted border">0</span>
+                                        }
+                                    </td>
+                                    <td class="small font-monospace">
+                                        @if (z.Bounds != null)
+                                        {
+                                            <span>@z.Bounds.LatMin – @z.Bounds.LatMax N · @z.Bounds.LngMin – @z.Bounds.LngMax E</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         }
 
@@ -475,6 +639,21 @@
         await CargarRutas();
     }
 
+    // ── Zona inline ──────────────────────────────────────────────────────────
+
+    private async Task CambiarZonaRuta(Ruta ruta, string? nuevaZona)
+    {
+        var zonaAnterior = ruta.Zona;
+        ruta.Zona = nuevaZona ?? "";
+        var ok = await FirestoreService.PatchRutaZonaAsync(ruta.Id, ruta.Zona);
+        if (!ok)
+        {
+            ruta.Zona = zonaAnterior;
+            mensajeError = $"Error al cambiar zona de '{ruta.Nombre}'.";
+        }
+        StateHasChanged();
+    }
+
     // Recálculo de métricas
     private bool resetando = false;
 
@@ -490,6 +669,121 @@
         resetando = false;
         mensajeExito = $"Métricas reseteadas en {ok} rutas. Carga el mapa como admin (2025 y 2026) para recalcularlas con el nuevo algoritmo.";
         if (fail > 0) mensajeError = $"{fail} rutas no pudieron resetearse.";
+        StateHasChanged();
+    }
+
+    // ── Migración masiva de zonas ──────────────────────────────────────────
+    private bool migrandoZonas = false;
+    private int zonasCount = 0, zonasTotalPendientes = 0;
+    private List<(string Id, string Archivo, string Resultado)> zonasMigResult = new();
+    private List<ZonaMontana>? _zonasCache;
+    private Dictionary<string, int> RutasPorZonaCount => rutas
+        .Where(r => !string.IsNullOrEmpty(r.Zona))
+        .GroupBy(r => r.Zona!)
+        .ToDictionary(g => g.Key, g => g.Count());
+
+    private static (double lat, double lng)? CalcularCentroide(byte[] bytes)
+    {
+        var xml = System.Text.Encoding.UTF8.GetString(bytes);
+        var doc = new System.Xml.XmlDocument();
+        doc.LoadXml(xml);
+        var nsm = new System.Xml.XmlNamespaceManager(doc.NameTable);
+        nsm.AddNamespace("g", "http://www.topografix.com/GPX/1/1");
+        var nodes = doc.SelectNodes("//g:trkpt", nsm);
+        if (nodes == null || nodes.Count == 0)
+            nodes = doc.GetElementsByTagName("trkpt");
+        if (nodes == null || nodes.Count == 0) return null;
+        double sumLat = 0, sumLng = 0;
+        foreach (System.Xml.XmlNode n in nodes)
+        {
+            sumLat += double.Parse(n.Attributes!["lat"]!.Value, System.Globalization.CultureInfo.InvariantCulture);
+            sumLng += double.Parse(n.Attributes!["lon"]!.Value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+        return (sumLat / nodes.Count, sumLng / nodes.Count);
+    }
+
+    private async Task<List<ZonaMontana>> CargarZonasAdminAsync()
+    {
+        _zonasCache ??= await Http.GetFromJsonAsync<List<ZonaMontana>>("data/zonas-montana.json") ?? new();
+        return _zonasCache;
+    }
+
+    private async Task MigrarZonasAsync()
+    {
+        migrandoZonas = true;
+        zonasMigResult.Clear();
+        mensajeExito = null; mensajeError = null;
+        var pendientes = rutas.Where(r => string.IsNullOrEmpty(r.Zona)).ToList();
+        zonasTotalPendientes = pendientes.Count;
+        zonasCount = 0;
+        var zonas = await CargarZonasAdminAsync();
+        StateHasChanged();
+
+        foreach (var ruta in pendientes)
+        {
+            zonasCount++;
+            byte[]? bytes = null;
+
+            // Intentar GPX estático primero (evita petición a Storage)
+            foreach (var prefix in new[] { "gpx", "gpx2026" })
+            {
+                try
+                {
+                    var candidato = await Http.GetByteArrayAsync($"{prefix}/{ruta.Archivo}");
+                    if (candidato.Length > 5)
+                    {
+                        var inicio = System.Text.Encoding.UTF8.GetString(candidato, 0, Math.Min(candidato.Length, 30));
+                        if (!inicio.TrimStart().StartsWith("<html", StringComparison.OrdinalIgnoreCase) &&
+                            !inicio.TrimStart().StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase))
+                        {
+                            bytes = candidato;
+                            break;
+                        }
+                    }
+                }
+                catch { /* no existe en este prefijo */ }
+            }
+
+            // Fallback: Firebase Storage
+            if (bytes == null)
+            {
+                var url = await StorageService.GetGpxUrlAsync(ruta.Archivo);
+                if (url != null)
+                    try { bytes = await Http.GetByteArrayAsync(url); } catch { }
+            }
+
+            if (bytes == null)
+            {
+                zonasMigResult.Add((ruta.Id, ruta.Archivo, "❌ GPX no encontrado"));
+                StateHasChanged();
+                continue;
+            }
+
+            (double lat, double lng)? centroide = null;
+            try { centroide = CalcularCentroide(bytes); } catch { }
+
+            if (!centroide.HasValue)
+            {
+                zonasMigResult.Add((ruta.Id, ruta.Archivo, "⚠️ Sin trackpoints"));
+                StateHasChanged();
+                continue;
+            }
+
+            var zona = zonas
+                .Where(z => z.ContienePunto(centroide.Value.lat, centroide.Value.lng))
+                .OrderBy(z => z.Area)
+                .FirstOrDefault();
+
+            var zonaId = zona?.Id ?? "otras-zonas";
+            await FirestoreService.PatchRutaZonaAsync(ruta.Id, zonaId);
+            zonasMigResult.Add((ruta.Id, ruta.Archivo, $"✅ {zona?.Nombre ?? "Otras zonas"}"));
+            StateHasChanged();
+        }
+
+        migrandoZonas = false;
+        var ok = zonasMigResult.Count(r => r.Resultado.StartsWith("✅"));
+        mensajeExito = $"Migración completada: {ok} rutas actualizadas.";
+        await CargarRutas();
         StateHasChanged();
     }
 

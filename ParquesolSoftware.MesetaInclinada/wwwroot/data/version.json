@@ -1,6 +1,6 @@
 {
-  "version": "2.0.6",
-  "buildDate": "2026-06-29T00:00:00Z",
+  "version": "2.1.0",
+  "buildDate": "2026-07-01T00:00:00Z",
   "appName": "Meseta Inclinada",
-  "description": "Refactor modelos + sync GPX script"
+  "description": "Página de Zonas de montaña con mapa de cuadrantes y gestión de zonas en admin"
 }

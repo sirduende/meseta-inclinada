@@ -522,3 +522,189 @@ body {
     border: 2px solid #bbf7d0;
     box-shadow: 0 4px 24px rgba(34,197,94,0.10);
 }
+
+/* ============================================================
+   Página Zonas — sidebar numerada + mapa con cuadrantes
+   ============================================================ */
+
+.zonas-page {
+    height: calc(100vh - 60px);
+    display: flex;
+    overflow: hidden;
+}
+
+.zonas-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* ── Sidebar izquierda ─────────────────────────────────────── */
+
+.zonas-sidebar {
+    width: 280px;
+    min-width: 220px;
+    overflow-y: auto;
+    background: var(--m-fondo);
+    border-right: 1px solid var(--m-borde);
+    display: flex;
+    flex-direction: column;
+}
+
+.zonas-sidebar-header {
+    padding: 0.65rem 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--m-muted);
+    background: #fff;
+    border-bottom: 1px solid var(--m-borde);
+    flex-shrink: 0;
+}
+
+.zona-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.55rem 0.85rem;
+    border: none;
+    border-bottom: 1px solid var(--m-borde);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.zona-list-item:hover  { background: #eff6ff; }
+.zona-list-item.active { background: #dbeafe; }
+
+.zona-list-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zona-list-item.active .zona-list-num { background: #1d4ed8; }
+
+.zona-list-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.zona-list-nombre {
+    font-size: 0.88rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.zona-list-count {
+    font-size: 0.75rem;
+    color: var(--m-muted);
+}
+
+.zona-list-arrow {
+    flex-shrink: 0;
+    color: #1d4ed8;
+    font-size: 0.75rem;
+}
+
+.zonas-year-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--m-borde);
+    flex-shrink: 0;
+}
+
+.zonas-year-legend-label {
+    font-size: 0.72rem;
+    color: var(--m-muted);
+    margin-right: 0.15rem;
+}
+
+.year-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.zona-year-counts {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.2rem;
+    flex-wrap: wrap;
+}
+
+.zona-year-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ── Mapa ──────────────────────────────────────────────────── */
+
+.zonas-map { flex: 1; min-width: 0; }
+#map-zonas  { width: 100%; height: 100%; }
+
+/* ── Etiqueta numérica de zona (azul, distinta de rutas) ───── */
+
+.zona-number-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    border: 2px solid #fff;
+}
+
+/* ── Mobile ────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .zonas-page  { height: auto; overflow: visible; flex-direction: column; }
+    .zonas-body  { flex-direction: column; overflow: visible; }
+
+    .zonas-sidebar {
+        width: 100%;
+        min-width: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--m-borde);
+        max-height: 260px;
+    }
+
+    .zonas-map   { height: 340px; flex: none; }
+    #map-zonas   { height: 340px; }
+}

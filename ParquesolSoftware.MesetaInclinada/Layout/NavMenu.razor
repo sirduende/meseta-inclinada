@@ -23,11 +23,14 @@
             <NavLink class="m-nav-link" href="/rutas" @onclick="Close">
                 <i class="bi bi-map-fill"></i> Rutas
             </NavLink>
+            <NavLink class="m-nav-link" href="/zonas" @onclick="Close">
+                <i class="bi bi-geo-alt-fill"></i> Zonas
+            </NavLink>
             <NavLink class="m-nav-link" href="/propuestas" @onclick="Close">
                 <i class="bi bi-lightbulb"></i> Propuestas
             </NavLink>
             <NavLink class="m-nav-link" href="/secundarios" @onclick="Close">
-                <i class="bi bi-binoculars"></i> Reto 2026
+                <i class="bi bi-binoculars"></i> Reto
             </NavLink>
             @* Galería oculta temporalmente — código en Album.razor *@
             <NavLink class="m-nav-link" href="/estadisticas" @onclick="Close">
@@ -36,8 +39,8 @@
 
             <div class="m-nav-sep"></div>
 
-            <NavLink class="m-nav-link" href="/acerca-de" @onclick="Close">
-                <i class="bi bi-info-circle"></i> Acerca de
+            <NavLink class="m-nav-link" href="/acerca-de" @onclick="Close" title="Acerca de">
+                <i class="bi bi-info-circle"></i><span class="d-lg-none ms-1">Acerca de</span>
             </NavLink>
             <NavLink class="m-nav-link" href="/hall-of-fame" @onclick="Close" title="Hall of Fame">
                 <i class="bi bi-trophy-fill" style="color:#ffc107"></i>

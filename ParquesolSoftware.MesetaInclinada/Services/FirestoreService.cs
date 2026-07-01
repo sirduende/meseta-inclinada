@@ -115,6 +115,14 @@ public class FirestoreService
         return result.Success;
     }
 
+    public async Task<bool> PatchRutaZonaAsync(string id, string zona)
+    {
+        await EnsureInitializedAsync();
+        var result = await _jsRuntime.InvokeAsync<FirestoreResult<object>>(
+            "firebaseInterop.patchRutaZona", id, zona);
+        return result.Success;
+    }
+
     public async Task<bool> DeleteRutaAsync(string id)
     {
         await EnsureInitializedAsync();

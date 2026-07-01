@@ -380,7 +380,7 @@
     private async Task GuardarMiembro(Miembro m)
     {
         guardando = true;
-        m.NombreMostrado = editNombre;
+        m.NombreMostrado = editNombre.Trim();
         var ok = await FirestoreService.SaveMiembroAsync(m.Uid, m);
         guardando = false;
         if (ok) { mensajeExito = "Nombre actualizado."; editandoUid = null; }
@@ -426,7 +426,7 @@
     private async Task AprobarSolicitud(Solicitud s)
     {
         mensajeError = null;
-        var nombre = nombreParaAprobar.TryGetValue(s.Uid, out var n) ? n : "";
+        var nombre = (nombreParaAprobar.TryGetValue(s.Uid, out var n) ? n : "").Trim();
         var miembro = new Miembro { Uid = s.Uid, Email = s.Email, NombreMostrado = nombre };
         var ok = await FirestoreService.SaveMiembroAsync(s.Uid, miembro);
         if (ok)

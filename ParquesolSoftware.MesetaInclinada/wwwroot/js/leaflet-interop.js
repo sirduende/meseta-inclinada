@@ -15,6 +15,8 @@ window.leafletInterop = {
     radarLayers: {},  // círculos y marcadores de cumbres FDMESCYL por mapa
     gastroLayers: {}, // marcadores 🍽️ de sitios gastronómicos por mapa
     _secGen: {},      // generación por mapa — descarta cargas GPX de filtros anteriores
+    _mapGen: {},      // generación de clearMap — descarta cargas GPX en vuelo de la zona anterior
+    _yearColors: { '2025': '#f97316', '2026': '#16a34a' }, // naranja / verde — azul reservado para zonas
 
     // Calcula el desnivel positivo con algoritmo "local-min":
     // - Rastrea el mínimo local; solo cuenta ganancia cuando la subida supera el umbral
@@ -89,6 +91,8 @@ window.leafletInterop = {
     clearMap(mapId) {
         const map = this.maps[mapId];
         if (!map) return;
+        // Incrementar generación para invalidar cargas GPX en vuelo de la zona anterior
+        this._mapGen[mapId] = (this._mapGen[mapId] || 0) + 1;
         Object.values(this.gpxLayers[mapId] || {}).forEach(({ layer }) => {
             try { map.removeLayer(layer); } catch(e) {}
         });
@@ -149,8 +153,13 @@ window.leafletInterop = {
         const map = this.maps[mapId];
         if (!map) { console.error(`Map ${mapId} not found`); return; }
 
+        // Capturar generación al inicio — si clearMap se llama antes de que cargue, descartamos
+        const gen = this._mapGen[mapId] || 0;
+
         const colorIndex = this._colorPalette[displayIndex % this._colorPalette.length];
-        const color = this._getDifficultyColor(meta?.dificultad, meta?.nombre) || colorIndex;
+        // Año desde meta.fecha (yyyy-MM-dd) tiene prioridad; si no hay año conocido, usa dificultad
+        const year = (meta?.fecha || '').substring(0, 4);
+        const color = this._yearColors[year] || this._getDifficultyColor(meta?.dificultad, meta?.nombre) || colorIndex;
 
         const gpx = new L.GPX(gpxUrl, {
             async: true,
@@ -159,6 +168,8 @@ window.leafletInterop = {
         });
 
         gpx.on('loaded', (e) => {
+            // Ignorar si la zona cambió mientras cargaba el GPX
+            if ((this._mapGen[mapId] || 0) !== gen) return;
             const layer = e.target;
             const distanceM = layer.get_distance?.() || 0;
             const totalTime = layer.get_total_time?.() || 0;
@@ -213,13 +224,15 @@ window.leafletInterop = {
                     pane: 'pane-numeros',   // z-index 630, por encima de las polilíneas (600)
                     icon: L.divIcon({
                         className: 'route-number-icon',
-                        html: `<div class="route-number-circle">${displayIndex + 1}</div>`,
+                        html: `<div class="route-number-circle" style="background:${color}">${displayIndex + 1}</div>`,
                         iconSize: [30, 30],
                         iconAnchor: [15, 15]
                     })
                 });
                 numberMarker.addTo(map);
                 numberMarker.bindPopup(popupHtml, { pane: 'pane-popups' });
+                // Registrar para que clearMap lo elimine junto con la ruta
+                this.gpxLayers[mapId][routeId + '_num'] = { layer: numberMarker };
 
                 // Al hacer clic en el marcador: zoom a los bounds de la ruta (igual que original)
                 numberMarker.on('click', () => {
@@ -248,6 +261,7 @@ window.leafletInterop = {
         });
 
         gpx.on('error', (e) => {
+            if ((this._mapGen[mapId] || 0) !== gen) return;
             console.error(`❌ GPX mal formado o no encontrado: ${gpxUrl}`, e?.error || e);
             if (dotNetHelper) {
                 dotNetHelper.invokeMethodAsync('OnGpxLoaded', {
@@ -532,6 +546,121 @@ window.leafletInterop = {
                 if (visible) m.addTo(map);
                 else         map.removeLayer(m);
             } catch(e) {}
+        });
+    },
+
+    // ── Zona bounding box ─────────────────────────────────────────────────────
+
+    drawZonaRect(mapId, bounds) {
+        const map = this.maps[mapId];
+        if (!map || !bounds) return;
+        if (!this.zonaRects) this.zonaRects = {};
+        if (this.zonaRects[mapId]) {
+            try { map.removeLayer(this.zonaRects[mapId]); } catch(e) {}
+        }
+        this.zonaRects[mapId] = L.rectangle(
+            [[bounds.latMin, bounds.lngMin], [bounds.latMax, bounds.lngMax]],
+            {
+                color: '#2d6a4f',
+                weight: 2,
+                opacity: 0.55,
+                fillColor: '#52b788',
+                fillOpacity: 0.07,
+                dashArray: '6 4',
+                interactive: false
+            }
+        ).addTo(map);
+    },
+
+    clearZonaRect(mapId) {
+        if (!this.zonaRects || !this.zonaRects[mapId] || !this.maps[mapId]) return;
+        try { this.maps[mapId].removeLayer(this.zonaRects[mapId]); } catch(e) {}
+        delete this.zonaRects[mapId];
+    },
+
+    // Dibuja todos los cuadrantes de zona con etiquetas numeradas (azul, distinto de rutas)
+    drawAllZoneRects(mapId, zones) {
+        const map = this.maps[mapId];
+        if (!map) return;
+        if (!this.zoneRectMap) this.zoneRectMap = {};
+        // Limpiar anteriores
+        const existing = this.zoneRectMap[mapId] || {};
+        Object.values(existing).forEach(({rect, label}) => {
+            try { map.removeLayer(rect); } catch(e) {}
+            try { map.removeLayer(label); } catch(e) {}
+        });
+        this.zoneRectMap[mapId] = {};
+
+        const allBounds = [];
+
+        zones.forEach(z => {
+            if (!z.bounds) return;
+            const rect = L.rectangle(
+                [[z.bounds.latMin, z.bounds.lngMin], [z.bounds.latMax, z.bounds.lngMax]],
+                {
+                    color: '#2563eb',
+                    weight: 2,
+                    opacity: 0.55,
+                    fillColor: '#93c5fd',
+                    fillOpacity: 0.12,
+                    dashArray: '5 4',
+                    interactive: false
+                }
+            ).addTo(map);
+
+            const centerLat = (z.bounds.latMin + z.bounds.latMax) / 2;
+            const centerLng = (z.bounds.lngMin + z.bounds.lngMax) / 2;
+            const label = L.marker([centerLat, centerLng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: `<div class="zona-number-circle">${z.numero}</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                }),
+                interactive: false,
+                keyboard: false
+            }).addTo(map);
+
+            this.zoneRectMap[mapId][z.id] = { rect, label };
+            allBounds.push(L.latLngBounds(
+                [z.bounds.latMin, z.bounds.lngMin],
+                [z.bounds.latMax, z.bounds.lngMax]
+            ));
+        });
+
+        if (allBounds.length > 0) {
+            const combined = allBounds.reduce((a, b) => a.extend(b));
+            map.fitBounds(combined, { padding: [30, 30] });
+        }
+    },
+
+    // Resalta el cuadrante seleccionado y hace zoom; zonaId vacío vuelve a vista general
+    highlightZoneRect(mapId, zonaId) {
+        const map = this.maps[mapId];
+        if (!map) return;
+        const rects = this.zoneRectMap[mapId] || {};
+
+        if (!zonaId) {
+            // Volver a estado neutro
+            Object.values(rects).forEach(({rect}) => {
+                rect.setStyle({ weight: 2, opacity: 0.55, fillOpacity: 0.12, color: '#2563eb' });
+            });
+            const allBounds = Object.values(rects)
+                .map(({rect}) => rect.getBounds())
+                .filter(b => b.isValid());
+            if (allBounds.length > 0)
+                map.fitBounds(allBounds.reduce((a, b) => a.extend(b)), { padding: [30, 30] });
+            return;
+        }
+
+        Object.entries(rects).forEach(([id, {rect}]) => {
+            if (id === zonaId) {
+                rect.setStyle({ weight: 3, opacity: 0.9, fillOpacity: 0.28, color: '#1d4ed8', dashArray: null });
+                if (rect.getBounds().isValid())
+                    map.fitBounds(rect.getBounds(), { padding: [50, 50], maxZoom: 9 });
+            } else {
+                rect.setStyle({ weight: 2, opacity: 0.55, fillOpacity: 0.12, color: '#2563eb', dashArray: '5 4' });
+            }
         });
     }
 };

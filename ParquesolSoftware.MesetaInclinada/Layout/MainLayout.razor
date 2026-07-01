@@ -1,6 +1,8 @@
 @inherits LayoutComponentBase
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@inject HttpClient Http
+@using System.Net.Http.Json
 @implements IDisposable
 
 <div class="m-layout">
@@ -12,13 +14,25 @@
 
     <footer class="m-footer">
         <small>⛰️ &copy; 2025–2026 Meseta Inclinada · Grupo de Montaña Valladolid</small>
+        @if (version != null)
+        {
+            <small class="ms-2 text-muted">· v@version</small>
+        }
     </footer>
 </div>
 
 @code {
-    protected override void OnInitialized()
+    private string? version;
+
+    protected override async Task OnInitializedAsync()
     {
         Nav.LocationChanged += OnLocationChanged;
+        try
+        {
+            var info = await Http.GetFromJsonAsync<VersionInfo>("/data/version.json");
+            version = info?.Version;
+        }
+        catch { }
     }
 
     private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -29,5 +43,10 @@
     public void Dispose()
     {
         Nav.LocationChanged -= OnLocationChanged;
+    }
+
+    private class VersionInfo
+    {
+        public string Version { get; set; } = string.Empty;
     }
 }

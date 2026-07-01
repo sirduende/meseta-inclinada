@@ -1,0 +1,266 @@
+@page "/zonas"
+@inject LeafletService LeafletService
+@inject FirestoreService FirestoreService
+@inject StorageService StorageService
+@inject AuthService AuthService
+@inject HttpClient Http
+@using System.Net.Http.Json
+@implements IAsyncDisposable
+
+<PageTitle>Zonas de montaña – Meseta Inclinada</PageTitle>
+<HeadContent>
+    <meta name="description" content="Rutas del grupo agrupadas por zona geográfica: Montaña Palentina, Picos de Europa, Gredos y más." />
+    <link rel="canonical" href="https://mesetainclinada.web.app/zonas" />
+</HeadContent>
+
+<div class="zonas-page">
+    <div class="zonas-body">
+
+        @* ── Sidebar: leyenda + lista numerada de zonas ────────── *@
+        <div class="zonas-sidebar">
+            @if (isLoadingGlobal)
+            {
+                <div class="p-3 text-muted small">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Cargando zonas…
+                </div>
+            }
+            else if (zonasConRutas.Count == 0)
+            {
+                <div class="p-3 text-muted small">
+                    <i class="bi bi-info-circle me-1"></i>Sin zonas asignadas aún.
+                </div>
+            }
+            else
+            {
+                @* Leyenda de colores por año *@
+                <div class="zonas-year-legend">
+                    <span class="zonas-year-legend-label">Años:</span>
+                    @foreach (var anio in AniosPresentes)
+                    {
+                        <span class="year-pill" style="background:@ColorDeAnio(anio)">@anio</span>
+                    }
+                </div>
+
+                <div class="zonas-sidebar-header">
+                    <i class="bi bi-geo-alt-fill me-1"></i> Zonas de montaña
+                </div>
+
+                @foreach (var (z, idx) in zonasConRutas.Select((z, i) => (z, i)))
+                {
+                    <button class="zona-list-item @(zonaActiva == z.ZonaId ? "active" : "")"
+                            @onclick="() => SeleccionarZona(z, idx + 1)">
+                        <span class="zona-list-num">@(idx + 1)</span>
+                        <div class="zona-list-info">
+                            <span class="zona-list-nombre">@z.Nombre</span>
+                            <div class="zona-year-counts">
+                                @foreach (var g in z.Rutas
+                                    .GroupBy(r => r.Fecha?.Length >= 4 ? r.Fecha[..4] : "?")
+                                    .OrderBy(g => g.Key))
+                                {
+                                    <span class="zona-year-badge"
+                                          style="background:@ColorDeAnio(g.Key)"
+                                          title="@g.Key">
+                                        @g.Count()
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        @if (zonaActiva == z.ZonaId)
+                        {
+                            <i class="bi bi-chevron-right zona-list-arrow"></i>
+                        }
+                    </button>
+                }
+            }
+        </div>
+
+        @* ── Mapa con cuadrantes y rutas ────────────────────────── *@
+        <div class="zonas-map">
+            <div id="map-zonas"></div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private record ZonaAgrupada(string ZonaId, string Nombre, List<Ruta> Rutas);
+
+    private static readonly Dictionary<string, string> NombresZona = new()
+    {
+        ["montana-palentina"]     = "Montaña Palentina",
+        ["las-loras"]             = "Las Loras",
+        ["picos-de-europa"]       = "Picos de Europa",
+        ["cantabrica-occidental"] = "Cordillera Cantábrica (W)",
+        ["riano-mampodre"]        = "Riaño y Mampodre",
+        ["alto-bernesga"]         = "Alto Bernesga",
+        ["saja-besaya"]           = "Saja-Besaya",
+        ["colados-ason"]          = "Collados del Asón",
+        ["sanabria-segundera"]    = "Sanabria / Segundera",
+        ["bierzo-ancares"]        = "El Bierzo / Ancares",
+        ["arribes-duero"]         = "Arribes del Duero",
+        ["gredos"]                = "Sierra de Gredos",
+        ["paramera-serrota"]      = "Paramera y Serrota",
+        ["guadarrama"]            = "Sierra de Guadarrama",
+        ["sierra-ayllon"]         = "Sierra de Ayllón / Somosierra",
+        ["sistema-iberico-norte"] = "Sistema Ibérico Norte",
+        ["bejar-pena-francia"]    = "Béjar / Peña de Francia",
+        ["hoces-ebro-rudron"]     = "Hoces del Ebro y Rudrón",
+        ["montes-obarenes"]       = "Montes Obarenes",
+        ["sierra-nevada"]         = "Sierra Nevada",
+        ["otras-zonas"]           = "Otras zonas",
+    };
+
+    // Color por año — azul reservado para zonas; rutas usan naranja/verde
+    private static readonly Dictionary<string, string> ColoresAnio = new()
+    {
+        ["2025"] = "#f97316",
+        ["2026"] = "#16a34a",
+    };
+    private static string ColorDeAnio(string? anioOFecha)
+    {
+        var a = anioOFecha?.Length >= 4 ? anioOFecha[..4] : anioOFecha ?? "";
+        return ColoresAnio.GetValueOrDefault(a, "#6b7280");
+    }
+
+    private IEnumerable<string> AniosPresentes => zonasConRutas
+        .SelectMany(z => z.Rutas)
+        .Select(r => r.Fecha?.Length >= 4 ? r.Fecha[..4] : "")
+        .Where(a => !string.IsNullOrEmpty(a))
+        .Distinct().OrderBy(a => a);
+
+    private List<ZonaAgrupada> zonasConRutas = new();
+    private List<Ruta> todasLasRutas = new();
+    private List<ZonaMontana>? _zonasData;
+    private string zonaActiva = "";
+    private bool isLoadingGlobal = true;
+    private bool _disposed;
+    private DotNetObjectReference<Zonas>? dotNetRef;
+    private int gpxPendientes = 0;
+
+    private async Task<List<ZonaMontana>> CargarZonasDataAsync()
+    {
+        _zonasData ??= await Http.GetFromJsonAsync<List<ZonaMontana>>("data/zonas-montana.json") ?? new();
+        return _zonasData;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await LeafletService.InitializeMapAsync("map-zonas", 41.5, -4.5, 7);
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        isLoadingGlobal = true;
+        StateHasChanged();
+
+        todasLasRutas = await FirestoreService.GetRutasAsync();
+
+        var rutasPorZona = todasLasRutas
+            .Where(r => !string.IsNullOrEmpty(r.Zona))
+            .GroupBy(r => r.Zona!)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.Fecha).ToList());
+
+        // Incluir todas las zonas del JSON, incluso las que aún no tienen rutas
+        var zonasData = await CargarZonasDataAsync();
+        zonasConRutas = zonasData
+            .Where(z => z.Id != "otras-zonas" || rutasPorZona.ContainsKey(z.Id))
+            .Select(z => new ZonaAgrupada(
+                z.Id,
+                NombresZona.GetValueOrDefault(z.Id, z.Nombre),
+                rutasPorZona.GetValueOrDefault(z.Id, new List<Ruta>())))
+            .OrderByDescending(z => z.Rutas.Count)
+            .ThenBy(z => z.Nombre)
+            .ToList();
+
+        isLoadingGlobal = false;
+        StateHasChanged();
+
+        // Dibujar todos los cuadrantes en el mapa con sus números (zonasData ya cargado arriba)
+        var items = zonasConRutas
+            .Select((z, i) => (object)new
+            {
+                id     = z.ZonaId,
+                numero = i + 1,
+                bounds = zonasData.FirstOrDefault(zd => zd.Id == z.ZonaId)?.Bounds
+            })
+            .Where(z => ((dynamic)z).bounds != null)
+            .ToList();
+
+        await LeafletService.DrawAllZoneRectsAsync("map-zonas", items);
+    }
+
+    private async Task SeleccionarZona(ZonaAgrupada zona, int numero)
+    {
+        if (zonaActiva == zona.ZonaId)
+        {
+            // Deseleccionar — limpiar rutas, volver a vista general
+            zonaActiva = "";
+            StateHasChanged();
+            await LeafletService.ClearMapAsync("map-zonas");
+            await LeafletService.HighlightZoneRectAsync("map-zonas", "");
+            return;
+        }
+
+        zonaActiva = zona.ZonaId;
+        StateHasChanged();
+
+        // Limpiar rutas anteriores y resaltar zona seleccionada
+        await LeafletService.ClearMapAsync("map-zonas");
+        await LeafletService.HighlightZoneRectAsync("map-zonas", zona.ZonaId);
+
+        // Cargar GPX coloreados por año
+        var rutas = zona.Rutas;
+        gpxPendientes = rutas.Count;
+        dotNetRef ??= DotNetObjectReference.Create(this);
+
+        var gpxUrls = await Task.WhenAll(rutas.Select(r => StorageService.GetGpxUrlAsync(r.Archivo)));
+
+        for (int i = 0; i < rutas.Count; i++)
+        {
+            var ruta   = rutas[i];
+            var gpxUrl = gpxUrls[i];
+
+            if (gpxUrl == null) { gpxPendientes--; continue; }
+
+            await LeafletService.LoadGpxAsync("map-zonas", ruta.Id, gpxUrl, i,
+                new
+                {
+                    nombre        = ruta.Nombre,
+                    dificultad    = ruta.Dificultad,
+                    fecha         = ruta.Fecha,
+                    descripcion   = ruta.Descripcion,
+                    relive        = ruta.Relive,
+                    participantes = ruta.Participantes,
+                    colorOverride = ColorDeAnio(ruta.Fecha)
+                },
+                dotNetRef);
+        }
+    }
+
+    [JSInvokable("OnGpxLoaded")]
+    public void OnGpxLoaded(RutaEnriquecida enriched)
+    {
+        if (_disposed) return;
+        gpxPendientes--;
+
+        // Persistir métricas si admin y la ruta aún no las tiene
+        var original = todasLasRutas.FirstOrDefault(r => r.Id == enriched.Id);
+        if (AuthService.IsAdmin && original is not null && enriched.DistanciaKm > 0
+            && (original.DistanciaKm == 0 || original.DuracionS == 0))
+        {
+            _ = FirestoreService.PatchRutaMetricasAsync(enriched.Id, enriched);
+        }
+
+        if (gpxPendientes <= 0)
+            _ = LeafletService.FitAllBoundsAsync("map-zonas");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        dotNetRef?.Dispose();
+        try { await LeafletService.DestroyMapAsync("map-zonas"); } catch { }
+    }
+}

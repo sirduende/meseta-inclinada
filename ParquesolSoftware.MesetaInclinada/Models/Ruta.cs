@@ -45,4 +45,7 @@ public class Ruta
 
     [JsonPropertyName("nivel")]
     public string Nivel { get; set; } = string.Empty;
+
+    [JsonPropertyName("zona")]
+    public string? Zona { get; set; }
 }
